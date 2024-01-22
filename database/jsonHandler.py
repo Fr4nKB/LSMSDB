@@ -30,8 +30,6 @@ def saveJSON(dir, name, contents):
         file.close()
         return {}, True
     except:
-        print("Some error occured while saving "+name+".json")
+        print("Some error occurred while saving "+name+".json")
         return {}, False
     
-
-saveJSON("./chiappe", "prova", [])
