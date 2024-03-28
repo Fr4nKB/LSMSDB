@@ -33,7 +33,6 @@ public class Authentication {
             salt = generateSalt();
         }
 
-        System.out.println(salt);
         String hash = hash(password + salt);
         return STR."\{hash}|\{salt}";
     }
@@ -56,10 +55,11 @@ public class Authentication {
     }
 
     public static boolean isPassword(String str) {
-        if (str.length() >= MAX_SANITIZATION_LEN || str.length() < 8) {
+        if (str.length() >= MAX_SANITIZATION_LEN || str.length() < 6) {
             return false;
         }
+
         // Allow alphanumeric characters and some special ones
-        return str.matches("^.*(?=.{8,})(?=..*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$");
+        return str.matches("^[a-zA-Z][a-zA-Z0-9_]*$");
     }
 }

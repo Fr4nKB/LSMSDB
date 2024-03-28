@@ -1,0 +1,47 @@
+[
+  {
+    "game_name": "AC2",
+    "uname": "JohnnyTheDark",
+    "rating": true,
+    "creation_date": 2131271362,
+    "content": "nice",
+    "published": false,
+    "votes": "2"
+  },
+  {
+    "game_name": "CS2",
+    "uname": "JohnnyTheDark",
+    "rating": false,
+    "creation_date": 2131271362,
+    "content": "full of cheaters",
+    "published": true,
+    "votes": "2"
+  },
+  {
+    "game_name": "CS2",
+    "uname": "Mary420",
+    "rating": false,
+    "creation_date": 2131271362,
+    "content": "full of cheaters",
+    "published": true,
+    "votes": "2"
+  },
+  {
+    "game_name": "Cyberpunk 2077",
+    "uname": "Mary420",
+    "rating": true,
+    "creation_date": 2031271362,
+    "content": "full of bugs",
+    "published": true,
+    "votes": "1"
+  },
+  {
+    "game_name": "Cyberpunk 2077",
+    "uname": "XX_ivan_XX",
+    "rating": "true",
+    "creation_date": 2031271362,
+    "content": "0 bugs omg",
+    "published": true,
+    "votes": "0"
+  }
+]
