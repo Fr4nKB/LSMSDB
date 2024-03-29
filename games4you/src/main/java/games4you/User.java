@@ -2,8 +2,8 @@ package games4you;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import games4you.manager.MongoManager;
-import games4you.manager.Neo4jManager;
+import games4you.dbmanager.MongoManager;
+import games4you.dbmanager.Neo4jManager;
 import games4you.util.Authentication;
 import org.bson.Document;
 
@@ -154,19 +154,19 @@ public class User {
         return 1;
     }
 
-    public ArrayList<String> getFriendList(String user, int offset) {
+    public ArrayList<ArrayList<Object>> getFriendList(String user, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "User"};
         return neo4j.getGenericList(node_types, "IS_FRIEND_WITH", user, offset);
     }
 
-    public ArrayList<String> getGameList(String user, int offset) {
+    public ArrayList<ArrayList<Object>> getGameList(String user, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "Game"};
         return neo4j.getGenericList(node_types, "OWNS", user, offset);
     }
 
-    public ArrayList<String> getReviewList(String game, int offset) {
+    public ArrayList<ArrayList<Object>> getReviewList(String game, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"Game", "Review"};
         return neo4j.getGenericList(node_types, "HAS_REVIEW", game, offset);

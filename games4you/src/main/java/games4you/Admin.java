@@ -1,12 +1,9 @@
 package games4you;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import games4you.manager.MongoManager;
-import games4you.manager.Neo4jManager;
+import games4you.dbmanager.MongoManager;
+import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
-import javax.print.Doc;
 import java.util.List;
 
 public class Admin {

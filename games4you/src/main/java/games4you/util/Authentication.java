@@ -50,16 +50,16 @@ public class Authentication {
             return false;
         }
         // Alphanumeric characters and underscores, starting with a letter
-        String pattern = "^[a-zA-Z][a-zA-Z0-9_]*$";
+        String pattern = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]*$";
         return str.matches(pattern);
     }
 
     public static boolean isPassword(String str) {
-        if (str.length() >= MAX_SANITIZATION_LEN || str.length() < 6) {
+        if (str.length() >= MAX_SANITIZATION_LEN || str.length() < 4) {
             return false;
         }
 
         // Allow alphanumeric characters and some special ones
-        return str.matches("^[a-zA-Z][a-zA-Z0-9_]*$");
+        return str.matches("^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@\\\\[\\\\]^_{}|~]+$");
     }
 }

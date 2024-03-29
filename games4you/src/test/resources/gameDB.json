@@ -1,0 +1,26 @@
+[
+  {
+    "name": "AC2",
+    "tags": [
+      "this",
+      "that"
+    ],
+    "release_date": 20179372916
+  },
+  {
+    "name": "CS2",
+    "tags": [
+      "here",
+      "there"
+    ],
+    "release_date": 2327937291
+  },
+  {
+    "name": "Cyberpunk 2077",
+    "tags": [
+      "here",
+      "that"
+    ],
+    "release_date": 2307937291
+  }
+]

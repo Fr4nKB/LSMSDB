@@ -27,13 +27,15 @@ public class Test {
         pop.populateGames();
         pop.populateReviews();
 
-        assert user.login("JohnnyTheDark", "trustNo1") == 0;
+        assert user.login("JohnnyTheDark", "trustNo1") == 0: "Login failed";
 
-        assert user.addFriend("JohnnyTheDark", "Mary420");
-        assert user.addFriend("JohnnyTheDark", "XX_ivan_XX");
+        assert user.addFriend("JohnnyTheDark", "Mary420"): "Friend 1 not added";
+        assert user.addFriend("JohnnyTheDark", "XX_ivan_XX"): "Friend 2 not added";
 
-        assert user.getFriendList("JohnnyTheDark", 0).size() == 2;
-        assert user.getGameList("JohnnyTheDark", 0).size() == 2;
+        System.out.println(user.getFriendList("JohnnyTheDark", 0));
+
+        assert user.getFriendList("JohnnyTheDark", 0).size() == 2: "Incorrect friend list size";
+        assert user.getGameList("JohnnyTheDark", 0).size() == 2: "Incorrect game list size";
 
     }
 
