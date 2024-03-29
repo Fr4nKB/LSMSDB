@@ -77,7 +77,7 @@ public class MongoManager implements AutoCloseable {
         return currentCollection.find(eq(key, value)).iterator();
     }
 
-    public boolean addElem(String coll, Document doc) {
+    public boolean addDoc(String coll, Document doc) {
         currentCollection = getCollection(coll);
         if(currentCollection == null) return false;
 
@@ -85,7 +85,7 @@ public class MongoManager implements AutoCloseable {
         return true;
     }
 
-    public boolean removeElem(String coll, String key, String value) {
+    public boolean removeDoc(String coll, String key, String value) {
         currentCollection = getCollection(coll);
         if(currentCollection == null) return false;
 

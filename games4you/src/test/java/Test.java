@@ -2,7 +2,6 @@ import games4you.User;
 import games4you.util.Populator;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Test {
     public void main() {
@@ -32,10 +31,15 @@ public class Test {
         assert user.addFriend("JohnnyTheDark", "Mary420"): "Friend 1 not added";
         assert user.addFriend("JohnnyTheDark", "XX_ivan_XX"): "Friend 2 not added";
 
-        System.out.println(user.getFriendList("JohnnyTheDark", 0));
-
         assert user.getFriendList("JohnnyTheDark", 0).size() == 2: "Incorrect friend list size";
+        assert user.removeFriend("JohnnyTheDark", "Mary420");
+        assert user.getFriendList("JohnnyTheDark", 0).size() == 1: "Incorrect friend list size after removing one";
+
         assert user.getGameList("JohnnyTheDark", 0).size() == 2: "Incorrect game list size";
+
+        assert user.getReviewList("AC2", 0).size() == 1: "Incorrect review list size";
+        assert user.removeReview("AC2|||JohnnyTheDark");
+        assert user.getReviewList("AC2", 0).isEmpty(): "Incorrect review list size after removing one";
 
     }
 

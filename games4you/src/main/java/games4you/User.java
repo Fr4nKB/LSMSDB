@@ -29,7 +29,7 @@ public class User {
         MongoManager mongo = MongoManager.getInstance();
 
         //check if username already present
-        if (mongo.findDocumentByKeyValue("users", "uname", args.get(3)).hasNext()) return false;
+        if(mongo.findDocumentByKeyValue("users", "uname", args.get(3)).hasNext()) return false;
 
         //check if username and password contain allowed characters
         if(!(Authentication.isUsername(args.get(3)) && Authentication.isPassword(args.get(4)))) return false;
@@ -45,10 +45,10 @@ public class User {
         user.append("pwd", Authentication.hashAndSalt(args.get(4), ""));
         user.append("isAdmin", args.get(5));
 
-        mongo.addElem("users", user);
-        boolean ret = neo4j.addUser(args.get(3));
+        mongo.addDoc("users", user);
+        boolean ret = neo4j.addNode("User", args.get(3));
         if(!ret) {
-            mongo.removeElem("users", "uname", args.get(3));
+            mongo.removeDoc("users", "uname", args.get(3));
             return false;
         }
         return true;
@@ -80,6 +80,12 @@ public class User {
         String[] node_types = new String[]{"User", "User"};
         String timestamp = Long.toString(Instant.now().getEpochSecond());
         return neo4j.addRelationship(node_types, STR."IS_FRIEND_WITH {since:\{timestamp}}", user1, user2);
+    }
+
+    public boolean removeFriend(String user1, String user2) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        String[] node_types = new String[]{"User", "User"};
+        return neo4j.removeRelationship(node_types, "IS_FRIEND_WITH", user1, user2);
     }
 
     public boolean addGameToOwned(String user, String game) {
@@ -139,10 +145,10 @@ public class User {
         review.append("published", args.get(5));
         review.append("votes", args.get(6));
 
-        mongo.addElem("reviews", review);
-        boolean ret = neo4j.addReview(review_id);
+        mongo.addDoc("reviews", review);
+        boolean ret = neo4j.addNode("Review", review_id);
         if(!ret) {
-            mongo.removeElem("reviews", "review", review_id);
+            mongo.removeDoc("reviews", "review", review_id);
             return -1;
         }
 
@@ -152,6 +158,16 @@ public class User {
         if(!ret) return -1;
 
         return 1;
+    }
+
+    public boolean removeReview(String review) {
+        MongoManager mongo = MongoManager.getInstance();
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        mongo.removeDoc("reviews", "review", review);
+        neo4j.removeNode("Review", review);
+
+        return true;
     }
 
     public ArrayList<ArrayList<Object>> getFriendList(String user, int offset) {

@@ -25,10 +25,10 @@ public class Admin {
             game.append("header_image", (String) args.get(4));
         }
 
-        mongo.addElem("games", game);
-        boolean ret = neo4j.addGame(game_name);
+        mongo.addDoc("games", game);
+        boolean ret = neo4j.addNode("Game", game_name);
         if(!ret) {
-            mongo.removeElem("games", "name", game_name);
+            mongo.removeDoc("games", "name", game_name);
             return false;
         }
         return true;

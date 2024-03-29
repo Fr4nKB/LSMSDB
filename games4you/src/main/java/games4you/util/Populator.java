@@ -48,7 +48,9 @@ public class Populator {
             List<String> strings = sublist.stream()
                     .map(object -> Objects.toString(object, null))
                     .toList();
-            u.signup(strings);
+            if(!u.signup(strings)) {
+                System.out.println("User was not added");
+            }
         }
     }
 
@@ -57,8 +59,7 @@ public class Populator {
         boolean ret;
         List<ArrayList<Object>> json = readJson("gameDB.json");
         for (ArrayList<Object> sublist : json) {
-            ret = a.addGame(sublist);
-            if(!ret) System.out.println("Game not added");
+            if(!a.addGame(sublist)) System.out.println("Game not added");
         }
     }
 
@@ -66,8 +67,7 @@ public class Populator {
         int ret;
         List<ArrayList<Object>> json = readJson("reviewDB.json");
         for (ArrayList<Object> sublist : json) {
-            ret = u.addReview(sublist);
-            if(ret <= 0) System.out.println(STR."Review not added: \{ret}");
+            if(u.addReview(sublist) <= 0) System.out.println("Review not added");
         }
     }
 }

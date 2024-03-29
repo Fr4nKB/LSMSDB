@@ -13,7 +13,7 @@ public class Neo4jManager implements AutoCloseable{
     private final Driver driver;
     private static Neo4jManager instance = null;
 
-    public Neo4jManager(){
+    private Neo4jManager(){
         Properties prop = new Properties();
         try {
             InputStream stream = Neo4jManager.class.getClassLoader().getResourceAsStream("dbconfig.properties");
@@ -38,15 +38,9 @@ public class Neo4jManager implements AutoCloseable{
         driver.close();
     }
 
-    /**
-     * Adds a generic element to the graph db
-     * @param node_type the class of the node
-     * @param value the value to assign to the 'name' property
-     * @return false if node is not added, true otherwise
-     */
-    private boolean addElem(String node_type, String value) {
+    private boolean executeSimpleQuery(String query) {
         try (Session session = driver.session()) {
-            session.run(STR."MERGE (u:\{node_type} {name: '\{value}'})");
+            session.run(query);
             return true;
         } catch (Exception e){
             System.out.println(e.toString());
@@ -54,16 +48,20 @@ public class Neo4jManager implements AutoCloseable{
         }
     }
 
-    public boolean addUser(String username) {
-        return addElem("User", username);
+    /**
+     * Adds a generic element to the graph db
+     * @param node_type the class of the node
+     * @param value the value to assign to the 'name' property
+     * @return false if node is not added, true otherwise
+     */
+    public boolean addNode(String node_type, String value) {
+        String query = String.format("MERGE (n1:%s {name: '%s'})", node_type, value);
+        return executeSimpleQuery(query);
     }
 
-    public boolean addGame(String game) {
-        return addElem("Game", game);
-    }
-
-    public boolean addReview(String review) {
-        return addElem("Review", review);
+    public boolean removeNode(String node_type, String value) {
+        String query = String.format("MATCH (n1:%s {name: '%s'}) DETACH DELETE n1", node_type, value);
+        return executeSimpleQuery(query);
     }
 
     /**
