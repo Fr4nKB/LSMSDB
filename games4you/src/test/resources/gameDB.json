@@ -2,25 +2,32 @@
   {
     "name": "AC2",
     "tags": [
-      "this",
-      "that"
+      "Action",
+      "Adventure"
     ],
     "release_date": 20179372916
   },
   {
     "name": "CS2",
     "tags": [
-      "here",
-      "there"
+      "FPS",
+      "Online"
     ],
     "release_date": 2327937291
   },
   {
     "name": "Cyberpunk 2077",
     "tags": [
-      "here",
-      "that"
+      "RPG",
+      "Action"
     ],
     "release_date": 2307937291
+  },
+  {
+    "name": "RetroArch",
+    "tags": [
+      "Emulation"
+    ],
+    "release_date": 2117937291
   }
 ]

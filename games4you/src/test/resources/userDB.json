@@ -5,7 +5,8 @@
     "datebirth": "20/01/1960",
     "uname": "JohnnyTheDark",
     "pwd": "trustNo1",
-    "isAdmin": 0
+    "isAdmin": 0,
+    "tags": ["Action", "Adventure", "FPS", "Co-Op", "Open world"]
   },
   {
     "firstname": "Maria",
@@ -13,7 +14,8 @@
     "datebirth": "20/01/1990",
     "uname": "Mary420",
     "pwd": "12345678",
-    "isAdmin": 0
+    "isAdmin": 0,
+    "tags": ["FPS", "JRPG", "Action", "RPG", "Metroidvania"]
   },
   {
     "firstname": "Ivan",
@@ -21,6 +23,16 @@
     "datebirth": "20/01/2000",
     "uname": "XX_ivan_XX",
     "pwd": "gaaaaming",
-    "isAdmin": 0
-  }
+    "isAdmin": 0,
+    "tags": ["Action", "RPG", "Metroidvania", "Sim", "Co-Op"]
+  },
+  {
+  "firstname": "Jack",
+  "lastname": "Gobor",
+  "datebirth": "20/03/2010",
+  "uname": "Parmalat",
+  "pwd": "dadsdadw",
+  "isAdmin": 0,
+    "tags": ["FPS", "JRPG", "Online", "RPG", "Open world"]
+}
 ]

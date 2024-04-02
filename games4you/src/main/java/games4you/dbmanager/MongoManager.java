@@ -68,13 +68,22 @@ public class MongoManager implements AutoCloseable {
         return mongoCollection;
     }
 
-    public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, String value) throws MongoException {
+    public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, String value) {
 
         //Preliminary collection set
         currentCollection = getCollection(collection);
 
         //Returns the cursor with all the documents found
         return currentCollection.find(eq(key, value)).iterator();
+    }
+
+    public MongoCursor<Document> findDocument(String collection, Document doc) {
+
+        //Preliminary collection set
+        currentCollection = getCollection(collection);
+
+        //Returns the cursor with all the documents found
+        return currentCollection.find(doc).iterator();
     }
 
     public boolean addDoc(String coll, Document doc) {
@@ -85,12 +94,21 @@ public class MongoManager implements AutoCloseable {
         return true;
     }
 
-    public boolean removeDoc(String coll, String key, String value) {
+    /**
+     * Removes one or all the documents that can be found in the specified collection
+     * with the specified value of a key
+     * @param choice false to remove the first element, true to remove all
+     * @param coll the collision to search the document in
+     * @param key the key which should be checked for
+     * @param value the value that the key should have for the document to be eliminated
+     */
+    public void removeDoc(boolean choice, String coll, String key, String value) {
         currentCollection = getCollection(coll);
-        if(currentCollection == null) return false;
+        if(currentCollection == null) return;
 
         Bson filter = Filters.eq(key, value);
-        currentCollection.deleteOne(filter);
-        return true;
+        if(!choice) currentCollection.deleteOne(filter);
+        else currentCollection.deleteMany(filter);
     }
+
 }

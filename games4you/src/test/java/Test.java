@@ -1,3 +1,4 @@
+import games4you.Admin;
 import games4you.User;
 import games4you.util.Populator;
 
@@ -21,26 +22,46 @@ public class Test {
 
         Populator pop = new Populator();
         User user = new User();
+        Admin admin = new Admin();
 
-        pop.populateUsers();
+        assert pop.populateUsers() == 4;
         pop.populateGames();
         pop.populateReviews();
 
+        //LOGIN
         assert user.login("JohnnyTheDark", "trustNo1") == 0: "Login failed";
 
+        //FRIENDS
         assert user.addFriend("JohnnyTheDark", "Mary420"): "Friend 1 not added";
         assert user.addFriend("JohnnyTheDark", "XX_ivan_XX"): "Friend 2 not added";
+        assert user.addFriend("XX_ivan_XX", "Parmalat"): "Friend 3 not added";
 
         assert user.getFriendList("JohnnyTheDark", 0).size() == 2: "Incorrect friend list size";
-        assert user.removeFriend("JohnnyTheDark", "Mary420");
+        assert user.removeFriend("JohnnyTheDark", "Mary420"): "Friend 1 not removed";
         assert user.getFriendList("JohnnyTheDark", 0).size() == 1: "Incorrect friend list size after removing one";
 
+        assert user.addFriend("JohnnyTheDark", "Mary420"): "Friend 1 couldn't be added again";
+
+        //GAMES
         assert user.getGameList("JohnnyTheDark", 0).size() == 2: "Incorrect game list size";
 
+        //REVIEWS
         assert user.getReviewList("AC2", 0).size() == 1: "Incorrect review list size";
-        assert user.removeReview("AC2|||JohnnyTheDark");
+        assert user.removeReview("AC2|JohnnyTheDark");
         assert user.getReviewList("AC2", 0).isEmpty(): "Incorrect review list size after removing one";
 
+        //COMPLEX QUERIES
+        assert user.tagsRecommendationNORED("JohnnyTheDark").size() == user.tagsRecommendationRED("JohnnyTheDark").size(): "Incorrect recommendation list size";
+
+        //ADMIN
+        admin.banUser("JohnnyTheDark");
+        assert user.getFriendList("Mary420", 0).isEmpty();
+        assert pop.populateUsers() == 0;
+
+        admin.removeGame("CS2");
+        admin.removeGame("CS2");
+        assert user.getReviewList("CS2", 0).isEmpty();
+        assert user.getGameList("Mary420", 0).size() == 1;
     }
 
 }

@@ -5,7 +5,10 @@ import org.neo4j.driver.Record;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+
+import static org.neo4j.driver.Values.parameters;
 
 
 public class Neo4jManager implements AutoCloseable{
@@ -59,8 +62,19 @@ public class Neo4jManager implements AutoCloseable{
         return executeSimpleQuery(query);
     }
 
+    /**
+     * Removes a node from the graph db and all the connected relationships
+     * @param node_type the class of the node
+     * @param value the value to assign to the 'name' property
+     * @return false if node is not removed, true otherwise
+     */
     public boolean removeNode(String node_type, String value) {
         String query = String.format("MATCH (n1:%s {name: '%s'}) DETACH DELETE n1", node_type, value);
+        return executeSimpleQuery(query);
+    }
+
+    public boolean removeSubNodes(String parent, String relation, String child, String value) {
+        String query = String.format("MATCH (:%s {name: '%s'})-[%s]-(n:%s) DELETE n", parent, relation, value, child);
         return executeSimpleQuery(query);
     }
 
@@ -125,6 +139,50 @@ public class Neo4jManager implements AutoCloseable{
 
             return list;
         } catch (Exception e){
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+    public boolean addAttribute(String node_type, String node_name, String attribute_name, Object attribute) {
+        try (Session session = driver.session()) {
+            session.run(STR."MATCH (u:\{node_type} {name: '\{node_name}')" +
+                            STR."SET u.\{attribute_name}=" + "$attribute",
+                    parameters("attribute", attribute));
+        } catch (Exception e){
+            System.out.println(e.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean incAttribute(String node_type, String node_name, String attribute_name) {
+        try (Session session = driver.session()) {
+            session.run(STR."""
+                MATCH (u:\{node_type} {name: '\{node_name}')
+                SET u.\{attribute_name}= u.\{attribute_name}" + "+ 1
+                """);
+        } catch (Exception e){
+            System.out.println(e.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    public ArrayList<String> getQueryResultAsList(String query) {
+        try (Session session = driver.session()) {
+            Result res = session.run(query);
+            ArrayList<String> list = new ArrayList<>();
+
+            while(res.hasNext()) {
+                Record n = res.next();
+                list.add(n.values().getFirst().toString());
+            }
+            return list;
+        }
+        catch (Exception e){
             System.out.println(e.toString());
             return null;
         }

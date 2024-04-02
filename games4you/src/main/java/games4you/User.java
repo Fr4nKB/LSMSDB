@@ -21,35 +21,47 @@ public class User {
      * @param args firstname, lastname, datebirth, username, password, admin(0 or 1)
      * @return false if user wasn't created, true otherwise
      */
-    public boolean signup(List<String> args) {
-        if (args.size() != 6) {
+    public boolean signup(List<Object> args) {
+        if (args.size() != 7) {
             return false;
         }
 
         MongoManager mongo = MongoManager.getInstance();
 
+        String uname = (String) args.get(3);
+        String pwd = (String) args.get(4);
+
         //check if username already present
-        if(mongo.findDocumentByKeyValue("users", "uname", args.get(3)).hasNext()) return false;
+        if(mongo.findDocumentByKeyValue("users", "uname", uname).hasNext()) return false;
 
         //check if username and password contain allowed characters
-        if(!(Authentication.isUsername(args.get(3)) && Authentication.isPassword(args.get(4)))) return false;
-
-        Neo4jManager neo4j = Neo4jManager.getInstance();
+        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return false;
 
         //Creates document with all the data of the user
         Document user = new Document();
         user.append("firstname", args.getFirst());
         user.append("lastname", args.get(1));
         user.append("datebirth", args.get(2));
-        user.append("uname", args.get(3));
-        user.append("pwd", Authentication.hashAndSalt(args.get(4), ""));
+        user.append("uname", uname);
+
+        //check if user isn't banned
+        MongoCursor<Document> cur = mongo.findDocument("blacklist", user);
+        if(cur.hasNext()) return false;
+
+        //add remaining data
+        user.append("pwd", Authentication.hashAndSalt(pwd, ""));
         user.append("isAdmin", args.get(5));
 
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
         mongo.addDoc("users", user);
-        boolean ret = neo4j.addNode("User", args.get(3));
+        boolean ret = neo4j.addNode("User", uname);
         if(!ret) {
-            mongo.removeDoc("users", "uname", args.get(3));
+            mongo.removeDoc(false, "users", "uname", uname);
             return false;
+        }
+        else {
+            neo4j.addAttribute("User", uname, "tags", args.get(6));
         }
         return true;
     }
@@ -70,7 +82,7 @@ public class User {
         if(cur.hasNext()) {
             Document user = cur.next();
             if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return -1;
-            return Integer.parseInt(user.getString("isAdmin"));
+            return user.getInteger("isAdmin");
         }
         else return -1;
     }
@@ -94,6 +106,7 @@ public class User {
         return neo4j.addRelationship(node_types, "OWNS  {hours: 0}", user, game);
     }
 
+    //TODO: maybe use transaction to add all this relationships, including 'OWNS'
     public boolean addReviewToPublished(String user, String game, String review) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "Review"};
@@ -127,7 +140,7 @@ public class User {
 
         String game = (String) args.getFirst();
         String uname = (String) args.get(1);
-        String review_id = STR."\{game}|||\{uname}";
+        String review_id = STR."\{game}|\{uname}";
 
         //check if review is already present
         Document existingReview = reviews.find(eq("review", review_id))
@@ -139,6 +152,8 @@ public class User {
 
         Document review = new Document();
         review.append("review", review_id);
+        review.append("game", game);
+        review.append("uname", uname);
         review.append("rating", args.get(2));
         review.append("creation_date", args.get(3));
         review.append("content", args.get(4));
@@ -148,8 +163,12 @@ public class User {
         mongo.addDoc("reviews", review);
         boolean ret = neo4j.addNode("Review", review_id);
         if(!ret) {
-            mongo.removeDoc("reviews", "review", review_id);
+            mongo.removeDoc(false, "reviews", "review", review_id);
             return -1;
+        }
+        else {
+            neo4j.addAttribute("Review", review_id, "game", game);
+            neo4j.addAttribute("Review", review_id, "uname", uname);
         }
 
         ret = addGameToOwned(uname, game);
@@ -164,10 +183,15 @@ public class User {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
-        mongo.removeDoc("reviews", "review", review);
+        mongo.removeDoc(false, "reviews", "review", review);
         neo4j.removeNode("Review", review);
 
         return true;
+    }
+
+    public boolean reportReview(String review) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        return neo4j.incAttribute("Review", review, "numReports");
     }
 
     public ArrayList<ArrayList<Object>> getFriendList(String user, int offset) {
@@ -186,6 +210,39 @@ public class User {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"Game", "Review"};
         return neo4j.getGenericList(node_types, "HAS_REVIEW", game, offset);
+    }
+
+    public ArrayList<String> tagsRecommendationNORED(String user) {
+        String query = String.format(
+                "MATCH (u:User {name: '%s'})-[:IS_FRIEND_WITH*1..2]-(fof), (fof)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(g:Game)\n" +
+                        "UNWIND g.tags AS tag\n" +
+                        "WITH u, tag, count(*) AS tagCount\n" +
+                        "ORDER BY tagCount DESC LIMIT 5\n" +
+                        "WITH u, collect(tag) AS topTags\n" +
+                        "MATCH (game:Game)\n" +
+                        "WHERE NOT((u)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(game)) AND ANY(t IN game.tags WHERE t IN topTags)\n" +
+                        "RETURN game.name AS RecommendedGame, [t IN game.tags WHERE t IN topTags] AS Tags\n" +
+                        "ORDER BY size(Tags) DESC LIMIT 5",
+                user);
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        return neo4j.getQueryResultAsList(query);
+    }
+
+    public ArrayList<String> tagsRecommendationRED(String user) {
+        String query = String.format(
+                "MATCH (u:User {name: '%s'})-[:IS_FRIEND_WITH*1..2]-(friend:User)\n" +
+                        "WITH u, friend\n" +
+                        "UNWIND friend.tags AS tag\n" +
+                        "WITH u, tag, COUNT(DISTINCT friend) AS tagCount\n" +
+                        "ORDER BY tagCount DESC\n" +
+                        "LIMIT 5\n" +
+                        "WITH u, COLLECT(tag) AS topFriendTags\n" +
+                        "MATCH (game:Game)\n" +
+                        "WHERE NOT((u)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(game)) AND ANY(tag IN game.tags WHERE tag IN topFriendTags)\n" +
+                        "RETURN game.name",
+                user);
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        return neo4j.getQueryResultAsList(query);
     }
 
 }

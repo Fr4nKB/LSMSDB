@@ -42,21 +42,19 @@ public class Populator {
         return json_list;
     }
 
-    public void populateUsers() {
+    public int populateUsers() {
         List<ArrayList<Object>> json = readJson("userDB.json");
+        int added = 0;
         for (ArrayList<Object> sublist : json) {
-            List<String> strings = sublist.stream()
-                    .map(object -> Objects.toString(object, null))
-                    .toList();
-            if(!u.signup(strings)) {
-                System.out.println("User was not added");
+            if(u.signup(sublist)) {
+                added += 1;
             }
         }
+        return added;
     }
 
 
     public void populateGames() {
-        boolean ret;
         List<ArrayList<Object>> json = readJson("gameDB.json");
         for (ArrayList<Object> sublist : json) {
             if(!a.addGame(sublist)) System.out.println("Game not added");
@@ -64,7 +62,6 @@ public class Populator {
     }
 
     public void populateReviews() {
-        int ret;
         List<ArrayList<Object>> json = readJson("reviewDB.json");
         for (ArrayList<Object> sublist : json) {
             if(u.addReview(sublist) <= 0) System.out.println("Review not added");

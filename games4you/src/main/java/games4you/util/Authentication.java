@@ -50,7 +50,7 @@ public class Authentication {
             return false;
         }
         // Alphanumeric characters and underscores, starting with a letter
-        String pattern = "[a-zA-Z][a-zA-Z0-9_]*$";
+        String pattern = "[a-zA-Z0-9_]*$";
         return str.matches(pattern);
     }
 
