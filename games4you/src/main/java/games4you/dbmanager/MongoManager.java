@@ -70,7 +70,7 @@ public class MongoManager implements AutoCloseable {
         return mongoCollection;
     }
 
-    public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, String value) {
+    public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, Object value) {
 
         //Preliminary collection set
         currentCollection = getCollection(collection);
@@ -104,7 +104,7 @@ public class MongoManager implements AutoCloseable {
      * @param key the key which should be checked for
      * @param value the value that the key should have for the document to be eliminated
      */
-    public void removeDoc(boolean choice, String coll, String key, String value) {
+    public void removeDoc(boolean choice, String coll, String key, Object value) {
         currentCollection = getCollection(coll);
         if(currentCollection == null) return;
 
@@ -113,24 +113,24 @@ public class MongoManager implements AutoCloseable {
         else currentCollection.deleteMany(filter);
     }
 
-    public boolean incVote(String review) {
+    public boolean incVote(int rid) {
         currentCollection = getCollection("reviews");
         if(currentCollection == null) return false;
 
         UpdateResult res = currentCollection.updateOne(
-                Filters.eq("review", review),
+                Filters.eq("rid", rid),
                 Updates.inc("votes", 1));
 
         return res.getModifiedCount() > 0;
     }
 
-    public boolean addReporter(String review, String reporter_uname) {
+    public boolean addReporter(int rid, int uid) {
         currentCollection = getCollection("reviews");
         if(currentCollection == null) return false;
 
         UpdateResult res = currentCollection.updateOne(
-                Filters.eq("review", review),
-                Updates.push("reporters", reporter_uname));
+                Filters.eq("rid", rid),
+                Updates.push("reporters", uid));
 
         return res.getModifiedCount() > 0;
     }

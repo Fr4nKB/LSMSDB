@@ -1,5 +1,6 @@
 [
   {
+    "gid": 0,
     "name": "AC2",
     "tags": [
       "Action",
@@ -8,6 +9,7 @@
     "release_date": 20179372916
   },
   {
+    "gid": 1,
     "name": "CS2",
     "tags": [
       "FPS",
@@ -16,6 +18,7 @@
     "release_date": 2327937291
   },
   {
+    "gid": 2,
     "name": "MW3",
     "tags": [
       "FPS",
@@ -24,6 +27,7 @@
     "release_date": 2227937291
   },
   {
+    "gid": 3,
     "name": "Cyberpunk 2077",
     "tags": [
       "RPG",
@@ -32,6 +36,7 @@
     "release_date": 2307937291
   },
   {
+    "gid": 4,
     "name": "RetroArch",
     "tags": [
       "Sim",

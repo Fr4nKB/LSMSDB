@@ -1,8 +1,8 @@
 package games4you.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import games4you.Admin;
-import games4you.User;
+import games4you.entities.Admin;
+import games4you.entities.Gamer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -15,11 +15,11 @@ import java.util.*;
 public class Populator {
 
     private final Admin a;
-    private final User u;
+    private final Gamer g;
 
     public Populator() {
         a = new Admin();
-        u = new User();
+        g = new Gamer();
     }
 
     private List<ArrayList<Object>> readJson(String jsonfile) {
@@ -42,11 +42,11 @@ public class Populator {
         return json_list;
     }
 
-    public int populateUsers() {
+    public int populateGamers() {
         List<ArrayList<Object>> json = readJson("userDB.json");
         int added = 0;
         for (ArrayList<Object> sublist : json) {
-            if(u.signup(sublist)) {
+            if(g.signup(sublist)) {
                 added += 1;
             }
         }
@@ -64,7 +64,7 @@ public class Populator {
     public void populateReviews() {
         List<ArrayList<Object>> json = readJson("reviewDB.json");
         for (ArrayList<Object> sublist : json) {
-            if(u.addReview(sublist) <= 0) System.out.println("Review not added");
+            if(g.addReview(sublist) <= 0) System.out.println("Review not added");
         }
     }
 }

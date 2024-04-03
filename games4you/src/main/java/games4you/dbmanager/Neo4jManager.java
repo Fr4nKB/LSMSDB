@@ -59,10 +59,10 @@ public class Neo4jManager implements AutoCloseable{
      * @param value the value to assign to the 'name' property
      * @return false if node is not added, true otherwise
      */
-    public boolean addNode(String node_type, String value) {
+    public boolean addNode(String node_type, int id) {
         String query = String.format(
-                "MERGE (n1:%s {name: '%s'})",
-                node_type, value);
+                "MERGE (n1:%s {id: %d})",
+                node_type, id);
         return executeSimpleQuery(query);
     }
 
@@ -72,17 +72,17 @@ public class Neo4jManager implements AutoCloseable{
      * @param value the value to assign to the 'name' property
      * @return false if node is not removed, true otherwise
      */
-    public boolean removeNode(String node_type, String value) {
+    public boolean removeNode(String node_type, int id) {
         String query = String.format(
-                "MATCH (n1:%s {name: '%s'}) DETACH DELETE n1",
-                node_type, value);
+                "MATCH (n1:%s {id: %d}) DETACH DELETE n1",
+                node_type, id);
         return executeSimpleQuery(query);
     }
 
-    public boolean removeSubNodes(String parent, String relation, String child, String value) {
+    public boolean removeSubNodes(String parent, String relation, String child, int value) {
         String query = String.format(
-                "MATCH (:%s {name: '%s'})-[%s]-(n:%s) DELETE n",
-                parent, relation, value, child);
+                "MATCH (:%s {name: %d})-[%s]-(n:%s) DELETE n",
+                parent, value, relation, child);
         return executeSimpleQuery(query);
     }
 
@@ -94,17 +94,17 @@ public class Neo4jManager implements AutoCloseable{
      * @param node2 name of the relationship destination node
      * @return false if relationship couldn't be added, true otherwise
      */
-    public boolean addRelationship(String[] node_types, String relation, String node1, String node2) {
+    public boolean addRelationship(String[] node_types, String relation, int node1, int node2) {
         String query = String.format(
-                "MATCH (n1:%s {name: '%s'}), (n2:%s {name: '%s'}) MERGE (n1)-[:%s]->(n2)",
+                "MATCH (n1:%s {id: %d}), (n2:%s {id: %d}) MERGE (n1)-[:%s]->(n2)",
                 node_types[0], node1, node_types[1], node2, relation
         );
         return executeSimpleQuery(query);
     }
 
-    public boolean removeRelationship(String[] node_types, String relation, String node1, String node2) {
+    public boolean removeRelationship(String[] node_types, String relation, int node1, int node2) {
         String query = String.format(
-                "MATCH (n1:%s {name: '%s'})-[r:%s]->(n2:%s {name: '%s'}) DELETE r",
+                "MATCH (n1:%s {id: %d})-[r:%s]->(n2:%s {id: %d}) DELETE r",
                 node_types[0], node1, relation, node_types[1], node2
         );
         return executeSimpleQuery(query);
@@ -136,9 +136,9 @@ public class Neo4jManager implements AutoCloseable{
      * @param offset number of elements to skip to implement pagination
      * @return a maximum of 20 elem after the offset-th elem
      */
-    public ArrayList<ArrayList<Object>> getGenericList(String[] node_types, String relation, String node, int offset) {
+    public ArrayList<ArrayList<Object>> getQueryResultAsListOfLists(String[] node_types, String relation, String node, int offset) {
         String query = String.format(
-                "MATCH (n1:%s {name: '%s'})-[:%s]->(n2:%s) RETURN n2, n2.name SKIP %d LIMIT 20",
+                "MATCH (n1:%s {name: '%s'})-[:%s]->(n2:%s) RETURN n2.name SKIP %d LIMIT 20",
                 node_types[0], node, relation, node_types[1], offset
         );
         try (Session session = driver.session()) {
@@ -158,9 +158,9 @@ public class Neo4jManager implements AutoCloseable{
         }
     }
 
-    public boolean addAttribute(String node_type, String node_name, String attribute_name, Object attribute) {
+    public boolean addAttribute(String node_type, int node_name, String attribute_name, Object attribute) {
         try (Session session = driver.session()) {
-            session.run(STR."MATCH (u:\{node_type} {name: '\{node_name}'}) " +
+            session.run(STR."MATCH (u:\{node_type} {id: \{node_name}}) " +
                             STR."SET u.\{attribute_name}=" + "$attribute",
                     parameters("attribute", attribute));
         } catch (Exception e){
@@ -171,20 +171,20 @@ public class Neo4jManager implements AutoCloseable{
         return true;
     }
 
-    public boolean incAttribute(String[] node_types, String[] node_names, String relation,
+    public boolean incAttribute(String[] node_types, int[] node_names, String relation,
                                             String attribute_name, int amount) {
 
         String query = "";
         if(node_types.length == 0) return false;
         else if (node_types.length == 1) {
             query = String.format(
-                    "MATCH (u:%s {name: '%s'}) SET u.%s = u.%s + %s",
+                    "MATCH (u:%s {id: %d}) SET u.%s = u.%s + %s",
                     node_types[0], node_names[0], attribute_name, attribute_name, amount
             );
         }
         else {
             query = String.format(
-                    "MATCH (n1:%s {name: '%s'})-[r:%s]-(n2:%s {name: '%s'}) SET r.%s = r.%s + %s",
+                    "MATCH (n1:%s {id: %d})-[r:%s]-(n2:%s {id: %d}) SET r.%s = r.%s + %s",
                     node_types[0], node_names[0], relation, node_types[1], node_names[1], attribute_name, attribute_name, amount
             );
         }

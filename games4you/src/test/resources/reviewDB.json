@@ -1,74 +1,106 @@
 [
   {
+    "rid": 0,
+    "gid": 0,
+    "uid": 0,
     "game_name": "AC2",
     "uname": "JohnnyTheDark",
     "rating": true,
     "creation_date": 1712145160,
     "content": "nice",
     "published": true,
-    "votes": 2
+    "votes": 2,
+    "reporters": []
   },
   {
+    "rid": 1,
+    "gid": 1,
+    "uid": 0,
     "game_name": "CS2",
     "uname": "JohnnyTheDark",
     "rating": false,
     "creation_date": 1602145160,
     "content": "full of cheaters",
     "published": true,
-    "votes": 2
+    "votes": 2,
+    "reporters": []
   },
   {
+    "rid": 2,
+    "gid": 1,
+    "uid": 1,
     "game_name": "CS2",
     "uname": "Mary420",
     "rating": false,
     "creation_date": 1592145160,
     "content": "full of cheaters",
     "published": true,
-    "votes": 2
+    "votes": 2,
+    "reporters": []
   },
   {
+    "rid": 3,
+    "gid": 3,
+    "uid": 1,
     "game_name": "Cyberpunk 2077",
     "uname": "Mary420",
     "rating": true,
     "creation_date": 1012145160,
     "content": "full of bugs",
     "published": true,
-    "votes": 1
+    "votes": 1,
+    "reporters": []
   },
   {
+    "rid": 4,
+    "gid": 3,
+    "uid": 2,
     "game_name": "Cyberpunk 2077",
     "uname": "XX_ivan_XX",
     "rating": true,
     "creation_date": 1702135160,
     "content": "0 bugs omg",
     "published": true,
-    "votes": 0
+    "votes": 0,
+    "reporters": []
   },
   {
+    "rid": 5,
+    "gid": 4,
+    "uid": 2,
     "game_name": "RetroArch",
     "uname": "XX_ivan_XX",
     "rating": false,
     "creation_date": 1712045160,
     "content": "i don't like :(",
     "published": false,
-    "votes": 0
+    "votes": 0,
+    "reporters": []
   },
   {
+    "rid": 6,
+    "gid": 0,
+    "uid": 3,
     "game_name": "AC2",
     "uname": "Parmalat",
     "rating": false,
     "creation_date": 1712155160,
     "content": "sucks",
     "published": false,
-    "votes": 0
+    "votes": 0,
+    "reporters": []
   },
   {
+    "rid": 7,
+    "gid": 4,
+    "uid": 3,
     "game_name": "RetroArch",
     "uname": "Parmalat",
     "rating": true,
     "creation_date": 1712145160,
     "content": "sehr gut",
     "published": true,
-    "votes": 3
+    "votes": 3,
+    "reporters": []
   }
 ]

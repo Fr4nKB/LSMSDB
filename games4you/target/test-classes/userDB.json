@@ -1,38 +1,42 @@
 [
   {
+    "uid": 0,
     "firstname": "John",
     "lastname": "Travolta",
     "datebirth": "20/01/1960",
     "uname": "JohnnyTheDark",
     "pwd": "trustNo1",
-    "isAdmin": 0,
+    "isAdmin": false,
     "tags": ["Action", "Adventure", "FPS", "Online"]
   },
   {
+    "uid": 1,
     "firstname": "Maria",
     "lastname": "Salvador",
     "datebirth": "20/01/1990",
     "uname": "Mary420",
     "pwd": "12345678",
-    "isAdmin": 0,
+    "isAdmin": false,
     "tags": ["FPS", "Online", "RPG", "Action"]
   },
   {
+    "uid": 2,
     "firstname": "Ivan",
     "lastname": "Pizdiez",
     "datebirth": "20/01/2000",
     "uname": "XX_ivan_XX",
     "pwd": "gaaaaming",
-    "isAdmin": 0,
+    "isAdmin": false,
     "tags": ["RPG", "Action", "Sim", "Emulation", "Online"]
   },
   {
+    "uid": 3,
     "firstname": "Christoph",
     "lastname": "Müller",
     "datebirth": "20/03/2010",
     "uname": "Parmalat",
     "pwd": "dadsdadw",
-    "isAdmin": 0,
+    "isAdmin": false,
     "tags": ["Sim", "Emulation", "Online", "Action", "Adventure"]
   }
 ]
