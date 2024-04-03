@@ -2,6 +2,8 @@ package games4you.dbmanager;
 
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.summary.ResultSummary;
+import org.neo4j.driver.summary.SummaryCounters;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -58,7 +60,9 @@ public class Neo4jManager implements AutoCloseable{
      * @return false if node is not added, true otherwise
      */
     public boolean addNode(String node_type, String value) {
-        String query = String.format("MERGE (n1:%s {name: '%s'})", node_type, value);
+        String query = String.format(
+                "MERGE (n1:%s {name: '%s'})",
+                node_type, value);
         return executeSimpleQuery(query);
     }
 
@@ -69,12 +73,16 @@ public class Neo4jManager implements AutoCloseable{
      * @return false if node is not removed, true otherwise
      */
     public boolean removeNode(String node_type, String value) {
-        String query = String.format("MATCH (n1:%s {name: '%s'}) DETACH DELETE n1", node_type, value);
+        String query = String.format(
+                "MATCH (n1:%s {name: '%s'}) DETACH DELETE n1",
+                node_type, value);
         return executeSimpleQuery(query);
     }
 
     public boolean removeSubNodes(String parent, String relation, String child, String value) {
-        String query = String.format("MATCH (:%s {name: '%s'})-[%s]-(n:%s) DELETE n", parent, relation, value, child);
+        String query = String.format(
+                "MATCH (:%s {name: '%s'})-[%s]-(n:%s) DELETE n",
+                parent, relation, value, child);
         return executeSimpleQuery(query);
     }
 
@@ -91,13 +99,7 @@ public class Neo4jManager implements AutoCloseable{
                 "MATCH (n1:%s {name: '%s'}), (n2:%s {name: '%s'}) MERGE (n1)-[:%s]->(n2)",
                 node_types[0], node1, node_types[1], node2, relation
         );
-        try (Session session = driver.session()) {
-            session.run(query);
-            return true;
-        } catch (Exception e){
-            System.out.println(e.toString());
-            return false;
-        }
+        return executeSimpleQuery(query);
     }
 
     public boolean removeRelationship(String[] node_types, String relation, String node1, String node2) {
@@ -105,12 +107,24 @@ public class Neo4jManager implements AutoCloseable{
                 "MATCH (n1:%s {name: '%s'})-[r:%s]->(n2:%s {name: '%s'}) DELETE r",
                 node_types[0], node1, relation, node_types[1], node2
         );
+        return executeSimpleQuery(query);
+    }
+
+
+    public ArrayList<String> getQueryResultAsList(String query) {
         try (Session session = driver.session()) {
-            session.run(query);
-            return true;
-        } catch (Exception e){
+            Result res = session.run(query);
+            ArrayList<String> list = new ArrayList<>();
+
+            while(res.hasNext()) {
+                Record n = res.next();
+                list.add(n.values().getFirst().toString());
+            }
+            return list;
+        }
+        catch (Exception e){
             System.out.println(e.toString());
-            return false;
+            return null;
         }
     }
 
@@ -146,7 +160,7 @@ public class Neo4jManager implements AutoCloseable{
 
     public boolean addAttribute(String node_type, String node_name, String attribute_name, Object attribute) {
         try (Session session = driver.session()) {
-            session.run(STR."MATCH (u:\{node_type} {name: '\{node_name}')" +
+            session.run(STR."MATCH (u:\{node_type} {name: '\{node_name}'}) " +
                             STR."SET u.\{attribute_name}=" + "$attribute",
                     parameters("attribute", attribute));
         } catch (Exception e){
@@ -157,34 +171,42 @@ public class Neo4jManager implements AutoCloseable{
         return true;
     }
 
-    public boolean incAttribute(String node_type, String node_name, String attribute_name) {
+    public boolean incAttribute(String[] node_types, String[] node_names, String relation,
+                                            String attribute_name, int amount) {
+
+        String query = "";
+        if(node_types.length == 0) return false;
+        else if (node_types.length == 1) {
+            query = String.format(
+                    "MATCH (u:%s {name: '%s'}) SET u.%s = u.%s + %s",
+                    node_types[0], node_names[0], attribute_name, attribute_name, amount
+            );
+        }
+        else {
+            query = String.format(
+                    "MATCH (n1:%s {name: '%s'})-[r:%s]-(n2:%s {name: '%s'}) SET r.%s = r.%s + %s",
+                    node_types[0], node_names[0], relation, node_types[1], node_names[1], attribute_name, attribute_name, amount
+            );
+        }
+
+        return executeSimpleQuery(query);
+    }
+
+    public boolean executeWriteTransactionQuery(String query) {
         try (Session session = driver.session()) {
-            session.run(STR."""
-                MATCH (u:\{node_type} {name: '\{node_name}')
-                SET u.\{attribute_name}= u.\{attribute_name}" + "+ 1
-                """);
+            return session.executeWrite(tx -> {
+                Result result = tx.run(query);
+                SummaryCounters counters = result.consume().counters();
+
+                //if any change was applied return true, otherwise false
+                return (counters.nodesCreated() > 0 || counters.nodesDeleted() > 0 ||
+                counters.relationshipsCreated() > 0 ||  counters.relationshipsDeleted() > 0 ||
+                counters.propertiesSet() > 0);
+            });
         } catch (Exception e){
             System.out.println(e.toString());
             return false;
         }
-
-        return true;
     }
 
-    public ArrayList<String> getQueryResultAsList(String query) {
-        try (Session session = driver.session()) {
-            Result res = session.run(query);
-            ArrayList<String> list = new ArrayList<>();
-
-            while(res.hasNext()) {
-                Record n = res.next();
-                list.add(n.values().getFirst().toString());
-            }
-            return list;
-        }
-        catch (Exception e){
-            System.out.println(e.toString());
-            return null;
-        }
-    }
 }

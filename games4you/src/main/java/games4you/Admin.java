@@ -1,10 +1,16 @@
 package games4you;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Admin {
@@ -70,4 +76,57 @@ public class Admin {
         mongo.removeDoc(true, "reviews", "uname", uname);
         neo4j.removeNode("User", uname);
     }
+
+    public List<Object> publishReview(String review, boolean judgment) {
+        MongoManager mongo = MongoManager.getInstance();
+        ArrayList<Object> ret = new ArrayList<>();
+        if(!judgment) {
+            mongo.removeDoc(false, "uncheckedReviews", "review", review);
+            return ret;
+        }
+        else {
+            MongoCursor<Document> cur = mongo.findDocumentByKeyValue("uncheckedReviews", "review", review);
+            if(!cur.hasNext()) return null;
+            mongo.removeDoc(false, "uncheckedReviews", "review", review);
+            Document doc = cur.next();
+            ret.add(doc.getString("game"));
+            ret.add(doc.getString("uname"));
+            ret.add(doc.get("rating"));
+            ret.add(doc.get("creation_date"));
+            ret.add(doc.get("content"));
+            ret.add(true);
+            ret.add(0);
+            return ret;
+        }
+
+    }
+
+    public  ArrayList<Object> getReportedReviews(int offset) {
+        MongoManager mongo = MongoManager.getInstance();
+        try {
+            MongoCollection<Document> coll = mongo.getCollection("reviews");
+            MongoCursor<Document> cur = coll
+                    .find(Filters.ne("reporters", Collections.emptyList()))
+                    .projection(Projections.fields(Projections.include("review", "reporters"), Projections.excludeId()))
+                    .sort(Sorts.descending("creation_date"))
+                    .skip(offset)
+                    .limit(20)
+                    .iterator();
+
+            ArrayList<Object> list = new ArrayList<>();
+            while(cur.hasNext()) {
+                list.add(cur.next());
+            }
+            return list;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean evaluateReportedReview() {
+        return true;
+    }
+
 }

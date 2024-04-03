@@ -16,6 +16,14 @@
     "release_date": 2327937291
   },
   {
+    "name": "MW3",
+    "tags": [
+      "FPS",
+      "Online"
+    ],
+    "release_date": 2227937291
+  },
+  {
     "name": "Cyberpunk 2077",
     "tags": [
       "RPG",
@@ -26,7 +34,9 @@
   {
     "name": "RetroArch",
     "tags": [
-      "Emulation"
+      "Sim",
+      "Emulation",
+      "Online"
     ],
     "release_date": 2117937291
   }

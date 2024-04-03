@@ -100,31 +100,28 @@ public class User {
         return neo4j.removeRelationship(node_types, "IS_FRIEND_WITH", user1, user2);
     }
 
-    public boolean addGameToOwned(String user, String game) {
+    public boolean writeReview(String uname, String review) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
-        String[] node_types = new String[]{"User", "Game"};
-        return neo4j.addRelationship(node_types, "OWNS  {hours: 0}", user, game);
+        long timestamp = Instant.now().getEpochSecond();
+        String query = String.format(
+                "MATCH (u:User {name: '%s'}), (r:Review {name: '%s'}) " +
+                        "MERGE (u)-[:HAS_WROTE {in:%d}]->(r)",
+                uname, review, timestamp);
+        return neo4j.executeWriteTransactionQuery(query);
     }
 
-    //TODO: maybe use transaction to add all this relationships, including 'OWNS'
-    public boolean addReviewToPublished(String user, String game, String review) {
+    public boolean publishReview(String user, String game, String review) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
-        String[] node_types = new String[]{"User", "Review"};
-        String timestamp = Long.toString(Instant.now().getEpochSecond());
-
-        boolean ret = neo4j.addRelationship(node_types, STR."HAS_PUBLISHED {in:\{timestamp}}", user, review);
-        if(!ret) return false;
-
-        node_types[0] = "Game";
-        ret = neo4j.addRelationship(node_types, "HAS_REVIEW {numReports:0}", game, review);
-        if(!ret) {
-            node_types[0] = "User";
-            neo4j.removeRelationship(node_types, "HAS_PUBLISHED", user, review);
-            return false;
-        }
-
-        return true;
+        long timestamp = Instant.now().getEpochSecond();
+        String query = String.format(
+                "MATCH (u:User {name: '%s'}), (g:Game {name: '%s'}), (r:Review {name: '%s'}) " +
+                        "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
+                        "MERGE (g)-[:HAS_REVIEW {votes:0}]->(r) " +
+                        "MERGE (u)-[:OWNS {hours:0}]->(g)",
+                user, game, review, timestamp);
+        return neo4j.executeWriteTransactionQuery(query);
     }
+
 
     /**
      * Creates a new user
@@ -157,24 +154,31 @@ public class User {
         review.append("rating", args.get(2));
         review.append("creation_date", args.get(3));
         review.append("content", args.get(4));
-        review.append("published", args.get(5));
-        review.append("votes", args.get(6));
+        review.append("reporters", new ArrayList<String>());
 
-        mongo.addDoc("reviews", review);
-        boolean ret = neo4j.addNode("Review", review_id);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "review", review_id);
-            return -1;
-        }
+        boolean published = (Boolean) args.get(5);
+
+        //if review is new it first needs to be checked by an admin
+        if(!published) mongo.addDoc("uncheckedReviews", review);
+        //otherwise it's normally added
         else {
+
+            mongo.addDoc("reviews", review);
+
+            neo4j.addNode("Review", review_id);
             neo4j.addAttribute("Review", review_id, "game", game);
             neo4j.addAttribute("Review", review_id, "uname", uname);
-        }
+            publishReview(uname, game, review_id);
 
-        ret = addGameToOwned(uname, game);
-        if(!ret) return -1;
-        ret = addReviewToPublished(uname, game, review_id);
-        if(!ret) return -1;
+            //set votes attribute, useful when populating the db
+            int votes = (Integer) args.get(6);
+            if(votes > 0) {
+                String[] node_type = {"Game", "Review"};
+                String[] node_name = {game, review_id};
+                neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", (Integer) args.get(6));
+            }
+
+        }
 
         return 1;
     }
@@ -189,9 +193,34 @@ public class User {
         return true;
     }
 
-    public boolean reportReview(String review) {
+    public boolean upvoteReview(String review) {
+        MongoManager mongo = MongoManager.getInstance();
+        return mongo.incVote(review);
+    }
+
+    public boolean reportReview(String uname, String review) {
+        MongoManager mongo = MongoManager.getInstance();
+
+        //user cannot report his/her own review
+        String [] parts = review.split("\\|");
+        if(parts[1].equals(uname)) return false;
+
+        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "review", review);
+        if(!cur.hasNext()) return false;
+
+        Document doc = cur.next();
+        ArrayList<String> reporters = (ArrayList<String>) doc.get("reporters");
+        if(reporters.contains(uname)) return false;
+
+        return mongo.addReporter(review, uname);
+    }
+
+    public boolean updatePlayedHours(String uname, String game, int amount) {
+        if(amount <= 0) return false;
         Neo4jManager neo4j = Neo4jManager.getInstance();
-        return neo4j.incAttribute("Review", review, "numReports");
+        String [] node_types = {"User", "Game"};
+        String [] node_names = {uname, game};
+        return neo4j.incAttribute(node_types, node_names, "OWNS", "hours", amount);
     }
 
     public ArrayList<ArrayList<Object>> getFriendList(String user, int offset) {
@@ -214,13 +243,13 @@ public class User {
 
     public ArrayList<String> tagsRecommendationNORED(String user) {
         String query = String.format(
-                "MATCH (u:User {name: '%s'})-[:IS_FRIEND_WITH*1..2]-(fof), (fof)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(g:Game)\n" +
+                "MATCH (u:User {name: '%s'})-[:IS_FRIEND_WITH*1..2]-(fof), (fof)-[:OWNS]->(g:Game)\n" +
                         "UNWIND g.tags AS tag\n" +
                         "WITH u, tag, count(*) AS tagCount\n" +
                         "ORDER BY tagCount DESC LIMIT 5\n" +
                         "WITH u, collect(tag) AS topTags\n" +
                         "MATCH (game:Game)\n" +
-                        "WHERE NOT((u)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(game)) AND ANY(t IN game.tags WHERE t IN topTags)\n" +
+                        "WHERE NOT((u)-[:OWNS]->(game)) AND ANY(t IN game.tags WHERE t IN topTags)\n" +
                         "RETURN game.name AS RecommendedGame, [t IN game.tags WHERE t IN topTags] AS Tags\n" +
                         "ORDER BY size(Tags) DESC LIMIT 5",
                 user);
@@ -238,7 +267,7 @@ public class User {
                         "LIMIT 5\n" +
                         "WITH u, COLLECT(tag) AS topFriendTags\n" +
                         "MATCH (game:Game)\n" +
-                        "WHERE NOT((u)-[:HAS_PUBLISHED]->(:Review)-[:HAS_REVIEW]-(game)) AND ANY(tag IN game.tags WHERE tag IN topFriendTags)\n" +
+                        "WHERE NOT((u)-[:OWNS]->(game)) AND ANY(tag IN game.tags WHERE tag IN topFriendTags)\n" +
                         "RETURN game.name",
                 user);
         Neo4jManager neo4j = Neo4jManager.getInstance();

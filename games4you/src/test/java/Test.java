@@ -57,11 +57,23 @@ public class Test {
         admin.banUser("JohnnyTheDark");
         assert user.getFriendList("Mary420", 0).isEmpty();
         assert pop.populateUsers() == 0;
+        assert user.addReview(admin.publishReview("AC2|Parmalat", false)) == -1;
+        assert user.addReview(admin.publishReview("RetroArch|XX_ivan_XX", true)) == 1;
 
         admin.removeGame("CS2");
         admin.removeGame("CS2");
         assert user.getReviewList("CS2", 0).isEmpty();
         assert user.getGameList("Mary420", 0).size() == 1;
+
+        assert !user.reportReview("Mary420", "Cyberpunk 2077|Mary420");     //cannot report itself
+        assert user.reportReview("Mary420", "Cyberpunk 2077|XX_ivan_XX");
+        assert user.reportReview("Parmalat", "Cyberpunk 2077|Mary420");
+        assert !user.reportReview("Parmalat", "Cyberpunk 2077|Mary420");    //cannot report twice
+
+        user.updatePlayedHours("Mary420", "Cyberpunk 2077", 100);
+
+        System.out.println(admin.getReportedReviews(0));
+
     }
 
 }

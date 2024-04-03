@@ -6,6 +6,8 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -109,6 +111,28 @@ public class MongoManager implements AutoCloseable {
         Bson filter = Filters.eq(key, value);
         if(!choice) currentCollection.deleteOne(filter);
         else currentCollection.deleteMany(filter);
+    }
+
+    public boolean incVote(String review) {
+        currentCollection = getCollection("reviews");
+        if(currentCollection == null) return false;
+
+        UpdateResult res = currentCollection.updateOne(
+                Filters.eq("review", review),
+                Updates.inc("votes", 1));
+
+        return res.getModifiedCount() > 0;
+    }
+
+    public boolean addReporter(String review, String reporter_uname) {
+        currentCollection = getCollection("reviews");
+        if(currentCollection == null) return false;
+
+        UpdateResult res = currentCollection.updateOne(
+                Filters.eq("review", review),
+                Updates.push("reporters", reporter_uname));
+
+        return res.getModifiedCount() > 0;
     }
 
 }
