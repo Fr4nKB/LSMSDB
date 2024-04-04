@@ -1,14 +1,13 @@
 package games4you.dbmanager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.summary.ResultSummary;
 import org.neo4j.driver.summary.SummaryCounters;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -56,14 +55,25 @@ public class Neo4jManager implements AutoCloseable{
     /**
      * Adds a generic element to the graph db
      * @param node_type the class of the node
-     * @param value the value to assign to the 'name' property
+     * @param attributes hash map that contains the attribute to add
+     *                   it need at least a key "id" which specifies an unique int value
+     *                   which is used to identify nodes
      * @return false if node is not added, true otherwise
      */
-    public boolean addNode(String node_type, int id) {
-        String query = String.format(
-                "MERGE (n1:%s {id: %d})",
-                node_type, id);
-        return executeSimpleQuery(query);
+    public boolean addNode(String node_type, HashMap<String, Object> attributes) {
+        StringBuilder query = new StringBuilder(String.format(
+                "MERGE (n1:%s {",
+                node_type));
+        for(Map.Entry<String, Object> entry: attributes.entrySet()) {
+            query.append(entry.getKey()).append(": ");
+            Object obj = entry.getValue();
+            if(obj.getClass().equals(String.class)) query.append("'").append(entry.getValue()).append("'");
+            else query.append(entry.getValue());
+            query.append(",");
+        }
+        query.deleteCharAt(query.length()-1);
+        query.append("})");
+        return executeSimpleQuery(query.toString());
     }
 
     /**
@@ -111,16 +121,19 @@ public class Neo4jManager implements AutoCloseable{
     }
 
 
-    public ArrayList<String> getQueryResultAsList(String query) {
+    public ArrayList<Object> getQueryResultAsList(String query) {
         try (Session session = driver.session()) {
             Result res = session.run(query);
-            ArrayList<String> list = new ArrayList<>();
+            ArrayList<Object> ret = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
 
             while(res.hasNext()) {
                 Record n = res.next();
-                list.add(n.values().getFirst().toString());
+                Object obj = n.get(0).asObject();
+                ret.add(objectMapper.writeValueAsString(obj));
             }
-            return list;
+
+            return ret;
         }
         catch (Exception e){
             System.out.println(e.toString());
@@ -136,11 +149,7 @@ public class Neo4jManager implements AutoCloseable{
      * @param offset number of elements to skip to implement pagination
      * @return a maximum of 20 elem after the offset-th elem
      */
-    public ArrayList<ArrayList<Object>> getQueryResultAsListOfLists(String[] node_types, String relation, String node, int offset) {
-        String query = String.format(
-                "MATCH (n1:%s {name: '%s'})-[:%s]->(n2:%s) RETURN n2.name SKIP %d LIMIT 20",
-                node_types[0], node, relation, node_types[1], offset
-        );
+    public ArrayList<ArrayList<Object>> getQueryResultAsListOfLists(String query) {
         try (Session session = driver.session()) {
             Result res = session.run(query);
             ArrayList<ArrayList<Object>> list = new ArrayList<>();

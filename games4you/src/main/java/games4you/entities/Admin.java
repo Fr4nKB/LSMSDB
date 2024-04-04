@@ -5,13 +5,14 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
+import org.neo4j.driver.Result;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 public class Admin extends User {
@@ -33,16 +34,18 @@ public class Admin extends User {
             game.append("description", args.get(4));
             game.append("header_image", args.get(5));
         }
-
         mongo.addDoc("games", game);
-        boolean ret = neo4j.addNode("Game", gid);
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id", gid);
+        map.put("name", game_name);
+        boolean ret = neo4j.addNode("Game", map);
+
         if(!ret) {
             mongo.removeDoc(false,"games", "name", game_name);
             return false;
         }
-        else {
-            neo4j.addAttribute("Game", gid, "tags", args.get(2));
-        }
+
         return true;
     }
 
@@ -102,21 +105,22 @@ public class Admin extends User {
 
     }
 
-    public ArrayList<Object> getReportedReviews(int offset) {
+    public ArrayList<String> getReportedReviews(int offset) {
         MongoManager mongo = MongoManager.getInstance();
         try {
             MongoCollection<Document> coll = mongo.getCollection("reviews");
             MongoCursor<Document> cur = coll
-                    .find(Filters.ne("reporters", Collections.emptyList()))
-                    .projection(Projections.fields(Projections.include("review", "reporters"), Projections.excludeId()))
+                    .find(Filters.exists("reports"))
+                    .projection(Projections.fields(Projections.excludeId()))
                     .sort(Sorts.descending("creation_date"))
                     .skip(offset)
                     .limit(20)
                     .iterator();
 
-            ArrayList<Object> list = new ArrayList<>();
+            ArrayList<String> list = new ArrayList<>();
             while(cur.hasNext()) {
-                list.add(cur.next());
+                Document elem = cur.next();
+                list.add(elem.toJson());
             }
             return list;
         }
@@ -126,8 +130,20 @@ public class Admin extends User {
         }
     }
 
-    public boolean evaluateReportedReview() {
-        return true;
+    public boolean evaluateReportedReview(int rid, boolean judgment) {
+        if(!judgment) {
+            return super.removeReview(rid);
+        }
+        else {
+            MongoManager mongo = MongoManager.getInstance();
+            MongoCollection<Document> coll = mongo.getCollection("reviews");
+
+            UpdateResult res = coll.updateOne(
+                    Filters.eq("rid", rid),
+                    Updates.unset("reports")
+            );
+            return res.getModifiedCount() > 0;
+        }
     }
 
 }

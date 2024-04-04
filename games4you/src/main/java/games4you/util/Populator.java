@@ -22,9 +22,9 @@ public class Populator {
         g = new Gamer();
     }
 
-    private List<ArrayList<Object>> readJson(String jsonfile) {
+    private ArrayList<ArrayList<Object>> readJson(String jsonfile) {
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ArrayList<Object>> json_list = new ArrayList<>();
+        ArrayList<ArrayList<Object>> json_list = new ArrayList<>();
         try {
             InputStream stream = Populator.class.getClassLoader().getResourceAsStream(jsonfile);
             List<Map<String, Object>> dict = objectMapper.readValue(stream, new TypeReference<List<Map<String, Object>>>(){});

@@ -9,6 +9,7 @@ import org.bson.Document;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -53,18 +54,20 @@ public class User {
         user.append("pwd", Authentication.hashAndSalt(pwd, ""));
         user.append("isAdmin", args.get(6));
 
+        mongo.addDoc("users", user);
+
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
-        mongo.addDoc("users", user);
-        boolean ret = neo4j.addNode("User", uid);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("id", uid);
+        map.put("uname", uname);
+        boolean ret = neo4j.addNode("User", map);
+
         if(!ret) {
             mongo.removeDoc(false, "users", "uid", uid);
             return false;
         }
-        else {
-            neo4j.addAttribute("User", uid, "uname", uname);
-            neo4j.addAttribute("User", uid, "tags", args.get(7));
-        }
+        else neo4j.addAttribute("Review", uid, "tags", args.get(7));
         return true;
     }
 
@@ -109,7 +112,7 @@ public class User {
      */
     public int addReview(List<Object> args) {
 
-        if(args.size() != 11) return -1;
+        if(args.size() < 10) return -1;
 
         MongoManager mongo = MongoManager.getInstance();
         MongoCollection<Document> reviews = mongo.getCollection("reviews");
@@ -138,7 +141,11 @@ public class User {
         review.append("rating", args.get(5));
         review.append("creation_date", args.get(6));
         review.append("content", args.get(7));
-        review.append("reporters", args.getLast());
+
+        //used to initially populate the db
+        if(args.size() == 11) {
+            review.append("reports", args.getLast());
+        }
 
         boolean published = (Boolean) args.get(8);
 
@@ -149,12 +156,18 @@ public class User {
 
             mongo.addDoc("reviews", review);
 
-            neo4j.addNode("Review", rid);
-            neo4j.addAttribute("Review", rid, "game", game);
-            neo4j.addAttribute("Review", rid, "uname", uname);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("id", rid);
+            map.put("game", game);
+            map.put("uname", uname);
+            boolean ret = neo4j.addNode("Review", map);
+            if(!ret) {
+                mongo.removeDoc(false, "reviews", "rid", rid);
+                return -1;
+            }
             publishReview(uid, gid, rid);
 
-            //set votes attribute, useful when populating the db
+            //used to initially populate the db
             int votes = (Integer) args.get(9);
             if(votes > 0) {
                 String[] node_type = {"Game", "Review"};

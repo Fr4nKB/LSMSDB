@@ -3,6 +3,7 @@ import games4you.entities.Gamer;
 import games4you.util.Populator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Test {
     public void main() {
@@ -34,8 +35,14 @@ public class Test {
         //FRIENDS
         assert gamer.addFriend(0, 1): "Friend 1 not added";
         assert gamer.addFriend(0, 2): "Friend 2 not added";
-        assert gamer.addFriend(2, 3): "Friend 3 not added";
+        assert gamer.addFriend(1, 2): "Friend 3 not added";
+        assert gamer.addFriend(2, 3): "Friend 4 not added";
+        assert gamer.addFriend(3, 0): "Friend 4 not added";
+        System.out.println(gamer.homePage(0, 0));
+        assert gamer.homePage(0, 0).size() == 6: "Incorrect home page";
 
+
+        System.out.println(gamer.getFriendList(0, 0));
         assert gamer.getFriendList(0, 0).size() == 2: "Incorrect friend list size";
         assert gamer.removeFriend(0, 1): "Friend 1 not removed";
         assert gamer.getFriendList(0, 0).size() == 1: "Incorrect friend list size after removing one";
@@ -43,9 +50,12 @@ public class Test {
         assert gamer.addFriend(0, 1): "Friend 1 couldn't be added again";
 
         //GAMES
+
+        System.out.println(gamer.getGameList(0,0));
         assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
 
         //REVIEWS
+        System.out.println(gamer.getReviewList(1, 0));
         assert gamer.getReviewList(0, 0).size() == 1: "Incorrect review list size";
         assert gamer.removeReview(0);
         assert gamer.getReviewList(0, 0).isEmpty(): "Incorrect review list size after removing one";
@@ -55,7 +65,7 @@ public class Test {
 
         //ADMIN
         admin.banGamer(0);
-        assert gamer.getFriendList(1, 0).isEmpty();
+        assert gamer.getFriendList(1, 0).size() == 1;
         assert pop.populateGamers() == 0;
         assert admin.publishReview(6, false) == 1;
         assert admin.publishReview(5, true) == 1;
@@ -72,7 +82,10 @@ public class Test {
 
         gamer.updatePlayedHours(1, 3, 100);
 
+        System.out.println(admin.getReportedReviews(0));
         assert admin.getReportedReviews(0).size() == 2: "Incorrect reported reviews size";
+        assert admin.evaluateReportedReview(3, true);
+        assert admin.getReportedReviews(0).size() == 1: "Incorrect reported reviews size";
 
     }
 

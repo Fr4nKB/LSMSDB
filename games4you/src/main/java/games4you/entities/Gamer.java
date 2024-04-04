@@ -7,10 +7,11 @@ import org.bson.Document;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Gamer extends User {
 
-    private ArrayList<String> getRelationshipList(String query) {
+    private ArrayList<Object> getRelationshipList(String query) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         return neo4j.getQueryResultAsList(query);
     }
@@ -51,11 +52,17 @@ public class Gamer extends User {
         MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
         if(!cur.hasNext()) return false;
 
-        //check if review creator is not the reporter itself and if it's the first time the user reports this review
         Document review = cur.next();
+        //check if review creator is not the reporter itself
         int reported_uid = (Integer) review.getInteger("uid");
-        ArrayList<Integer> reporters = (ArrayList<Integer>) review.get("reporters");
-        if(reporters.contains(uid) || uid == reported_uid) return false;
+        if (uid == reported_uid) return false;
+
+        //if the review has already been reported before, check if the reporter has already reported
+        if(review.containsKey("reports")) {
+            HashMap<String, Object> reports = new HashMap<String, Object>((Document) review.get("reports"));
+            ArrayList<Integer> reporters = (ArrayList<Integer>) reports.get("reporters");
+            if(reporters.contains(uid)) return false;
+        }
 
         return mongo.addReporter(rid, uid);
     }
@@ -68,28 +75,54 @@ public class Gamer extends User {
         return neo4j.incAttribute(node_types, node_names, "OWNS", "hours", amount);
     }
 
-    public ArrayList<String> getFriendList(int uid, int offset) {
+    public ArrayList<Object> getFriendList(int uid, int offset) {
         String query = String.format(
-                "MATCH (a:User {id: %d})-[:IS_FRIEND_WITH]->(b:User) RETURN b.name SKIP %d LIMIT %d",
+                "MATCH (a:User {id: %d})-[:IS_FRIEND_WITH]->(b:User) " +
+                        "RETURN {uid: b.id, uname: b.uname} AS result " +
+                        "SKIP %d LIMIT %d",
                 uid, offset, 20);
         return getRelationshipList(query);
     }
 
-    public ArrayList<String> getGameList(int uid, int offset) {
+    public ArrayList<Object> getGameList(int uid, int offset) {
         String query = String.format(
-                "MATCH (a:User {id: %d})-[:OWNS]->(b:Game) RETURN b.name SKIP %d LIMIT %d",
+                "MATCH (a:User {id: %d})-[:OWNS]->(b:Game) " +
+                        "RETURN {gid: b.id, game: b.name} AS result " +
+                        "SKIP %d LIMIT %d",
                 uid, offset, 20);
         return getRelationshipList(query);
     }
 
-    public ArrayList<String> getReviewList(int gid, int offset) {
+    public ArrayList<Object> getReviewList(int gid, int offset) {
         String query = String.format(
-                "MATCH (a:Game {id: %d})-[:HAS_REVIEW]->(b:Review) RETURN b.name SKIP %d LIMIT %d",
+                "MATCH (a:Game {id: %d})-[:HAS_REVIEW]->(b:Review) " +
+                        "RETURN {rid: b.id, game: b.game, uname: b.uname} AS result " +
+                        "SKIP %d LIMIT %d",
                 gid, offset, 20);
         return getRelationshipList(query);
     }
 
-    public ArrayList<String> tagsRecommendationNORED(int uid) {
+    public ArrayList<Object> homePage(int uid, int offset) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        String query = String.format(
+                "MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)\n" +
+                        "MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)\n" +
+                        "WHERE fof <> u\n" +
+                        "WITH f, r, fof\n" +
+                        "ORDER BY r.since DESC\n" +
+                        "RETURN {type: \"F\", friend: f.uname, time: r.since, object: fof.uname} AS result\n" +
+                        "UNION\n" +
+                        "MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[r:HAS_WROTE]->(rev:Review)\n" +
+                        "WITH f, r, rev\n" +
+                        "ORDER BY r.in DESC\n" +
+                        "RETURN {type: \"R\", friend: f.uname, time: r.in, object: rev.game} AS result\n" +
+                        "SKIP %d LIMIT 20",
+                uid, uid, offset);
+
+        return neo4j.getQueryResultAsList(query);
+    }
+
+    public ArrayList<Object> tagsRecommendationNORED(int uid) {
         String query = String.format(
                 "MATCH (u:User {id: %d})-[:IS_FRIEND_WITH*1..2]-(fof), (fof)-[:OWNS]->(g:Game)\n" +
                         "UNWIND g.tags AS tag\n" +
@@ -105,7 +138,7 @@ public class Gamer extends User {
         return neo4j.getQueryResultAsList(query);
     }
 
-    public ArrayList<String> tagsRecommendationRED(int uid) {
+    public ArrayList<Object> tagsRecommendationRED(int uid) {
         String query = String.format(
                 "MATCH (u:User {id: %d})-[:IS_FRIEND_WITH*1..2]-(friend:User)\n" +
                         "WITH u, friend\n" +

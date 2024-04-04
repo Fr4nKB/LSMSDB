@@ -9,8 +9,7 @@
     "creation_date": 1712145160,
     "content": "nice",
     "published": true,
-    "votes": 2,
-    "reporters": []
+    "votes": 2
   },
   {
     "rid": 1,
@@ -22,8 +21,7 @@
     "creation_date": 1602145160,
     "content": "full of cheaters",
     "published": true,
-    "votes": 2,
-    "reporters": []
+    "votes": 2
   },
   {
     "rid": 2,
@@ -35,8 +33,7 @@
     "creation_date": 1592145160,
     "content": "full of cheaters",
     "published": true,
-    "votes": 2,
-    "reporters": []
+    "votes": 2
   },
   {
     "rid": 3,
@@ -48,8 +45,7 @@
     "creation_date": 1012145160,
     "content": "full of bugs",
     "published": true,
-    "votes": 1,
-    "reporters": []
+    "votes": 1
   },
   {
     "rid": 4,
@@ -61,8 +57,7 @@
     "creation_date": 1702135160,
     "content": "0 bugs omg",
     "published": true,
-    "votes": 0,
-    "reporters": []
+    "votes": 0
   },
   {
     "rid": 5,
@@ -74,8 +69,7 @@
     "creation_date": 1712045160,
     "content": "i don't like :(",
     "published": false,
-    "votes": 0,
-    "reporters": []
+    "votes": 0
   },
   {
     "rid": 6,
@@ -88,7 +82,11 @@
     "content": "sucks",
     "published": false,
     "votes": 0,
-    "reporters": []
+    "reports": {
+      "lastRep": 1703135160,
+      "totRep": 1,
+      "reporters": [1, 2]
+    }
   },
   {
     "rid": 7,
@@ -100,7 +98,6 @@
     "creation_date": 1712145160,
     "content": "sehr gut",
     "published": true,
-    "votes": 3,
-    "reporters": []
+    "votes": 3
   }
 ]
