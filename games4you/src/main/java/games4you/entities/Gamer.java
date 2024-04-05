@@ -1,10 +1,18 @@
 package games4you.entities;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +77,31 @@ public class Gamer extends User {
 
     public boolean updatePlayedHours(int uid, int gid, int amount) {
         if(amount <= 0) return false;
+
+        MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
+
         String [] node_types = {"User", "Game"};
         int [] node_names = {uid, gid};
-        return neo4j.incAttribute(node_types, node_names, "OWNS", "hours", amount);
+
+        MongoCollection<Document> coll = mongo.getCollection("games");
+        String game_name = (String) coll.find(
+                Filters.eq("gid", gid))
+                .projection(Projections.include("name"))
+                .first().get("name");
+
+        if(!neo4j.incAttribute(node_types, node_names, "OWNS", "hours", amount)) return false;
+
+        Document doc = new Document();
+        doc.put("gid", gid);
+        doc.put("name", game_name);
+        coll = mongo.getCollection("users");
+        UpdateResult res = coll.updateOne(
+                Filters.eq("uid", uid),
+                Updates.set("lastGamePlayed", mongo.convert2BsonDoc(doc))
+        );
+
+        return res.getModifiedCount() > 0;
     }
 
     public ArrayList<Object> getFriendList(int uid, int offset) {
