@@ -7,7 +7,9 @@ import com.mongodb.client.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -71,6 +73,10 @@ public class MongoManager implements AutoCloseable {
         return mongoCollection;
     }
 
+    public BsonDocument convert2BsonDoc(Document doc) {
+        return doc.toBsonDocument(BsonDocument.class, database.getCodecRegistry());
+    }
+
     public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, Object value) {
 
         //Preliminary collection set
@@ -105,13 +111,16 @@ public class MongoManager implements AutoCloseable {
      * @param key the key which should be checked for
      * @param value the value that the key should have for the document to be eliminated
      */
-    public void removeDoc(boolean choice, String coll, String key, Object value) {
+    public boolean removeDoc(boolean choice, String coll, String key, Object value) {
         currentCollection = getCollection(coll);
-        if(currentCollection == null) return;
+        if(currentCollection == null) return false;
 
         Bson filter = Filters.eq(key, value);
-        if(!choice) currentCollection.deleteOne(filter);
-        else currentCollection.deleteMany(filter);
+        DeleteResult res = null;
+        if(!choice) res = currentCollection.deleteOne(filter);
+        else res = currentCollection.deleteMany(filter);
+
+        return res.getDeletedCount() > 0;
     }
 
     public boolean incVote(int rid) {

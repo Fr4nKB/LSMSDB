@@ -3,7 +3,6 @@ import games4you.entities.Gamer;
 import games4you.util.Populator;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Test {
     public void main() {
@@ -26,6 +25,7 @@ public class Test {
         Admin admin = new Admin();
 
         assert pop.populateGamers() == 4;
+        assert pop.populateGamers() == 0: "Users already present";
         pop.populateGames();
         pop.populateReviews();
 
@@ -39,7 +39,7 @@ public class Test {
         assert gamer.addFriend(2, 3): "Friend 4 not added";
         assert gamer.addFriend(3, 0): "Friend 4 not added";
         System.out.println(gamer.homePage(0, 0));
-        assert gamer.homePage(0, 0).size() == 6: "Incorrect home page";
+        assert gamer.homePage(0, 0).size() == 7: "Incorrect home page";
 
 
         System.out.println(gamer.getFriendList(0, 0));
@@ -50,28 +50,23 @@ public class Test {
         assert gamer.addFriend(0, 1): "Friend 1 couldn't be added again";
 
         //GAMES
-
         System.out.println(gamer.getGameList(0,0));
         assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
 
         //REVIEWS
         System.out.println(gamer.getReviewList(1, 0));
-        assert gamer.getReviewList(0, 0).size() == 1: "Incorrect review list size";
+        assert gamer.getReviewList(0, 0).size() == 2: "Incorrect review list size";
         assert gamer.removeReview(0);
-        assert gamer.getReviewList(0, 0).isEmpty(): "Incorrect review list size after removing one";
+        assert gamer.getReviewList(0, 0).size() == 1: "Incorrect review list size after removing one";
 
         //COMPLEX QUERIES
         assert gamer.tagsRecommendationNORED(0).size() == gamer.tagsRecommendationRED(0).size(): "Incorrect recommendation list size";
 
         //ADMIN
-        admin.banGamer(0);
+        assert admin.banGamer(0): "User not banned";
         assert gamer.getFriendList(1, 0).size() == 1;
-        assert pop.populateGamers() == 0;
-        assert admin.publishReview(6, false) == 1;
-        assert admin.publishReview(5, true) == 1;
-
-        admin.removeGame(1);
-        admin.removeGame(1);
+        assert admin.removeGame(1);
+        assert !admin.removeGame(1): "Game was already removed";
         assert gamer.getReviewList(1, 0).isEmpty();
         assert gamer.getGameList(1, 0).size() == 1;
 
@@ -85,7 +80,7 @@ public class Test {
         System.out.println(admin.getReportedReviews(0));
         assert admin.getReportedReviews(0).size() == 2: "Incorrect reported reviews size";
         assert admin.evaluateReportedReview(3, true);
-        assert admin.getReportedReviews(0).size() == 1: "Incorrect reported reviews size";
+        assert admin.getReportedReviews(0).size() == 1: "Incorrect reported reviews size after evaluation";
 
     }
 

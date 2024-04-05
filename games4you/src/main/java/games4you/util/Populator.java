@@ -22,31 +22,26 @@ public class Populator {
         g = new Gamer();
     }
 
-    private ArrayList<ArrayList<Object>> readJson(String jsonfile) {
+    private ArrayList<HashMap<String, Object>> readJson(String jsonfile) {
         ObjectMapper objectMapper = new ObjectMapper();
-        ArrayList<ArrayList<Object>> json_list = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> dict;
         try {
             InputStream stream = Populator.class.getClassLoader().getResourceAsStream(jsonfile);
-            List<Map<String, Object>> dict = objectMapper.readValue(stream, new TypeReference<List<Map<String, Object>>>(){});
-
-            for (Map<String, Object> map: dict) {
-                ArrayList<Object> list = new ArrayList<>(map.values());
-                json_list.add(list);
-            }
+            dict = objectMapper.readValue(stream, new TypeReference<ArrayList<HashMap<String, Object>>>(){});
         }
         catch (IOException e) {
             e.printStackTrace();
             return null;
         }
 
-        return json_list;
+        return dict;
     }
 
     public int populateGamers() {
-        List<ArrayList<Object>> json = readJson("userDB.json");
+        ArrayList<HashMap<String, Object>> json = readJson("userDB.json");
         int added = 0;
-        for (ArrayList<Object> sublist : json) {
-            if(g.signup(sublist)) {
+        for (HashMap<String, Object> map: json) {
+            if(g.signup(map)) {
                 added += 1;
             }
         }
@@ -55,16 +50,17 @@ public class Populator {
 
 
     public void populateGames() {
-        List<ArrayList<Object>> json = readJson("gameDB.json");
-        for (ArrayList<Object> sublist : json) {
-            if(!a.addGame(sublist)) System.out.println("Game not added");
+        List<HashMap<String, Object>> json = readJson("gameDB.json");
+        for (HashMap<String, Object> map : json) {
+            if(!a.addGame(map)) System.out.println("Game not added");
         }
     }
 
     public void populateReviews() {
-        List<ArrayList<Object>> json = readJson("reviewDB.json");
-        for (ArrayList<Object> sublist : json) {
-            if(g.addReview(sublist) <= 0) System.out.println("Review not added");
+        List<HashMap<String, Object>> json = readJson("reviewDB.json");
+        for (HashMap<String, Object> map : json) {
+            if(g.addReview(map) <= 0) System.out.println("Review not added");
         }
     }
+
 }
