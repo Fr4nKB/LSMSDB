@@ -65,8 +65,8 @@ public class Test {
         //ADMIN
         assert admin.banGamer(0): "User not banned";
         assert gamer.getFriendList(1, 0).size() == 1;
-        assert admin.removeGame(1);
-        assert !admin.removeGame(1): "Game was already removed";
+        assert admin.deleteGame(1);
+        assert !admin.deleteGame(1): "Game was already removed";
         assert gamer.getReviewList(1, 0).isEmpty();
         assert gamer.getGameList(1, 0).size() == 1;
 

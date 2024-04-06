@@ -4,10 +4,11 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
+import java.time.Instant;
 import java.util.HashMap;
 
 public class Game {
-    public boolean addGame(HashMap<String, Object> args) {
+    public boolean insertGame(HashMap<String, Object> args) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
@@ -51,7 +52,7 @@ public class Game {
     }
 
 
-    public boolean removeGame(int gid) {
+    public boolean deleteGame(int gid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
@@ -62,5 +63,23 @@ public class Game {
         ret = neo4j.removeSubNodes("Game", "HAS_REVIEW", "Review", gid);
         if(!ret) return false;
         return neo4j.removeNode("Game", gid);
+    }
+
+
+    public boolean addGameToLibrary(int gid, int uid) {
+        //create relationships between review, game and gamer
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        String query = String.format(
+                "MATCH (u:User {id: %d}), (g:Game {id: %d})" +
+                        "MERGE (u)-[:OWNS {hours:0}]->(g)",
+                uid, gid);
+        neo4j.executeWriteTransactionQuery(query);
+        return true;
+    }
+
+    public boolean removeGameFromLibrary(int gid, int uid) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        String[] node_types = new String[]{"User", "Game"};
+        return neo4j.removeRelationship(node_types, "OWNS", uid, gid);
     }
 }

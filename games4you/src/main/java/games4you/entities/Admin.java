@@ -18,14 +18,14 @@ import java.util.*;
 
 
 public class Admin extends User {
-    public boolean addGame(HashMap<String, Object> args) {
+    public boolean insertGame(HashMap<String, Object> args) {
         Game game = new Game();
-        return game.addGame(args);
+        return game.insertGame(args);
     }
 
-    public boolean removeGame(int gid) {
+    public boolean deleteGame(int gid) {
         Game game = new Game();
-        return game.removeGame(gid);
+        return game.deleteGame(gid);
     }
 
     public boolean banGamer(int uid) {
