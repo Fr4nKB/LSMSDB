@@ -45,78 +45,8 @@ public class Gamer extends User {
      * @return -1 if the review couldn't be added, 0 if already present, 1 if added
      */
     public int addReview(HashMap<String, Object> args) {
-
-        if(args.size() < 9) return -1;
-
-        MongoManager mongo = MongoManager.getInstance();
-        int rid = -1, gid = -1, uid = -1, votes = 0;
-        String game = "", uname = "";
-        Object reports = null;
-        Document review = new Document();
-
-        //check if all necessary fields are present
-        try {
-            rid = (Integer) args.get("rid");
-            gid = (Integer) args.get("gid");
-            uid = (Integer) args.get("uid");
-            game = (String) args.get("game");
-            uname = (String) args.get("uname");
-            review.append("rating", (boolean) args.get("rating"));
-            review.append("creation_date", (int) args.get("creation_date"));
-            review.append("content", (String) args.get("content"));
-            if(args.size() >= 10) votes = (int) args.get("votes");
-            if(args.size() == 11) reports = args.get("reports");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
-
-        //check if review is already present
-        MongoCollection<Document> reviews = mongo.getCollection("reviews");
-        Document existingReview = reviews.find(
-                        and(eq("gid", gid), eq("uid", uid)))
-                .projection(fields(include("_id")))
-                .first();
-        if(existingReview != null) return 0;
-
-        //add remaining fields and add document
-        review.append("rid", rid);
-        review.append("gid", gid);
-        review.append("uid", uid);
-        review.append("game", game);
-        review.append("uname", uname);
-        mongo.addDoc("reviews", review);
-
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("id", rid);
-        map.put("game", game);
-        map.put("uname", uname);
-        boolean ret = neo4j.addNode("Review", map);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "rid", rid);
-            return -1;
-        }
-
-        //create relationships between review, game and gamer
-        long timestamp = Instant.now().getEpochSecond();
-        String query = String.format(
-                "MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d}) " +
-                        "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
-                        "MERGE (g)-[:HAS_REVIEW {votes:0}]->(r) " +
-                        "MERGE (u)-[:OWNS {hours:0}]->(g)",
-                uid, gid, rid, timestamp);
-        neo4j.executeWriteTransactionQuery(query);
-
-        //used to initially populate the db
-        if(votes > 0) {
-            String[] node_type = {"Game", "Review"};
-            int[] node_name = {gid, rid};
-            neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", votes);
-        }
-
-        return 1;
+        Review review = new Review();
+        return review.addReview(args);
     }
 
     public boolean upvoteReview(int rid) {
