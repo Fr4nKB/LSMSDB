@@ -1,8 +1,10 @@
 package games4you.entities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import games4you.util.Authentication;
@@ -97,34 +99,81 @@ public class User {
      * @param pwd password
      * @return -1 if data is wrong, 0 if user is normal and 1 if admin
     */
-    public int[] login(String uname, String pwd) {
+    public int login(String uname, String pwd) {
         MongoManager mongo = MongoManager.getInstance();
-        int[] ret = new int[2];
-        ret[0] = ret[1] = -1;
 
         //check if username and password contain allowed characters
-        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return ret;
+        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return -1;
 
         MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uname", uname);
         if(cur.hasNext()) {
             Document user = cur.next();
-            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return ret;
-
-            ret[0] = user.getInteger("uid");
-            ret[1] = user.getBoolean("isAdmin") ? 1 : 0;
-            return ret;
+            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return -1;
+            return user.getBoolean("isAdmin") ? 1 : 0;
         }
-        else return ret;
+        else return -1;
     }
 
     public boolean removeReview(int rid) {
+        Review review = new Review();
+        return review.removeReview(rid);
+    }
+
+    public String showGame(int gid){
         MongoManager mongo = MongoManager.getInstance();
+
+        MongoCollection<Document> games = mongo.getCollection("games");
+        Document doc = games.find(
+                        Filters.eq("gid", gid))
+                .projection(Projections.excludeId())
+                .first();
+
+        if(doc == null){
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            return mapper.writeValueAsString(doc);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String showUser(int uid){
+        MongoManager mongo = MongoManager.getInstance();
+
+        MongoCollection<Document> users = mongo.getCollection("users");
+        Document doc = users.find(
+                Filters.eq("uid", uid))
+                .projection(Projections.excludeId())
+                .first();
+
+        if(doc == null){
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            return mapper.writeValueAsString(doc);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public ArrayList<Object> browseUsers(String username) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
-        mongo.removeDoc(false, "reviews", "rid", rid);
-        neo4j.removeNode("Review", rid);
-
-        return true;
+        String query = String.format(
+                "MATCH (u:User)" +
+                        "WHERE ToLower(u.username) CONTAINS ToLower(%SearchString)",
+                username);
+        return neo4j.getQueryResultAsList(query);
     }
 
 }
