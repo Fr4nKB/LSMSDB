@@ -65,6 +65,7 @@ public class Review {
                 .first();
         if(existingReview != null) return 0;
 
+        /*
         boolean ret = updateRedundantReviews("users", uid, 3);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
@@ -75,6 +76,7 @@ public class Review {
             mongo.removeDoc(false, "reviews", "rid", rid);
             return -1;
         }
+         */
 
         //add remaining fields and add document
         review.append("rid", rid);
@@ -89,7 +91,7 @@ public class Review {
         map.put("id", rid);
         map.put("game", game);
         map.put("uname", uname);
-        ret = neo4j.addNode("Review", map);
+        boolean ret = neo4j.addNode("Review", map);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
             return -1;

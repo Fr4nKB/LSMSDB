@@ -52,6 +52,10 @@ public class Test {
         //GAMES
         System.out.println(gamer.getGameList(0,0));
         assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
+        assert gamer.addGameToLibrary(0, 2);
+        assert gamer.getGameList(0, 0).size() == 3: "Incorrect game list size";
+        assert gamer.removeGameFromLibrary(0, 2);
+        assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
 
         //REVIEWS
         System.out.println(gamer.getReviewList(1, 0));

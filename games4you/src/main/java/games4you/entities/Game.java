@@ -5,6 +5,7 @@ import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Game {
@@ -66,7 +67,7 @@ public class Game {
     }
 
 
-    public boolean addGameToLibrary(int gid, int uid) {
+    public boolean addGameToLibrary(int uid, int gid) {
         //create relationships between review, game and gamer
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format(
@@ -77,9 +78,20 @@ public class Game {
         return true;
     }
 
-    public boolean removeGameFromLibrary(int gid, int uid) {
+    public boolean removeGameFromLibrary(int uid, int gid) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "Game"};
         return neo4j.removeRelationship(node_types, "OWNS", uid, gid);
+    }
+
+
+    public ArrayList<Object> browseGames(String gameName){
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        String query = String.format(
+                "MATCH (g:Games)" +
+                        "WHERE ToLower(g.name) CONTAINS ToLower(%SearchString)",
+                gameName);
+        return neo4j.getQueryResultAsList(query);
     }
 }

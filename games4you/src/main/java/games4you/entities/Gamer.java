@@ -185,5 +185,14 @@ public class Gamer extends User {
         return neo4j.getQueryResultAsList(query);
     }
 
+    public boolean addGameToLibrary(int uid, int gid){
+        Game game = new Game();
+        return game.addGameToLibrary(uid, gid);
+    }
+
+    public boolean removeGameFromLibrary(int uid, int gid){
+        Game game = new Game();
+        return game.removeGameFromLibrary(uid, gid);
+    }
 
 }

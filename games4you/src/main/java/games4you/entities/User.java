@@ -142,5 +142,38 @@ public class User {
         }
     }
 
+    public String showUser(int uid){
+        MongoManager mongo = MongoManager.getInstance();
+
+        MongoCollection<Document> users = mongo.getCollection("users");
+        Document doc = users.find(
+                Filters.eq("uid", uid))
+                .projection(Projections.excludeId())
+                .first();
+
+        if(doc == null){
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            return mapper.writeValueAsString(doc);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public ArrayList<Object> browseUsers(String username) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        String query = String.format(
+                "MATCH (u:User)" +
+                        "WHERE ToLower(u.username) CONTAINS ToLower(%SearchString)",
+                username);
+        return neo4j.getQueryResultAsList(query);
+    }
 
 }
