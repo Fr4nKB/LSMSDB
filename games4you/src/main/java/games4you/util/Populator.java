@@ -52,7 +52,7 @@ public class Populator {
     public void populateGames() {
         List<HashMap<String, Object>> json = readJson("gameDB.json");
         for (HashMap<String, Object> map : json) {
-            if(!a.addGame(map)) System.out.println("Game not added");
+            if(!a.insertGame(map)) System.out.println("Game not added");
         }
     }
 
