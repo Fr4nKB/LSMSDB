@@ -3,7 +3,6 @@ package games4you.dbmanager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.summary.ResultSummary;
 import org.neo4j.driver.summary.SummaryCounters;
 
 import java.io.InputStream;
@@ -168,10 +167,12 @@ public class Neo4jManager implements AutoCloseable{
     }
 
     public boolean addAttribute(String node_type, int node_name, String attribute_name, Object attribute) {
+        String query = String.format(
+                "MATCH (u:%s {id: %s}) SET u.%s = $attribute",
+                node_type, node_name, attribute_name);
+
         try (Session session = driver.session()) {
-            session.run(STR."MATCH (u:\{node_type} {id: \{node_name}}) " +
-                            STR."SET u.\{attribute_name}=" + "$attribute",
-                    parameters("attribute", attribute));
+            session.run(query, parameters("attribute", attribute));
         } catch (Exception e){
             System.out.println(e.toString());
             return false;

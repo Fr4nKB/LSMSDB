@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.jsonList = /*[[${jsonList}]]*/ 'default';
+        /*]]>*/
+    </script>
+    <script src="/javascript/homeList.js" th:src="@{javascript/homeList.js}"></script>
+    <h1>WELCOME</h1>
+    <table id="tableContent">
+        <tbody></tbody>
+    </table>
+</body>
+</html>

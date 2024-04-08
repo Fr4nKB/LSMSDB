@@ -28,9 +28,12 @@ public class Gamer extends User {
 
     public boolean addFriend(int uid1, int uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
+
         String[] node_types = new String[]{"User", "User"};
-        String timestamp = Long.toString(Instant.now().getEpochSecond());
-        return neo4j.addRelationship(node_types, STR."IS_FRIEND_WITH {since:\{timestamp}}", uid1, uid2);
+        long timestamp = Instant.now().getEpochSecond();
+        String relation = String.format("IS_FRIEND_WITH {since: %d}", timestamp);
+
+        return neo4j.addRelationship(node_types, relation, uid1, uid2);
     }
 
     public boolean removeFriend(int uid1, int uid2) {

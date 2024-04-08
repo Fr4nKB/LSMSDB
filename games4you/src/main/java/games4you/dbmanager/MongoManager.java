@@ -65,7 +65,7 @@ public class MongoManager implements AutoCloseable {
                     .withReadPreference(ReadPreference.nearest());
 
         } catch (MongoException me) {
-            System.out.println(STR."Failed to find \{collection} collection in database \{database.getName()}");
+            System.out.println("Failed to find " + collection + " collection in database");
             return null;
         }
 

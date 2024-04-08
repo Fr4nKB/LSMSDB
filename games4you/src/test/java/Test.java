@@ -5,7 +5,7 @@ import games4you.util.Populator;
 import java.io.IOException;
 
 public class Test {
-    public void main() {
+    public static void main(String[] args) {
 
         //clean databases
         try {
@@ -30,7 +30,7 @@ public class Test {
         pop.populateReviews();
 
         //LOGIN
-        assert gamer.login("JohnnyTheDark", "trustNo1") == 0: "Login failed";
+        assert gamer.login("JohnnyTheDark", "trustNo1")[1] == 0: "Login failed";
 
         //FRIENDS
         assert gamer.addFriend(0, 1): "Friend 1 not added";

@@ -97,19 +97,24 @@ public class User {
      * @param pwd password
      * @return -1 if data is wrong, 0 if user is normal and 1 if admin
     */
-    public int login(String uname, String pwd) {
+    public int[] login(String uname, String pwd) {
         MongoManager mongo = MongoManager.getInstance();
+        int[] ret = new int[2];
+        ret[0] = ret[1] = -1;
 
         //check if username and password contain allowed characters
-        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return -1;
+        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return ret;
 
         MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uname", uname);
         if(cur.hasNext()) {
             Document user = cur.next();
-            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return -1;
-            return user.getBoolean("isAdmin") ? 1 : 0;
+            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return ret;
+
+            ret[0] = user.getInteger("uid");
+            ret[1] = user.getBoolean("isAdmin") ? 1 : 0;
+            return ret;
         }
-        else return -1;
+        else return ret;
     }
 
     public boolean removeReview(int rid) {
