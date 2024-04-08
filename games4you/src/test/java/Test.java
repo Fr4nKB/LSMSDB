@@ -52,6 +52,10 @@ public class Test {
         //GAMES
         System.out.println(gamer.getGameList(0,0));
         assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
+        assert gamer.addGameToLibrary(0, 2);
+        assert gamer.getGameList(0, 0).size() == 3: "Incorrect game list size";
+        assert gamer.removeGameFromLibrary(0, 2);
+        assert gamer.getGameList(0, 0).size() == 2: "Incorrect game list size";
 
         //REVIEWS
         System.out.println(gamer.getReviewList(1, 0));
@@ -65,8 +69,8 @@ public class Test {
         //ADMIN
         assert admin.banGamer(0): "User not banned";
         assert gamer.getFriendList(1, 0).size() == 1;
-        assert admin.removeGame(1);
-        assert !admin.removeGame(1): "Game was already removed";
+        assert admin.deleteGame(1);
+        assert !admin.deleteGame(1): "Game was already removed";
         assert gamer.getReviewList(1, 0).isEmpty();
         assert gamer.getGameList(1, 0).size() == 1;
 
