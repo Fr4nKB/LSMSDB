@@ -34,7 +34,7 @@ public class Authentication {
         }
 
         String hash = hash(password + salt);
-        return STR."\{hash}|\{salt}";
+        return String.format("%s|%s", hash, salt);
     }
 
     public static boolean verifyHash(String hashAndSalt, String password) {
@@ -46,7 +46,7 @@ public class Authentication {
     }
 
     public static boolean isUsername(String str) {
-        if (str.length() >= MAX_SANITIZATION_LEN || str.isEmpty()) {
+        if (str == null || str.length() >= MAX_SANITIZATION_LEN || str.isEmpty()) {
             return false;
         }
         // Alphanumeric characters and underscores, starting with a letter
@@ -55,7 +55,7 @@ public class Authentication {
     }
 
     public static boolean isPassword(String str) {
-        if (str.length() >= MAX_SANITIZATION_LEN || str.length() < 4) {
+        if (str == null || str.length() >= MAX_SANITIZATION_LEN || str.length() < 4) {
             return false;
         }
 

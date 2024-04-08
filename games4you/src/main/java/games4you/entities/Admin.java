@@ -9,9 +9,6 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
-import games4you.entities.Game;
-import games4you.entities.Review;
-import org.bson.BsonDocument;
 import org.bson.Document;
 
 import java.util.*;

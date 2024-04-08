@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.jsonList = /*[[${jsonList}]]*/ 'default';
+        /*]]>*/
+    </script>
+    <script src="/javascript/homeList.js" th:src="@{javascript/homeList.js}"></script>
+
+    <h1>WELCOME</h1>
+
+    <form action="#" th:action="@{/search}" method="post">
+        <select name="type">
+            <option value="Users">Users</option>
+            <option value="Gamers">Gamers</option>
+        </select>
+        <input type="text" name="query">
+        <input type="submit" value="Search">
+    </form>
+
+    <table id="tableContent">
+        <tbody></tbody>
+    </table>
+
+</body>
+</html>

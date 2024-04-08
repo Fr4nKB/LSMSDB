@@ -99,19 +99,23 @@ public class User {
      * @param pwd password
      * @return -1 if data is wrong, 0 if user is normal and 1 if admin
     */
-    public int login(String uname, String pwd) {
+    public int[] login(String uname, String pwd) {
         MongoManager mongo = MongoManager.getInstance();
 
         //check if username and password contain allowed characters
-        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return -1;
+        if(!(Authentication.isUsername(uname) && Authentication.isPassword(pwd))) return null;
 
         MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uname", uname);
         if(cur.hasNext()) {
             Document user = cur.next();
-            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return -1;
-            return user.getBoolean("isAdmin") ? 1 : 0;
+            if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return null;
+
+            int[] ret = new int[2];
+            ret[0] = user.getInteger("uid");
+            ret[1] = user.getBoolean("isAdmin") ? 1 : 0;
+            return ret;
         }
-        else return -1;
+        else return null;
     }
 
     public boolean removeReview(int rid) {
@@ -170,9 +174,19 @@ public class User {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         String query = String.format(
-                "MATCH (u:User)" +
-                        "WHERE ToLower(u.username) CONTAINS ToLower(%SearchString)",
+                "MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s') " +
+                        "RETURN {type: \"U\", id: u.id, name: u.uname}",
                 username);
+        return neo4j.getQueryResultAsList(query);
+    }
+
+    public ArrayList<Object> browseGames(String gameName){
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        String query = String.format(
+                "MATCH (g:Game) WHERE ToLower(g.name) CONTAINS ToLower('%s') " +
+                        "RETURN {type: \"G\", id: g.id, name: g.name}",
+                gameName);
         return neo4j.getQueryResultAsList(query);
     }
 
