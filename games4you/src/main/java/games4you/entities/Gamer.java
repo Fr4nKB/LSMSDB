@@ -14,11 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
-
 public class Gamer extends User {
 
     private ArrayList<Object> getRelationshipList(String query) {
@@ -29,8 +24,9 @@ public class Gamer extends User {
     public boolean addFriend(int uid1, int uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "User"};
-        String timestamp = Long.toString(Instant.now().getEpochSecond());
-        return neo4j.addRelationship(node_types, STR."IS_FRIEND_WITH {since:\{timestamp}}", uid1, uid2);
+        long timestamp = Instant.now().getEpochSecond();
+        String relation = String.format("IS_FRIEND_WITH {since: %d}", timestamp);
+        return neo4j.addRelationship(node_types, relation, uid1, uid2);
     }
 
     public boolean removeFriend(int uid1, int uid2) {
@@ -140,12 +136,12 @@ public class Gamer extends User {
                         "WHERE fof <> u\n" +
                         "WITH f, r, fof\n" +
                         "ORDER BY r.since DESC\n" +
-                        "RETURN {type: \"F\", friend: f.uname, time: r.since, object: fof.uname} AS result\n" +
+                        "RETURN {type: \"F\", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: f.id, name: fof.uname}} AS result\n" +
                         "UNION\n" +
                         "MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[r:HAS_WROTE]->(rev:Review)\n" +
                         "WITH f, r, rev\n" +
                         "ORDER BY r.in DESC\n" +
-                        "RETURN {type: \"R\", friend: f.uname, time: r.in, object: rev.game} AS result\n" +
+                        "RETURN {type: \"R\", friend: {id: f.id, name: f.uname}, time: r.in, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result\n" +
                         "SKIP %d LIMIT 20",
                 uid, uid, offset);
 

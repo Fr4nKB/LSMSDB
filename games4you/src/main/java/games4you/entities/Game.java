@@ -4,7 +4,6 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -84,14 +83,4 @@ public class Game {
         return neo4j.removeRelationship(node_types, "OWNS", uid, gid);
     }
 
-
-    public ArrayList<Object> browseGames(String gameName){
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-
-        String query = String.format(
-                "MATCH (g:Games)" +
-                        "WHERE ToLower(g.name) CONTAINS ToLower(%SearchString)",
-                gameName);
-        return neo4j.getQueryResultAsList(query);
-    }
 }

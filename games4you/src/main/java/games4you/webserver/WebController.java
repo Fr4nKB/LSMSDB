@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -97,10 +98,58 @@ public class WebController {
             mod.addObject("jsonList", content);
         }
         else if(ret[1] == 1) {
-            ArrayList<Object> content = adminMethods.getReportedReviews(0);
+            ArrayList<String> content = adminMethods.getReportedReviews(0);
             mod.addObject("jsonList", content);
         }
 
         return mod;
     }
+
+    @GetMapping("/user/{id}")
+    public String getUser(@PathVariable("id") String id) {
+        try {
+            gamerMethods.showUser(Integer.parseInt(id));
+            return "user";
+        }
+        catch (NumberFormatException e) {
+            e.printStackTrace();
+            return "error";
+        }
+
+    }
+
+    @GetMapping("/game/{id}")
+    public String getGame(@PathVariable("id") String id) {
+        try {
+            gamerMethods.showGame(Integer.parseInt(id));
+            return "user";
+        }
+        catch (NumberFormatException e) {
+            e.printStackTrace();
+            return "error";
+        }
+
+    }
+
+    @PostMapping("/search")
+    public ModelAndView search(@RequestParam("type") String type, @RequestParam("query") String query,
+                               HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("search");
+
+        int[] ret = isUserAdmin(request);
+        if(ret == null) return null;
+
+        ArrayList<Object> content;
+        if(type.equals("Users")) {
+            content = gamerMethods.browseUsers(query);
+        }
+        else if(type.equals("Gamers")) {
+            content = gamerMethods.browseGames(query);
+        }
+        else content = null;
+
+        mod.addObject("jsonList", content);
+        return mod;
+    }
+
 }

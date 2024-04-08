@@ -89,6 +89,7 @@ public class Review {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", rid);
+        map.put("gid", gid);
         map.put("game", game);
         map.put("uname", uname);
         boolean ret = neo4j.addNode("Review", map);

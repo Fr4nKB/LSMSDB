@@ -78,7 +78,7 @@ public class Neo4jManager implements AutoCloseable{
     /**
      * Removes a node from the graph db and all the connected relationships
      * @param node_type the class of the node
-     * @param value the value to assign to the 'name' property
+     * @param id the id of the node to remove
      * @return false if node is not removed, true otherwise
      */
     public boolean removeNode(String node_type, int id) {
@@ -140,14 +140,7 @@ public class Neo4jManager implements AutoCloseable{
         }
     }
 
-    /**
-     * Returns a subset of all the elements belonging to a relationship
-     * @param node_types classes of the nodes in the relationship
-     * @param relation name of the relation and eventual properties
-     * @param node name of the relationship source node
-     * @param offset number of elements to skip to implement pagination
-     * @return a maximum of 20 elem after the offset-th elem
-     */
+
     public ArrayList<ArrayList<Object>> getQueryResultAsListOfLists(String query) {
         try (Session session = driver.session()) {
             Result res = session.run(query);
