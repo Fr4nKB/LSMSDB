@@ -108,16 +108,8 @@ public class WebController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        ArrayList<Object> content;
-        if(type.equals("Users")) {
-            content = gamerMethods.browseUsers(query);
-        }
-        else if(type.equals("Games")) {
-            content = gamerMethods.browseGames(query);
-        }
-        else content = null;
-
-        mod.addObject("jsonList", content);
+        mod.addObject("type", type);
+        mod.addObject("query", query);
         return mod;
     }
 

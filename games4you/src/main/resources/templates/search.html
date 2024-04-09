@@ -4,15 +4,20 @@
     <title>Search</title>
 </head>
 <body>
+    <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
-        window.jsonList = /*[[${jsonList}]]*/ 'default';
+        var offset = 0;
+        var search_type = /*[[${type}]]*/ 'Users';
+        var search_query = /*[[${query}]]*/ '';
+        window.onload = function() {loadSearch()};
         /*]]>*/
     </script>
-    <script src="/javascript/searchList.js" th:src="@{javascript/searchList.js}"></script>
 
     <table id="tableContent">
         <tbody></tbody>
     </table>
+    <button onclick="loadSearch()">Load more</button>
+
 </body>
 </html>

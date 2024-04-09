@@ -163,23 +163,25 @@ public class User {
     }
 
 
-    public ArrayList<Object> browseUsers(String username) {
+    public ArrayList<Object> browseUsers(String username, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         String query = String.format(
                 "MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s') " +
-                        "RETURN {type: \"U\", id: u.id, name: u.uname}",
-                username);
+                        "RETURN {type: \"U\", id: u.id, name: u.uname} " +
+                        "SKIP %d LIMIT 20",
+                username, offset);
         return neo4j.getQueryResultAsList(query);
     }
 
-    public ArrayList<Object> browseGames(String gameName){
+    public ArrayList<Object> browseGames(String gameName, int offset){
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         String query = String.format(
                 "MATCH (g:Game) WHERE ToLower(g.name) CONTAINS ToLower('%s') " +
-                        "RETURN {type: \"G\", id: g.id, name: g.name}",
-                gameName);
+                        "RETURN {type: \"G\", id: g.id, name: g.name} " +
+                        "SKIP %d LIMIT 20",
+                gameName, offset);
         return neo4j.getQueryResultAsList(query);
     }
 
