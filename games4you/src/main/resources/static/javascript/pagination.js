@@ -1,5 +1,6 @@
-window.onload = function() {
-    var jsonList = window.jsonList;
+let offset =  0;
+
+function loadHomePageTiles(jsonList) {
     var table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(jsonString) {
@@ -41,4 +42,22 @@ window.onload = function() {
         var cell2 = row.insertCell(1);
         cell2.textContent = date.toUTCString();
     });
-};
+}
+
+async function loadData(endpoint) {
+    const url = new URL(endpoint, window.location.origin);
+    url.searchParams.append('offset', offset);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include', // Include cookies in the request
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    offset += data.length;
+    loadHomePageTiles(data);
+}

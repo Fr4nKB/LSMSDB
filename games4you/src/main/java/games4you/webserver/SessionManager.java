@@ -1,6 +1,8 @@
 package games4you.webserver;
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.SecretKey;
 import java.util.Calendar;
@@ -50,12 +52,31 @@ public class SessionManager {
             // return if user is admin or not
             long[] ret = new long[2];
             ret[0] = Long.parseLong(claims.getSubject());
-            ret[1] = (long) claims.get("isAdmin");
+            ret[1] = ((Integer) claims.get("isAdmin")).longValue();
             return ret;
 
         }
         catch (JwtException e) {
             return null;
         }
+    }
+
+    /**
+     * Retrieves access token and validates it
+     * @param request to request cookies
+     * @return -1 if token not found or invalid, 0 if user is normal or 1 if is admin
+     */
+    public long[] isUserAdmin(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("token")) {
+                    return validateToken(cookie.getValue());
+                }
+            }
+        }
+
+        return null;
     }
 }

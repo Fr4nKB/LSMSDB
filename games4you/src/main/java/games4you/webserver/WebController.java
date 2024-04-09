@@ -8,10 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -30,25 +27,6 @@ public class WebController {
         sesManager = new SessionManager();
     }
 
-    /**
-     * Retrieves access token and validates it
-     * @param request to request cookies
-     * @return -1 if token not found or invalid, 0 if user is normal or 1 if is admin
-     */
-    public long[] isUserAdmin(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
-                    return sesManager.validateToken(cookie.getValue());
-                }
-            }
-        }
-
-        return null;
-    }
-
     @GetMapping("/login")
     public String login() {
         return "login";
@@ -57,7 +35,7 @@ public class WebController {
     @PostMapping("/login")
     public String postLogin(String uname, String pwd, HttpServletRequest request, HttpServletResponse response) {
         //first check if any cookie is present
-        long[] ret = isUserAdmin(request);
+        long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) { // no cookies, check user credentials
             ret = gamerMethods.login(uname, pwd);
             if(ret == null) return "redirect:/login";
@@ -89,19 +67,11 @@ public class WebController {
     }
 
     @GetMapping("/home")
-    public ModelAndView homeUser(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("home");
-        long[] ret = isUserAdmin(request);
-        if(ret[1] == 0) {
-            ArrayList<Object> content = gamerMethods.homePage(ret[1], 0);
-            mod.addObject("jsonList", content);
-        }
-        else if(ret[1] == 1) {
-            ArrayList<String> content = adminMethods.getReportedReviews(0);
-            mod.addObject("jsonList", content);
-        }
+    public String homeUser(HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
 
-        return mod;
+        if(ret == null) return "error";
+        return "home";
     }
 
     @GetMapping("/user/{id}")
@@ -130,19 +100,19 @@ public class WebController {
 
     }
 
-    @PostMapping("/search")
+    @GetMapping("/search")
     public ModelAndView search(@RequestParam("type") String type, @RequestParam("query") String query,
                                HttpServletRequest request) {
         ModelAndView mod = new ModelAndView("search");
 
-        long[] ret = isUserAdmin(request);
+        long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
         ArrayList<Object> content;
         if(type.equals("Users")) {
             content = gamerMethods.browseUsers(query);
         }
-        else if(type.equals("Gamers")) {
+        else if(type.equals("Games")) {
             content = gamerMethods.browseGames(query);
         }
         else content = null;

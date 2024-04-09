@@ -5,18 +5,16 @@
 </head>
 <body>
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        window.jsonList = /*[[${jsonList}]]*/ 'default';
-        /*]]>*/
+        window.onload = function() {loadData('/home/user/reviews')};
     </script>
-    <script src="/javascript/homeList.js" th:src="@{javascript/homeList.js}"></script>
+    <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
 
     <h1>WELCOME</h1>
 
-    <form action="#" th:action="@{/search}" method="post">
+    <form action="#" th:action="@{/search}" method="get">
         <select name="type">
             <option value="Users">Users</option>
-            <option value="Gamers">Gamers</option>
+            <option value="Games">Games</option>
         </select>
         <input type="text" name="query">
         <input type="submit" value="Search">
@@ -25,6 +23,8 @@
     <table id="tableContent">
         <tbody></tbody>
     </table>
+
+    <button onclick="loadData('/home/user/reviews')">Load more</button>
 
 </body>
 </html>
