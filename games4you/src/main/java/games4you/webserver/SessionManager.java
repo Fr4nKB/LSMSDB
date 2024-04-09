@@ -79,4 +79,18 @@ public class SessionManager {
 
         return null;
     }
+
+    public boolean removeSession(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if(cookies == null) return false;
+
+        for (Cookie cookie: cookies) {
+            if (cookie.getName().equals("token")) {
+                tokenStore.remove(cookie.getValue());
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

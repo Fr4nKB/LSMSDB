@@ -24,7 +24,7 @@ public class Test {
         Gamer gamer = new Gamer();
         Admin admin = new Admin();
 
-        assert pop.populateGamers() == 4;
+        assert pop.populateGamers() == 5;
         assert pop.populateGamers() == 0: "Users already present";
         pop.populateGames();
         pop.populateReviews();
@@ -38,7 +38,7 @@ public class Test {
         assert gamer.addFriend(1, 2): "Friend 3 not added";
         assert gamer.addFriend(2, 3): "Friend 4 not added";
         assert gamer.addFriend(3, 0): "Friend 4 not added";
-        System.out.println(gamer.homePageFriends(0, 0));
+//        System.out.println(gamer.homePageFriends(0, 0));
 //        assert gamer.homePageFriends(0, 0).size() == 2: "Incorrect home page for friends";
 //        assert gamer.homePageReviews(0, 0).size() == 5: "Incorrect home page for reviews";
 //
@@ -75,14 +75,14 @@ public class Test {
 //        assert gamer.getReviewList(1, 0).isEmpty();
 //        assert gamer.getGameList(1, 0).size() == 1;
 //
-//        assert !gamer.reportReview(1, 3);     //cannot report itself
-//        assert gamer.reportReview(1, 4);
-//        assert gamer.reportReview(4, 3);
-//        assert !gamer.reportReview(4, 3);    //cannot report twice
+        assert !gamer.reportReview(1, 3);     //cannot report itself
+        assert gamer.reportReview(1, 4);
+        assert gamer.reportReview(4, 3);
+        assert !gamer.reportReview(4, 3);    //cannot report twice
 //
 //        gamer.updatePlayedHours(1, 3, 100);
 //
-//        System.out.println(admin.getReportedReviews(0));
+        System.out.println(admin.getReportedReviews(0));
 //        assert admin.getReportedReviews(0).size() == 2: "Incorrect reported reviews size";
 //        assert admin.evaluateReportedReview(3, true);
 //        assert admin.getReportedReviews(0).size() == 1: "Incorrect reported reviews size after evaluation";

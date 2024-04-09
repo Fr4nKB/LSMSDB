@@ -21,6 +21,12 @@ public class DataController {
         sesManager = new SessionManager();
     }
 
+    @GetMapping("/logout")
+    public boolean logout(HttpServletRequest request) {
+        if(!sesManager.removeSession(request)) return false;
+        else return true;
+    }
+
     @GetMapping("/home/more")
     public ArrayList<Object> homePageLoadMore(@RequestParam("offset") int offset, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);

@@ -71,7 +71,8 @@ public class WebController {
         long[] ret = sesManager.isUserAdmin(request);
 
         if(ret == null) return "error";
-        return "home";
+        else if(ret[1] == 1) return "homeAdmin";
+        else return "home";
     }
 
     @GetMapping("/user/{id}")

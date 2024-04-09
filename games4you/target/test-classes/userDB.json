@@ -1,5 +1,15 @@
 [
   {
+    "uid": -1,
+    "firstname": "Mario",
+    "lastname": "Rossi",
+    "datebirth": "20/10/1990",
+    "uname": "aaa",
+    "pwd": "wasd",
+    "isAdmin": true,
+    "tags": ["Action", "Adventure", "FPS", "Online"]
+  },
+  {
     "uid": 0,
     "firstname": "John",
     "lastname": "Travolta",
