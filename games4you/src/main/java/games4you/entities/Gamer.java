@@ -130,32 +130,25 @@ public class Gamer extends User {
         return getRelationshipList(query);
     }
 
-    public ArrayList<Object> homePageFriends(long uid, int offset) {
+    public ArrayList<Object> homePage(long uid, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format(
                 """
-                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)
-                        MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)
-                        WHERE fof <> u
-                        WITH f, r, fof
-                        ORDER BY r.since DESC
-                        RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: f.id, name: fof.uname}} AS result
-                        SKIP %d LIMIT 20""",
-                uid, offset);
-
-        return neo4j.getQueryResultAsList(query);
-    }
-
-    public ArrayList<Object> homePageReviews(long uid, int offset) {
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        String query = String.format(
-                """
-                MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[r:HAS_WROTE]->(rev:Review)
+                CALL {
+                    MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[r:HAS_WROTE]->(rev:Review)
                     WITH f, r, rev
                     ORDER BY r.in DESC
                     RETURN {type: "R", friend: {id: f.id, name: f.uname}, time: r.in, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result
-                    SKIP %d LIMIT 20""",
-                uid, offset);
+                    UNION
+                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)
+                    MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)
+                    WHERE fof <> u
+                    WITH f, r, fof
+                    ORDER BY r.since DESC
+                    RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: f.id, name: fof.uname}} AS result
+                    }
+                    RETURN result SKIP %d LIMIT 20""",
+                uid, uid, offset);
 
         return neo4j.getQueryResultAsList(query);
     }

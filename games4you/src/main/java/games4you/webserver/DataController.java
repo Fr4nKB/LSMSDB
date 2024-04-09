@@ -21,18 +21,14 @@ public class DataController {
         sesManager = new SessionManager();
     }
 
-    @GetMapping("/home/user/friends")
-    public ArrayList<Object> homePageLoadMoreFriends(@RequestParam("offset") int offset, HttpServletRequest request) {
+    @GetMapping("/home/more")
+    public ArrayList<Object> homePageLoadMore(@RequestParam("offset") int offset, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
-        return gamerMethods.homePageFriends(ret[0], offset);
-    }
 
-    @GetMapping("/home/user/reviews")
-    public ArrayList<Object> homePageLoadMoreReviews(@RequestParam("offset") int offset, HttpServletRequest request) {
-        long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null) return null;
-        return gamerMethods.homePageReviews(ret[0], offset);
+        if(ret[1] == 1) return adminMethods.getReportedReviews(offset);
+        else if(ret[1] == 0) return gamerMethods.homePage(ret[0], offset);
+        else return null;
     }
 
     @GetMapping("/search/users/{user}")

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Home</title>
+    <title>GAMES4YOU</title>
 </head>
 <body>
     <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
     <script>
         var offset = 0;
-        window.onload = function() {loadHome('reviews')};
+        window.onload = function() {loadHome()};
     </script>
 
     <h1>WELCOME</h1>
@@ -24,7 +24,7 @@
     <table id="tableContent">
         <tbody></tbody>
     </table>
-    <button onclick="loadHome('reviews')">Load more</button>
+    <button onclick="loadHome()">Load more</button>
 
 </body>
 </html>

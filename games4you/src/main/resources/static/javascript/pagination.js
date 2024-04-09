@@ -77,7 +77,7 @@ function populateSearchListTiles(jsonList) {
 }
 
 function loadHome(str) {
-    let data = loadData("/home/user/" + str, window.offset)
+    let data = loadData("/home/more", window.offset)
         .then(data => {
             window.offset += data.length;
             loadHomePageTiles(data);

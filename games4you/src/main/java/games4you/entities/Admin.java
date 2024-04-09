@@ -52,7 +52,7 @@ public class Admin extends User {
         return neo4j.removeNode("User", uid);
     }
 
-    public ArrayList<String> getReportedReviews(int offset) {
+    public ArrayList<Object> getReportedReviews(int offset) {
         MongoManager mongo = MongoManager.getInstance();
         try {
             MongoCollection<Document> coll = mongo.getCollection("reviews");
@@ -64,7 +64,7 @@ public class Admin extends User {
                     .limit(20)
                     .iterator();
 
-            ArrayList<String> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             while(cur.hasNext()) {
                 Document elem = cur.next();
                 list.add(elem.toJson());
