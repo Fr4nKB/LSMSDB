@@ -34,16 +34,17 @@ public class Review {
         if(args.size() < 9) return -1;
 
         MongoManager mongo = MongoManager.getInstance();
-        int rid = -1, gid = -1, uid = -1, votes = 0;
-        String game = "", uname = "";
+        long rid, gid, uid;
+        int votes = 0;
+        String game, uname;
         Object reports = null;
         Document review = new Document();
 
         //check if all necessary fields are present
         try {
-            rid = (Integer) args.get("rid");
-            gid = (Integer) args.get("gid");
-            uid = (Integer) args.get("uid");
+            rid = (Long) args.get("rid");
+            gid = (Long) args.get("gid");
+            uid = (Long) args.get("uid");
             game = (String) args.get("game");
             uname = (String) args.get("uname");
             review.append("rating", (boolean) args.get("rating"));
@@ -84,6 +85,7 @@ public class Review {
         review.append("uid", uid);
         review.append("game", game);
         review.append("uname", uname);
+        if(args.size() == 11) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
         Neo4jManager neo4j = Neo4jManager.getInstance();
@@ -111,14 +113,14 @@ public class Review {
         //used to initially populate the db
         if(votes > 0) {
             String[] node_type = {"Game", "Review"};
-            int[] node_name = {gid, rid};
+            long[] node_name = {gid, rid};
             neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", votes);
         }
 
         return 1;
     }
 
-    public boolean removeReview(int rid) {
+    public boolean removeReview(long rid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
@@ -136,7 +138,7 @@ public class Review {
      * @return true if the reviews are added, false otherwise
      */
     private boolean updateRedundantReviews(String collection, int id, int amount) {
-        String id_name = "";
+        String id_name;
         if(collection.equals("games")) id_name = "gid";
         else if(collection.equals("users")) id_name = "uid";
         else return false;

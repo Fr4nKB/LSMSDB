@@ -10,13 +10,14 @@ import java.util.Map;
 
 public class SessionManager {
     private static SecretKey secKey;
-    private static final Map<String, Integer> tokenStore = new HashMap<>();      //O(1) to check existence of tokens
+    private static Map<String, Long> tokenStore;
 
     public SessionManager() {
          secKey = Jwts.SIG.HS256.key().build();
+         tokenStore = new HashMap<>();      //O(1) to check existence of tokens
     }
 
-    public static String generateToken(int uid, int isAdmin) {
+    public static String generateToken(long uid, long isAdmin) {
 
         // Generate a date which is 3 days after today
         Date currDate = new Date();
@@ -26,7 +27,7 @@ public class SessionManager {
         Date expDate = calendar.getTime();
 
         String token = Jwts.builder()
-                .subject(Integer.toString(uid))
+                .subject(Long.toString(uid))
                 .claim("isAdmin", isAdmin)
                 .issuedAt(currDate)
                 .expiration(expDate)
@@ -38,7 +39,7 @@ public class SessionManager {
         return token;
     }
 
-    public static int[] validateToken(String token) {
+    public static long[] validateToken(String token) {
         try {
             if (!tokenStore.containsKey(token)) return null;  // Check if the token exists
 
@@ -47,9 +48,9 @@ public class SessionManager {
             if (claims.getExpiration().before(new Date())) return null;   // Check if the token is expired
 
             // return if user is admin or not
-            int[] ret = new int[2];
-            ret[0] = Integer.parseInt(claims.getSubject());
-            ret[1] = (int) claims.get("isAdmin");
+            long[] ret = new long[2];
+            ret[0] = Long.parseLong(claims.getSubject());
+            ret[1] = (long) claims.get("isAdmin");
             return ret;
 
         }

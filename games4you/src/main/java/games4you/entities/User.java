@@ -10,15 +10,8 @@ import games4you.dbmanager.Neo4jManager;
 import games4you.util.Authentication;
 import org.bson.Document;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.*;
 
 public class User {
 
@@ -35,13 +28,13 @@ public class User {
         MongoManager mongo = MongoManager.getInstance();
 
         //check if all necessary fields are present
-        int uid = -1;
-        String firstname = "", lastname = "", datebirth = "", uname = "", pwd = "";
-        boolean isAdmin = false;
+        long uid;
+        String firstname, lastname, datebirth, uname, pwd;
+        boolean isAdmin;
         ArrayList<String> tags;
 
         try {
-            uid = (Integer) args.get("uid");
+            uid = (Long) args.get("uid");
             firstname = (String) args.get("firstname");
             lastname = (String) args.get("lastname");
             datebirth = (String) args.get("datebirth");
@@ -73,7 +66,7 @@ public class User {
 
         //add remaining data
         user.append("uid", uid);
-        user.append("pwd", Authentication.hashAndSalt(pwd, ""));
+        user.append("pwd", Authentication.hashAndSalt(pwd));
         user.append("isAdmin", isAdmin);
 
         mongo.addDoc("users", user);
@@ -99,7 +92,7 @@ public class User {
      * @param pwd password
      * @return -1 if data is wrong, 0 if user is normal and 1 if admin
     */
-    public int[] login(String uname, String pwd) {
+    public long[] login(String uname, String pwd) {
         MongoManager mongo = MongoManager.getInstance();
 
         //check if username and password contain allowed characters
@@ -110,20 +103,20 @@ public class User {
             Document user = cur.next();
             if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return null;
 
-            int[] ret = new int[2];
-            ret[0] = user.getInteger("uid");
+            long[] ret = new long[2];
+            ret[0] = user.getLong("uid");
             ret[1] = user.getBoolean("isAdmin") ? 1 : 0;
             return ret;
         }
         else return null;
     }
 
-    public boolean removeReview(int rid) {
+    public boolean removeReview(long rid) {
         Review review = new Review();
         return review.removeReview(rid);
     }
 
-    public String showGame(int gid){
+    public String showGame(long gid){
         MongoManager mongo = MongoManager.getInstance();
 
         MongoCollection<Document> games = mongo.getCollection("games");

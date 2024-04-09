@@ -28,6 +28,16 @@ public class Populator {
         try {
             InputStream stream = Populator.class.getClassLoader().getResourceAsStream(jsonfile);
             dict = objectMapper.readValue(stream, new TypeReference<ArrayList<HashMap<String, Object>>>(){});
+
+            // convert ids from integers to long
+            for (HashMap<String, Object> map : dict) {
+                for (String key : new String[]{"uid", "gid", "rid"}) {
+                    if (map.containsKey(key)) {
+                        Integer intValue = (Integer) map.get(key);
+                        map.put(key, intValue.longValue());
+                    }
+                }
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -40,6 +50,7 @@ public class Populator {
     public int populateGamers() {
         ArrayList<HashMap<String, Object>> json = readJson("userDB.json");
         int added = 0;
+        if(json == null) return 0;
         for (HashMap<String, Object> map: json) {
             if(g.signup(map)) {
                 added += 1;
@@ -51,6 +62,7 @@ public class Populator {
 
     public void populateGames() {
         List<HashMap<String, Object>> json = readJson("gameDB.json");
+        if(json == null) return;
         for (HashMap<String, Object> map : json) {
             if(!a.insertGame(map)) System.out.println("Game not added");
         }
@@ -58,6 +70,7 @@ public class Populator {
 
     public void populateReviews() {
         List<HashMap<String, Object>> json = readJson("reviewDB.json");
+        if(json == null) return;
         for (HashMap<String, Object> map : json) {
             if(g.addReview(map) <= 0) System.out.println("Review not added");
         }

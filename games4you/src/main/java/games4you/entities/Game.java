@@ -4,7 +4,6 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Game {
@@ -13,10 +12,10 @@ public class Game {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         Document game = new Document();
-        int gid = -1;
-        String game_name = "";
+        long gid;
+        String game_name;
         try {
-            gid = (Integer) args.get("gid");
+            gid = (Long) args.get("gid");
             game_name = (String) args.get("name");
             game.append("gid", gid);
             game.append("name", game_name);
@@ -66,7 +65,7 @@ public class Game {
     }
 
 
-    public boolean addGameToLibrary(int uid, int gid) {
+    public boolean addGameToLibrary(long uid, long gid) {
         //create relationships between review, game and gamer
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format(
@@ -77,7 +76,7 @@ public class Game {
         return true;
     }
 
-    public boolean removeGameFromLibrary(int uid, int gid) {
+    public boolean removeGameFromLibrary(long uid, long gid) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "Game"};
         return neo4j.removeRelationship(node_types, "OWNS", uid, gid);

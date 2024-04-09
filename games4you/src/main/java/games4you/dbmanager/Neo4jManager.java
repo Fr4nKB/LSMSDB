@@ -37,7 +37,7 @@ public class Neo4jManager implements AutoCloseable{
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         driver.close();
     }
 
@@ -46,7 +46,7 @@ public class Neo4jManager implements AutoCloseable{
             session.run(query);
             return true;
         } catch (Exception e){
-            System.out.println(e.toString());
+            e.printStackTrace();
             return false;
         }
     }
@@ -81,7 +81,7 @@ public class Neo4jManager implements AutoCloseable{
      * @param id the id of the node to remove
      * @return false if node is not removed, true otherwise
      */
-    public boolean removeNode(String node_type, int id) {
+    public boolean removeNode(String node_type, long id) {
         String query = String.format(
                 "MATCH (n1:%s {id: %d}) DETACH DELETE n1",
                 node_type, id);
@@ -103,7 +103,7 @@ public class Neo4jManager implements AutoCloseable{
      * @param node2 name of the relationship destination node
      * @return false if relationship couldn't be added, true otherwise
      */
-    public boolean addRelationship(String[] node_types, String relation, int node1, int node2) {
+    public boolean addRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
                 "MATCH (n1:%s {id: %d}), (n2:%s {id: %d}) MERGE (n1)-[:%s]->(n2)",
                 node_types[0], node1, node_types[1], node2, relation
@@ -111,7 +111,7 @@ public class Neo4jManager implements AutoCloseable{
         return executeSimpleQuery(query);
     }
 
-    public boolean removeRelationship(String[] node_types, String relation, int node1, int node2) {
+    public boolean removeRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
                 "MATCH (n1:%s {id: %d})-[r:%s]->(n2:%s {id: %d}) DELETE r",
                 node_types[0], node1, relation, node_types[1], node2
@@ -135,7 +135,7 @@ public class Neo4jManager implements AutoCloseable{
             return ret;
         }
         catch (Exception e){
-            System.out.println(e.toString());
+            e.printStackTrace();
             return null;
         }
     }
@@ -148,36 +148,37 @@ public class Neo4jManager implements AutoCloseable{
 
             while(res.hasNext()) {
                 Record n = res.next();
-                ArrayList<Object> objectList = new ArrayList<Object>(n.values());
+                ArrayList<Object> objectList = new ArrayList<>(n.values());
                 list.add(objectList);
             }
 
             return list;
         } catch (Exception e){
-            System.out.println(e.toString());
+            e.printStackTrace();
             return null;
         }
     }
 
-    public boolean addAttribute(String node_type, int node_name, String attribute_name, Object attribute) {
+    public boolean addAttribute(String node_type, long node_name, String attribute_name, Object attribute) {
         String query = String.format(
                 "MATCH (u:%s {id: %s}) SET u.%s = $attribute",
                 node_type, node_name, attribute_name);
 
         try (Session session = driver.session()) {
             session.run(query, parameters("attribute", attribute));
-        } catch (Exception e){
-            System.out.println(e.toString());
+        }
+        catch (Exception e){
+            e.printStackTrace();
             return false;
         }
 
         return true;
     }
 
-    public boolean incAttribute(String[] node_types, int[] node_names, String relation,
+    public boolean incAttribute(String[] node_types, long[] node_names, String relation,
                                             String attribute_name, int amount) {
 
-        String query = "";
+        String query;
         if(node_types.length == 0) return false;
         else if (node_types.length == 1) {
             query = String.format(
@@ -206,8 +207,9 @@ public class Neo4jManager implements AutoCloseable{
                 counters.relationshipsCreated() > 0 ||  counters.relationshipsDeleted() > 0 ||
                 counters.propertiesSet() > 0);
             });
-        } catch (Exception e){
-            System.out.println(e.toString());
+        }
+        catch (Exception e){
+            e.printStackTrace();
             return false;
         }
     }

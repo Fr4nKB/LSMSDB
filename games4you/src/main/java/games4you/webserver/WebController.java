@@ -2,7 +2,7 @@ package games4you.webserver;
 
 import games4you.entities.Admin;
 import games4you.entities.Gamer;
-import games4you.webserver.SessionManager;
+import games4you.util.Authentication;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.tags.ArgumentAware;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class WebController {
      * @param request to request cookies
      * @return -1 if token not found or invalid, 0 if user is normal or 1 if is admin
      */
-    public int[] isUserAdmin(HttpServletRequest request) {
+    public long[] isUserAdmin(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
@@ -58,7 +57,7 @@ public class WebController {
     @PostMapping("/login")
     public String postLogin(String uname, String pwd, HttpServletRequest request, HttpServletResponse response) {
         //first check if any cookie is present
-        int[] ret = isUserAdmin(request);
+        long[] ret = isUserAdmin(request);
         if(ret == null) { // no cookies, check user credentials
             ret = gamerMethods.login(uname, pwd);
             if(ret == null) return "redirect:/login";
@@ -82,7 +81,7 @@ public class WebController {
 
     @PostMapping("/signup")
     public String postSignup(@RequestParam HashMap<String, Object> formData) {
-        formData.put("uid", 69);        //TODO: use UUIDs
+        formData.put("uid", Authentication.generateUUID());
         formData.put("isAdmin", false);
         formData.put("tags", new ArrayList<>());
         if(gamerMethods.signup(formData)) return "redirect:/login";
@@ -92,7 +91,7 @@ public class WebController {
     @GetMapping("/home")
     public ModelAndView homeUser(HttpServletRequest request) {
         ModelAndView mod = new ModelAndView("home");
-        int[] ret = isUserAdmin(request);
+        long[] ret = isUserAdmin(request);
         if(ret[1] == 0) {
             ArrayList<Object> content = gamerMethods.homePage(ret[1], 0);
             mod.addObject("jsonList", content);
@@ -136,7 +135,7 @@ public class WebController {
                                HttpServletRequest request) {
         ModelAndView mod = new ModelAndView("search");
 
-        int[] ret = isUserAdmin(request);
+        long[] ret = isUserAdmin(request);
         if(ret == null) return null;
 
         ArrayList<Object> content;

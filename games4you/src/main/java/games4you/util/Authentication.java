@@ -4,13 +4,24 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.UUID;
 
 public class Authentication {
 
     private static final int SALT_LEN = 16;
     private static final int MAX_SANITIZATION_LEN = 256;
 
-    private static String generateSalt() {
+    // Alphanumeric characters and underscores
+    private static final String UNAME_PATTERN = "[a-zA-Z0-9_]*$";
+
+    // Allow alphanumeric characters and some special ones
+    private static final String PWD_PATTERN = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@\\[\\]^_{}|~]+$";
+
+    // DD/MM/YYYY type of format
+    private static final String DATE_PATTERN = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/((19|20)\\d\\d)$";
+
+
+    private static String salt() {
         SecureRandom random = new SecureRandom();
         byte[] saltBytes = new byte[SALT_LEN];
         random.nextBytes(saltBytes);
@@ -28,11 +39,8 @@ public class Authentication {
         }
     }
 
-    public static String hashAndSalt(String password, String salt) {
-        if (salt.isEmpty()) {
-            salt = generateSalt();
-        }
-
+    public static String hashAndSalt(String password) {
+        String salt = salt();
         String hash = hash(password + salt);
         return String.format("%s|%s", hash, salt);
     }
@@ -45,13 +53,15 @@ public class Authentication {
         return MessageDigest.isEqual(computedHash.getBytes(), parts[0].getBytes());
     }
 
+    public static long generateUUID() {
+        return UUID.randomUUID().getMostSignificantBits();
+    }
+
     public static boolean isUsername(String str) {
         if (str == null || str.length() >= MAX_SANITIZATION_LEN || str.isEmpty()) {
             return false;
         }
-        // Alphanumeric characters and underscores, starting with a letter
-        String pattern = "[a-zA-Z0-9_]*$";
-        return str.matches(pattern);
+        return str.matches(UNAME_PATTERN);
     }
 
     public static boolean isPassword(String str) {
@@ -59,7 +69,12 @@ public class Authentication {
             return false;
         }
 
-        // Allow alphanumeric characters and some special ones
-        return str.matches("^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@\\\\[\\\\]^_{}|~]+$");
+        return str.matches(PWD_PATTERN);
     }
+
+    public static boolean isDate(String str) {
+        if (str == null || str.length() != 10) return false;
+        return str.matches(DATE_PATTERN);
+    }
+
 }
