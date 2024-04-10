@@ -33,11 +33,11 @@ public class Test {
         assert gamer.login("JohnnyTheDark", "trustNo1")[1] == 0: "Login failed";
 
         //FRIENDS
-        assert gamer.addFriend(0, 1): "Friend 1 not added";
-        assert gamer.addFriend(0, 2): "Friend 2 not added";
-        assert gamer.addFriend(1, 2): "Friend 3 not added";
-        assert gamer.addFriend(2, 3): "Friend 4 not added";
-        assert gamer.addFriend(3, 0): "Friend 4 not added";
+        assert gamer.addFriend(0, 1) == 1: "Friend 1 not added";
+        assert gamer.addFriend(0, 2) == 1: "Friend 2 not added";
+        assert gamer.addFriend(1, 2) == 1: "Friend 3 not added";
+        assert gamer.addFriend(2, 3) == 1: "Friend 4 not added";
+        assert gamer.addFriend(3, 0) == 1: "Friend 4 not added";
 //        System.out.println(gamer.homePageFriends(0, 0));
 //        assert gamer.homePageFriends(0, 0).size() == 2: "Incorrect home page for friends";
 //        assert gamer.homePageReviews(0, 0).size() == 5: "Incorrect home page for reviews";
@@ -48,7 +48,7 @@ public class Test {
 //        assert gamer.removeFriend(0, 1): "Friend 1 not removed";
 //        assert gamer.getFriendList(0, 0).size() == 1: "Incorrect friend list size after removing one";
 //
-//        assert gamer.addFriend(0, 1): "Friend 1 couldn't be added again";
+//        assert gamer.addFriend(0, 1) == 1: "Friend 1 couldn't be added again";
 //
 //        //GAMES
 //        System.out.println(gamer.getGameList(0,0));

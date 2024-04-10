@@ -7,7 +7,7 @@ function loadHomeAdmin() {
     url.searchParams.append('offset', window.offset);
     let data = loadData(url)
         .then(data => {
-            offset += data.length;
+            window.offset += data.length;
             loadFullReviewTiles(data);
         });
 }

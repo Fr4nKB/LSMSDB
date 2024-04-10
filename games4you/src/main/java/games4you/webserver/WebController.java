@@ -27,7 +27,7 @@ public class WebController {
         sesManager = new SessionManager();
     }
 
-    @GetMapping("/login")
+    @GetMapping("/")
     public String login() {
         return "login";
     }
@@ -38,7 +38,7 @@ public class WebController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) { // no cookies, check user credentials
             ret = gamerMethods.login(uname, pwd);
-            if(ret == null) return "redirect:/login";
+            if(ret == null) return "redirect:/";
 
             // generate and add access token to cookies
             String token = sesManager.generateToken(ret[0], ret[1]);
@@ -49,7 +49,7 @@ public class WebController {
         if(ret[1] == 0) return "redirect:/home";
         else if(ret[1] == 1) return "redirect:/home";
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
     @GetMapping("/signup")
@@ -62,7 +62,7 @@ public class WebController {
         formData.put("uid", Authentication.generateUUID());
         formData.put("isAdmin", false);
         formData.put("tags", new ArrayList<>());
-        if(gamerMethods.signup(formData)) return "redirect:/login";
+        if(gamerMethods.signup(formData)) return "redirect:/";
         return "redirect:/signup";
     }
 
@@ -70,7 +70,7 @@ public class WebController {
     public String homeUser(HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
 
-        if(ret == null) return "error";
+        if(ret == null) return "redirect:/error";
         else if(ret[1] == 1) return "homeAdmin";
         else return "home";
     }
@@ -93,6 +93,8 @@ public class WebController {
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("user");
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
     }
@@ -115,6 +117,7 @@ public class WebController {
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("game");
+        if(ret[1] == 1) mod.addObject("adm", true);
         mod.addObject("jsonData", json);
         return mod;
     }

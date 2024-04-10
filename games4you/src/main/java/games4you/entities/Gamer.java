@@ -17,15 +17,28 @@ import java.util.Objects;
 
 public class Gamer extends User {
 
-    public boolean addFriend(int uid1, int uid2) {
+    public int addFriend(long uid1, long uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        //check if users are already friends
+        String query = String.format(
+                """
+                        MATCH(u:User {id: %d})-[:IS_FRIEND_WITH]-(f:User {id: %d})
+                        RETURN u.id LIMIT 1
+                        """,
+                uid1, uid2
+        );
+        if(!neo4j.getQueryResultAsList(query).isEmpty()) return 0;
+
         String[] node_types = new String[]{"User", "User"};
         long timestamp = Instant.now().getEpochSecond();
         String relation = String.format("IS_FRIEND_WITH {since: %d}", timestamp);
-        return neo4j.addRelationship(node_types, relation, uid1, uid2);
+        boolean ret = neo4j.addRelationship(node_types, relation, uid1, uid2);
+
+        return (ret) ? 1 : -1;
     }
 
-    public boolean removeFriend(int uid1, int uid2) {
+    public int removeFriend(long uid1, long uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "User"};
         return neo4j.removeRelationship(node_types, "IS_FRIEND_WITH", uid1, uid2);
@@ -41,12 +54,12 @@ public class Gamer extends User {
         return review.addReview(args);
     }
 
-    public boolean upvoteReview(int rid) {
+    public boolean upvoteReview(long rid) {
         MongoManager mongo = MongoManager.getInstance();
         return mongo.incVote(rid);
     }
 
-    public boolean reportReview(int uid, int rid) {
+    public boolean reportReview(long uid, long rid) {
         MongoManager mongo = MongoManager.getInstance();
 
         //retrieve review
@@ -68,7 +81,7 @@ public class Gamer extends User {
         return mongo.addReporter(rid, uid);
     }
 
-    public boolean updatePlayedHours(int uid, int gid, int amount) {
+    public boolean updatePlayedHours(long uid, long gid, int amount) {
         if(amount <= 0) return false;
 
         MongoManager mongo = MongoManager.getInstance();
@@ -158,12 +171,12 @@ public class Gamer extends User {
         return neo4j.getQueryResultAsList(query);
     }
 
-    public boolean addGameToLibrary(long uid, long gid){
+    public int addGameToLibrary(long uid, long gid) {
         Game game = new Game();
         return game.addGameToLibrary(uid, gid);
     }
 
-    public boolean removeGameFromLibrary(long uid, long gid){
+    public int removeGameFromLibrary(long uid, long gid){
         Game game = new Game();
         return game.removeGameFromLibrary(uid, gid);
     }

@@ -4,20 +4,22 @@
     <title>GAMES4YOU</title>
 </head>
 <body>
-    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/logout.js" type="module"></script>
     <script src="/javascript/home.js" type="module"></script>
     <h1>WELCOME</h1>
 
-    <form action="#" th:action="@{/search}" method="get">
-        <select name="type">
-            <option value="users">Users</option>
-            <option value="games">Games</option>
-        </select>
-        <input type="text" name="query">
-        <input type="submit" value="Search">
-    </form>
+    <div>
+        <form action="#" th:action="@{/search}" method="get">
+            <select name="type">
+                <option value="users">Users</option>
+                <option value="games">Games</option>
+            </select>
+            <input type="text" name="query">
+            <input type="submit" value="Search">
+        </form>
 
-    <button onclick="logout()">Logout</button>
+        <button id="logout">Logout</button>
+    </div>
 
     <table id="tableContent">
         <tbody></tbody>

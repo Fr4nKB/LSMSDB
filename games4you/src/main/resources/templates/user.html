@@ -4,31 +4,34 @@
     <title>GAMES4YOU - Profile</title>
 </head>
 <body>
-    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/logout.js" type="module"></script>
     <script src="/javascript/user.js" type="module"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
+        uid = /*[[${uid}]]*/ null;
         jsonData = /*[[${jsonData}]]*/ null;
         /*]]>*/
     </script>
 
-    <form action="#" th:action="@{/search}" method="get">
-        <select name="type">
-            <option value="users">Users</option>
-            <option value="games">Games</option>
-        </select>
-        <input type="text" name="query">
-        <input type="submit" value="Search">
-    </form>
+    <div>
+        <form action="#" th:action="@{/search}" method="get">
+            <select name="type">
+                <option value="users">Users</option>
+                <option value="games">Games</option>
+            </select>
+            <input type="text" name="query">
+            <input type="submit" value="Search">
+        </form>
 
-    <button onclick="logout()">Logout</button>
+        <button id="logout">Logout</button>
+    </div>
 
     <h1 id="uname"></h1>
     <h3 id="name"></h3>
     <h3 id="datebirth"></h3>
 
-    <button onclick="addFriend()">ADD FRIEND</button>
-    <button onclick="removeFriend()">REMOVE FRIEND</button>
+    <div id="buttons">
+    </div>
 
     <table id="tableContent">
         <tbody></tbody>

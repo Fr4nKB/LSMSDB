@@ -51,7 +51,7 @@ public class Game {
     }
 
 
-    public boolean deleteGame(int gid) {
+    public boolean deleteGame(long gid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
@@ -65,18 +65,17 @@ public class Game {
     }
 
 
-    public boolean addGameToLibrary(long uid, long gid) {
+    public int addGameToLibrary(long uid, long gid) {
         //create relationships between review, game and gamer
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format(
                 "MATCH (u:User {id: %d}), (g:Game {id: %d})" +
                         "MERGE (u)-[:OWNS {hours:0}]->(g)",
                 uid, gid);
-        neo4j.executeWriteTransactionQuery(query);
-        return true;
+        return neo4j.executeWriteTransactionQuery(query);
     }
 
-    public boolean removeGameFromLibrary(long uid, long gid) {
+    public int removeGameFromLibrary(long uid, long gid) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "Game"};
         return neo4j.removeRelationship(node_types, "OWNS", uid, gid);

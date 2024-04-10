@@ -123,7 +123,7 @@ public class MongoManager implements AutoCloseable {
         return res.getDeletedCount() > 0;
     }
 
-    public boolean incVote(int rid) {
+    public boolean incVote(long rid) {
         currentCollection = getCollection("reviews");
         if(currentCollection == null) return false;
 
@@ -134,7 +134,7 @@ public class MongoManager implements AutoCloseable {
         return res.getModifiedCount() > 0;
     }
 
-    public boolean addReporter(int rid, int uid) {
+    public boolean addReporter(long rid, long uid) {
         currentCollection = getCollection("reviews");
         if(currentCollection == null) return false;
 

@@ -20,12 +20,12 @@ public class Admin extends User {
         return game.insertGame(args);
     }
 
-    public boolean deleteGame(int gid) {
+    public boolean deleteGame(long gid) {
         Game game = new Game();
         return game.deleteGame(gid);
     }
 
-    public boolean banGamer(int uid) {
+    public boolean banGamer(long uid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 

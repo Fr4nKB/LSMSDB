@@ -9,11 +9,11 @@ export function loadFullReviewTiles(jsonList) {
         let c2 = row.insertCell(1);
 
         let user = document.createElement("a");
-        user.href = "/user/" + obj.id;
+        user.href = "/user/" + obj.uid;
         user.text = obj.uname;
 
         let game = document.createElement("a");
-        game.href = "/game/" + obj.id;
+        game.href = "/game/" + obj.gid;
         game.text = obj.game;
 
         let creation_date = new Date(obj.creation_date * 1000);
@@ -44,7 +44,7 @@ export function loadPreviewReviewTiles(jsonList) {
         let c1 = row.insertCell(0);
 
         let user = document.createElement("a");
-        user.href = "/user/" + window.uid;
+        user.href = "/user/" + obj.uid;
         user.text = obj.uname;
 
         let game = document.createElement("a");

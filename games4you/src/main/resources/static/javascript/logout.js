@@ -1,17 +1,14 @@
+import {loadData} from "./pagination.js";
+
 async function logout() {
-    const url = new URL('/logout', window.location.origin);
-
-    const response = await fetch(url, {
-        method: 'GET',
-        credentials: 'include', // Include cookies in the request
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    let resp = await response.json();
-    if(resp === true) {
-        location.replace(window.location.origin + "/login")
+    let ret = await loadData(window.location.origin + '/logout');
+    if(ret === true) {
+        location.replace(window.location.origin + "/")
     }
 }
+
+const button = document.getElementById('logout');
+button.addEventListener('click', function() {
+    logout().then(r => null);
+});
+
