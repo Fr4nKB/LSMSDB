@@ -185,6 +185,30 @@ public class User {
         }
     }
 
+    public String showReview(long rid){
+        MongoManager mongo = MongoManager.getInstance();
+
+        MongoCollection<Document> users = mongo.getCollection("reviews");
+        Document doc = users.find(
+                        Filters.eq("rid", rid))
+                .projection(Projections.exclude("_id"))
+                .first();
+
+        if(doc == null){
+            return null;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            return mapper.writeValueAsString(doc);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     public String showUser(long uid){
         MongoManager mongo = MongoManager.getInstance();
 

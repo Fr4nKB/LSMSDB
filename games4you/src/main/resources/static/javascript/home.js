@@ -5,6 +5,7 @@ function loadHomePageTiles(jsonList) {
 
     jsonList.forEach(function(jsonString) {
         let obj = JSON.parse(jsonString);
+        console.log(obj);
 
         let row = table.insertRow();
         let cell = row.insertCell(0);

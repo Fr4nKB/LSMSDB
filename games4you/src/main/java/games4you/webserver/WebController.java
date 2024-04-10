@@ -119,6 +119,30 @@ public class WebController {
         return mod;
     }
 
+    @GetMapping("/review/{id}")
+    public ModelAndView getReview(@PathVariable("id") String id, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        long rid;
+        try {
+            rid = Long.parseLong(id);
+        }
+        catch (ClassCastException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        String json = gamerMethods.showReview(rid);
+        if(json == null) return null;
+
+        ModelAndView mod = new ModelAndView("review");
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        mod.addObject("jsonString", json);
+        return mod;
+    }
+
     @GetMapping("/search")
     public ModelAndView search(@RequestParam("type") String type, @RequestParam("query") String query,
                                HttpServletRequest request) {

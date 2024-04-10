@@ -115,7 +115,7 @@ public class Gamer extends User {
                     WHERE fof <> u
                     WITH f, r, fof
                     ORDER BY r.since DESC
-                    RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: f.id, name: fof.uname}} AS result
+                    RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: fof.id, name: fof.uname}} AS result
                     }
                     RETURN result SKIP %d LIMIT 20""",
                 uid, uid, offset);

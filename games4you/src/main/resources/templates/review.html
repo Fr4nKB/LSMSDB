@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>GAMES4YOU - Profile</title>
+</head>
+<body>
+    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/review.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        uid = /*[[${uid}]]*/ null;
+        jsonString = /*[[${jsonString}]]*/ null;
+        /*]]>*/
+    </script>
+
+    <form action="#" th:action="@{/search}" method="get">
+        <select name="type">
+            <option value="users">Users</option>
+            <option value="games">Games</option>
+        </select>
+        <input type="text" name="query">
+        <input type="submit" value="Search">
+    </form>
+
+    <button onclick="logout()">Logout</button>
+
+    <h2 id="uname"></h2>
+    <h3 id="game"></h3>
+    <p id="date"></p>
+    <div>
+        <p id="content"></p>
+        <p id="rating"></p>
+    </div>
+
+</body>
+</html>
