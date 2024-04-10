@@ -1,12 +1,14 @@
 import {loadData} from "./pagination.js";
-import {loadReviewTiles} from "./loadReviewPages.js";
+import {loadFullReviewTiles} from "./loadReviewPages.js";
 
 let offset = 0;
 function loadHomeAdmin() {
-    let data = loadData("/home/more", offset)
+    const url = new URL("/home/more", window.location.origin);
+    url.searchParams.append('offset', window.offset);
+    let data = loadData(url)
         .then(data => {
             offset += data.length;
-            loadReviewTiles(data);
+            loadFullReviewTiles(data);
         });
 }
 

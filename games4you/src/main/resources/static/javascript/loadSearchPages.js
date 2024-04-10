@@ -19,7 +19,9 @@ function loadSearchListTiles(jsonList) {
 }
 
 function loadSearch() {
-    let data = loadData("/search/" + window.search_type + "/" + window.search_query, window.offset)
+    const url = new URL("/search/" + window.search_type + "/" + window.search_query, window.location.origin);
+    url.searchParams.append('offset', window.offset);
+    let data = loadData(url)
         .then(data => {
             window.offset += data.length;
             loadSearchListTiles(data);

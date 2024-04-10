@@ -13,13 +13,9 @@ import org.bson.Document;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Gamer extends User {
-
-    private ArrayList<Object> getRelationshipList(String query) {
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        return neo4j.getQueryResultAsList(query);
-    }
 
     public boolean addFriend(int uid1, int uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
@@ -103,32 +99,6 @@ public class Gamer extends User {
         return res.getModifiedCount() > 0;
     }
 
-    public ArrayList<Object> getFriendList(long uid, int offset) {
-        String query = String.format(
-                "MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]->(b:User) " +
-                        "RETURN {uid: b.id, uname: b.uname, since: r.since} AS result " +
-                        "SKIP %d LIMIT %d",
-                uid, offset, 20);
-        return getRelationshipList(query);
-    }
-
-    public ArrayList<Object> getGameList(long uid, int offset) {
-        String query = String.format(
-                "MATCH (:User {id: %d})-[r:OWNS]->(b:Game) " +
-                        "RETURN {gid: b.id, game: b.name, hours: r.hours} AS result " +
-                        "SKIP %d LIMIT %d",
-                uid, offset, 20);
-        return getRelationshipList(query);
-    }
-
-    public ArrayList<Object> getReviewList(long gid, int offset) {
-        String query = String.format(
-                "MATCH (:Game {id: %d})-[r:HAS_REVIEW]->(b:Review) " +
-                        "RETURN {rid: b.id, game: b.game, uname: b.uname, votes: r.votes} AS result " +
-                        "SKIP %d LIMIT %d",
-                gid, offset, 20);
-        return getRelationshipList(query);
-    }
 
     public ArrayList<Object> homePage(long uid, int offset) {
         Neo4jManager neo4j = Neo4jManager.getInstance();

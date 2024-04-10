@@ -35,6 +35,7 @@ public class Review {
 
         MongoManager mongo = MongoManager.getInstance();
         long rid, gid, uid;
+        boolean rating;
         int votes = 0;
         String game, uname;
         Object reports = null;
@@ -47,7 +48,7 @@ public class Review {
             uid = (Long) args.get("uid");
             game = (String) args.get("game");
             uname = (String) args.get("uname");
-            review.append("rating", (boolean) args.get("rating"));
+            rating = (boolean) args.get("rating");
             review.append("creation_date", (int) args.get("creation_date"));
             review.append("content", (String) args.get("content"));
             if(args.size() >= 10) votes = (int) args.get("votes");
@@ -66,25 +67,14 @@ public class Review {
                 .first();
         if(existingReview != null) return 0;
 
-        /*
-        boolean ret = updateRedundantReviews("users", uid, 3);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "rid", rid);
-            return -1;
-        }
-        ret = updateRedundantReviews("games", gid,3);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "rid", rid);
-            return -1;
-        }
-         */
-
         //add remaining fields and add document
         review.append("rid", rid);
         review.append("gid", gid);
         review.append("uid", uid);
         review.append("game", game);
         review.append("uname", uname);
+        review.append("rating", rating);
+        review.append("votes", votes);
         if(args.size() == 11) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
@@ -94,6 +84,7 @@ public class Review {
         map.put("gid", gid);
         map.put("game", game);
         map.put("uname", uname);
+        map.put("rating", rating);
         boolean ret = neo4j.addNode("Review", map);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
@@ -117,6 +108,17 @@ public class Review {
             neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", votes);
         }
 
+        ret = updateRedundantReviews("users", uid, 3);
+        if(!ret) {
+            mongo.removeDoc(false, "reviews", "rid", rid);
+            return -1;
+        }
+        ret = updateRedundantReviews("games", gid,3);
+        if(!ret) {
+            mongo.removeDoc(false, "reviews", "rid", rid);
+            return -1;
+        }
+
         return 1;
     }
 
@@ -137,7 +139,7 @@ public class Review {
      * @param amount the number of reviews to collect
      * @return true if the reviews are added, false otherwise
      */
-    private boolean updateRedundantReviews(String collection, int id, int amount) {
+    private boolean updateRedundantReviews(String collection, long id, int amount) {
         String id_name;
         if(collection.equals("games")) id_name = "gid";
         else if(collection.equals("users")) id_name = "uid";
@@ -150,7 +152,7 @@ public class Review {
         MongoCollection<Document> coll = mongo.getCollection("reviews");
         MongoCursor<Document> cur = coll.find(
                         Filters.eq(id_name, id))
-                .projection(Projections.exclude("_id", "reports"))
+                .projection(Projections.exclude("_id", "reports", "content", "creation_date", "votes"))
                 .sort(Sorts.descending("creation_date"))
                 .limit(amount)
                 .iterator();

@@ -1,7 +1,4 @@
-export async function loadData(endpoint, offset) {
-    const url = new URL(endpoint, window.location.origin);
-    url.searchParams.append('offset', offset);
-
+export async function loadData(url) {
     const response = await fetch(url, {
         method: 'GET',
         credentials: 'include', // Include cookies in the request

@@ -46,4 +46,15 @@ public class DataController {
         return gamerMethods.browseUsers(user, offset);
     }
 
+    @GetMapping("/user/reviews/")
+    public ArrayList<Object> loadMoreUserReviews(@RequestParam("uid") long uid,
+                                             @RequestParam("offset") int offset,
+                                             HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+        ArrayList<Object> r = gamerMethods.getUserReviewList(uid, offset);
+        System.out.println(r);
+        return r;
+    }
+
 }

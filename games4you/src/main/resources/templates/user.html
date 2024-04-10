@@ -4,6 +4,36 @@
     <title>GAMES4YOU - Profile</title>
 </head>
 <body>
+    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/user.js" type="module"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        jsonData = /*[[${jsonData}]]*/ null;
+        /*]]>*/
+    </script>
+
+    <form action="#" th:action="@{/search}" method="get">
+        <select name="type">
+            <option value="users">Users</option>
+            <option value="games">Games</option>
+        </select>
+        <input type="text" name="query">
+        <input type="submit" value="Search">
+    </form>
+
+    <button onclick="logout()">Logout</button>
+
+    <h1 id="uname"></h1>
+    <h3 id="name"></h3>
+    <h3 id="datebirth"></h3>
+
+    <button onclick="addFriend()">ADD FRIEND</button>
+    <button onclick="removeFriend()">REMOVE FRIEND</button>
+
+    <table id="tableContent">
+        <tbody></tbody>
+    </table>
+    <button id="loadmore">Load more</button>
 
 </body>
 </html>

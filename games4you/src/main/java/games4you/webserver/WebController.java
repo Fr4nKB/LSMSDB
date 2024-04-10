@@ -76,29 +76,47 @@ public class WebController {
     }
 
     @GetMapping("/user/{id}")
-    public String getUser(@PathVariable("id") String id) {
+    public ModelAndView getUser(@PathVariable("id") String id, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        long uid;
         try {
-            gamerMethods.showUser(Integer.parseInt(id));
-            return "user";
+            uid = Long.parseLong(id);
         }
-        catch (NumberFormatException e) {
+        catch (ClassCastException e) {
             e.printStackTrace();
-            return "error";
+            return null;
         }
 
+        String json = gamerMethods.showUser(uid);
+        if(json == null) return null;
+
+        ModelAndView mod = new ModelAndView("user");
+        mod.addObject("jsonData", json);
+        return mod;
     }
 
     @GetMapping("/game/{id}")
-    public String getGame(@PathVariable("id") String id) {
+    public ModelAndView getGame(@PathVariable("id") String id, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        long gid;
         try {
-            gamerMethods.showGame(Integer.parseInt(id));
-            return "user";
+            gid = Long.parseLong(id);
         }
-        catch (NumberFormatException e) {
+        catch (ClassCastException e) {
             e.printStackTrace();
-            return "error";
+            return null;
         }
 
+        String json = gamerMethods.showGame(gid);
+        if(json == null) return null;
+
+        ModelAndView mod = new ModelAndView("game");
+        mod.addObject("jsonData", json);
+        return mod;
     }
 
     @GetMapping("/search")

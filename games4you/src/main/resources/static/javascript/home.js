@@ -25,16 +25,14 @@ function loadHomePageTiles(jsonList) {
         }
         else if(obj.type === "R") {
 
-            let revlink = document.createElement("a");
-            revlink.href = "/review/" + obj.object.rid;
-            revlink.text = " HAS REVIEWED ";
+            row.onclick = function() {window.location.href = window.location.origin + "/review/" + obj.object.rid;}
 
             let gamelink = document.createElement("a");
             gamelink.href = "/game/" + obj.object.gid;
             gamelink.text = obj.object.name;
 
             cell.appendChild(friendLink);
-            cell.appendChild(revlink);
+            cell.appendChild(document.createTextNode(" HAS REVIEWED "));
             cell.appendChild(gamelink);
         }
 
@@ -45,7 +43,9 @@ function loadHomePageTiles(jsonList) {
 }
 
 function loadHome() {
-    let data = loadData("/home/more", window.offset)
+    const url = new URL("/home/more", window.location.origin);
+    url.searchParams.append('offset', window.offset);
+    let data = loadData(url)
         .then(data => {
             window.offset += data.length;
             loadHomePageTiles(data);

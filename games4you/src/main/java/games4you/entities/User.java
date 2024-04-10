@@ -12,8 +12,28 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class User {
+
+    private ArrayList<Object> getRelationshipList(String query) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        return neo4j.getQueryResultAsList(query);
+    }
+
+    private ArrayList<Object> getReviewList(String node_type, long id, int offset) {
+        String relation;
+        if(Objects.equals(node_type, "Game")) relation = "HAS_REVIEW";
+        else if(Objects.equals(node_type, "User")) relation = "HAS_WROTE";
+        else return null;
+
+        String query = String.format(
+                "MATCH (:%s {id: %d})-[r:%s]->(b:Review) " +
+                        "RETURN {rid: b.id, gid: b.gid, game: b.game, uname: b.uname, rating: b.rating} AS result " +
+                        "SKIP %d LIMIT %d",
+                node_type, id, relation, offset, 20);
+        return getRelationshipList(query);
+    }
 
     /**
      * Creates a new user
@@ -116,6 +136,32 @@ public class User {
         return review.removeReview(rid);
     }
 
+    public ArrayList<Object> getFriendList(long uid, int offset) {
+        String query = String.format(
+                "MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]->(b:User) " +
+                        "RETURN {uid: b.id, uname: b.uname, since: r.since} AS result " +
+                        "SKIP %d LIMIT %d",
+                uid, offset, 20);
+        return getRelationshipList(query);
+    }
+
+    public ArrayList<Object> getGameList(long uid, int offset) {
+        String query = String.format(
+                "MATCH (:User {id: %d})-[r:OWNS]->(b:Game) " +
+                        "RETURN {gid: b.id, game: b.name, hours: r.hours} AS result " +
+                        "SKIP %d LIMIT %d",
+                uid, offset, 20);
+        return getRelationshipList(query);
+    }
+
+    public ArrayList<Object> getGameReviewList(long gid, int offset) {
+        return getReviewList("Game", gid, offset);
+    }
+
+    public ArrayList<Object> getUserReviewList(long uid, int offset) {
+        return getReviewList("User", uid, offset);
+    }
+
     public String showGame(long gid){
         MongoManager mongo = MongoManager.getInstance();
 
@@ -139,13 +185,13 @@ public class User {
         }
     }
 
-    public String showUser(int uid){
+    public String showUser(long uid){
         MongoManager mongo = MongoManager.getInstance();
 
         MongoCollection<Document> users = mongo.getCollection("users");
         Document doc = users.find(
                 Filters.eq("uid", uid))
-                .projection(Projections.excludeId())
+                .projection(Projections.exclude("_id", "pwd", "isAdmin"))
                 .first();
 
         if(doc == null){
