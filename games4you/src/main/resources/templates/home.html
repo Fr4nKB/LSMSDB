@@ -4,13 +4,8 @@
     <title>GAMES4YOU</title>
 </head>
 <body>
-    <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
-    <script src="/javascript/logout.js" th:src="@{javascript/logout.js}"></script>
-    <script>
-        var offset = 0;
-        window.onload = function() {loadHome()};
-    </script>
-
+    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/home.js" type="module"></script>
     <h1>WELCOME</h1>
 
     <form action="#" th:action="@{/search}" method="get">
@@ -27,7 +22,7 @@
     <table id="tableContent">
         <tbody></tbody>
     </table>
-    <button onclick="loadHome()">Load more</button>
+    <button id="loadmore">Load more</button>
 
 </body>
 </html>

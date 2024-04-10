@@ -4,12 +4,8 @@
     <title>GAMES4YOU</title>
 </head>
 <body>
-    <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
-    <script src="/javascript/logout.js" th:src="@{javascript/logout.js}"></script>
-    <script>
-        var offset = 0;
-        window.onload = function() {loadHomeAdmin()};
-    </script>
+    <script src="/javascript/logout.js"></script>
+    <script src="/javascript/homeAdmin.js" type="module"></script>
 
     <h1>WELCOME</h1>
 
@@ -27,7 +23,7 @@
     <table id="tableContent">
         <tbody></tbody>
     </table>
-    <button onclick="loadHomeAdmin()">Load more</button>
+    <button id="loadmore">Load more</button>
 
 </body>
 </html>
