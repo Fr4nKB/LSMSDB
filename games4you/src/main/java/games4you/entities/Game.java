@@ -4,6 +4,7 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Game {
@@ -14,12 +15,15 @@ public class Game {
         Document game = new Document();
         long gid;
         String game_name;
+        ArrayList<Object> tags;
+
         try {
             gid = (Long) args.get("gid");
             game_name = (String) args.get("name");
+            tags = (ArrayList<Object>) args.get("tags");
             game.append("gid", gid);
             game.append("name", game_name);
-            game.append("tags", args.get("tags"));
+            game.append("tags", tags);
             game.append("release_date", args.get("release_date"));
             if (args.size() > 3) {
                 game.append("latestReviews", args.get("latestReviews"));
@@ -42,11 +46,12 @@ public class Game {
         map.put("id", gid);
         map.put("name", game_name);
         boolean ret = neo4j.addNode("Game", map);
-
         if (!ret) {
             mongo.removeDoc(false, "games", "name", game_name);
             return false;
         }
+        neo4j.addAttribute("Game", gid, "tags", tags);
+
         return true;
     }
 
