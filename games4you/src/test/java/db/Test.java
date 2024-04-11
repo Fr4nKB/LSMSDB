@@ -1,3 +1,5 @@
+package db;
+
 import games4you.entities.Admin;
 import games4you.entities.Gamer;
 import games4you.util.Populator;
@@ -33,21 +35,26 @@ public class Test {
         assert gamer.login("JohnnyTheDark", "trustNo1")[1] == 0: "Login failed";
 
         //FRIENDS
-        assert gamer.addFriend(0, 1) == 1: "Friend 1 not added";
-        assert gamer.addFriend(0, 2) == 1: "Friend 2 not added";
-        assert gamer.addFriend(1, 2) == 1: "Friend 3 not added";
-        assert gamer.addFriend(2, 3) == 1: "Friend 4 not added";
-        assert gamer.addFriend(3, 0) == 1: "Friend 4 not added";
+        assert gamer.sendRequest(0, 1): "Friend 1 not sent";
+        assert gamer.acceptRequest(1, 0): "Friend 1 not added";
+        assert gamer.sendRequest(0, 2): "Friend 2 not sent";
+        assert gamer.acceptRequest(2, 0): "Friend 2 not added";
+        assert gamer.sendRequest(1, 2): "Friend 3 not sent";
+        assert gamer.acceptRequest(2, 1): "Friend 3 not added";
+        assert gamer.sendRequest(2, 3): "Friend 4 not sent";
+        assert gamer.acceptRequest(3, 2): "Friend 4 not added";
+        assert gamer.sendRequest(3, 0): "Friend 5 not sent";
+        assert gamer.acceptRequest(3, 0): "Friend 5 not added";
 
         System.out.println(gamer.homePage(0, 0));
         assert gamer.homePage(0, 0).size() == 7: "Incorrect home page for reviews";
 
         System.out.println(gamer.getFriendList(0, 0));
         assert gamer.getFriendList(0, 0).size() == 2: "Incorrect friend list size";
-        assert gamer.removeFriend(0, 1) == 1: "Friend 1 not removed";
+        assert gamer.removeFriend(0, 1): "Friend 1 not removed";
         assert gamer.getFriendList(0, 0).size() == 1: "Incorrect friend list size after removing one";
 
-        assert gamer.addFriend(0, 1) == 1: "Friend 1 couldn't be added again";
+        assert gamer.sendRequest(0, 1): "Friend 1 couldn't be added again";
 
         //GAMES
         assert gamer.addGameToLibrary(0,0) == 1;

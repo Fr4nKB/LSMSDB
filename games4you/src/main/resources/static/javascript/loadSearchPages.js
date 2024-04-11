@@ -1,25 +1,38 @@
 import {loadData} from "./pagination.js";
 
 function loadSearchListTiles(jsonList) {
-    var table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
+    let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(jsonString) {
-        var obj = JSON.parse(jsonString);
+        let obj = JSON.parse(jsonString);
 
-        var row = table.insertRow();
-        var cell = row.insertCell(0);
+        let row = table.insertRow();
+        let cell = row.insertCell(0);
 
-        var elem = document.createElement("a");
-        if(obj.type === "U") elem.href = "/user/" + obj.id;
-        else if(obj.type === "G") elem.href = "/game/" + obj.id;
+        let elem = document.createElement("a");
+        let extra_field = null;
+        if(obj.type === "U") {
+            elem.href = "/user/" + obj.id;
+            if('since' in obj) {
+                let date = new Date(obj.since * 1000);
+                extra_field = document.createTextNode(", friends since " + date.toUTCString());
+            }
+        }
+        else if(obj.type === "G") {
+            elem.href = "/game/" + obj.id;
+            if('hours' in obj) {
+                extra_field = document.createTextNode(", played " + obj.hours + " hours");
+            }
+        }
         elem.text = obj.name;
 
         cell.appendChild(elem);
+        if(extra_field !== null) cell.appendChild(extra_field);
     });
 }
 
 function loadSearch() {
-    const url = new URL("/search/" + window.search_type + "/" + window.search_query, window.location.origin);
+    const url = new URL("/search/" + window.endpoint, window.location.origin);
     url.searchParams.append('offset', window.offset);
     let data = loadData(url)
         .then(data => {

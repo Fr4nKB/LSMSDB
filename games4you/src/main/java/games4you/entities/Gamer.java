@@ -17,7 +17,58 @@ import java.util.Objects;
 
 public class Gamer extends User {
 
-    public int addFriend(long uid1, long uid2) {
+
+    public String checkFriendshipStatus(long uid1, long uid2) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        // check if user are already friends, in that case return since when
+        String query = String.format(
+                """
+                        MATCH (u:User {id: %d})-[r:IS_FRIEND_WITH]-(f:User {id: %d})
+                        RETURN {since: r.since} LIMIT 1
+                        """,
+                uid1, uid2
+        );
+        ArrayList<Object> res = neo4j.getQueryResultAsList(query);
+        if(!res.isEmpty()) return (String) res.get(0);
+
+
+        // check if friendship is pending, in that case return who asked it
+        query = String.format(
+                """
+                        MATCH p=(u1:User {id: %d})-[r:PENDING]-(u2:User {id: %d})
+                        WITH CASE WHEN p IS NOT NULL THEN startNode(r).id ELSE NULL END AS originNode
+                        RETURN {origin: originNode}
+                        """,
+                uid1, uid2
+        );
+        res = neo4j.getQueryResultAsList(query);
+        if(!res.isEmpty()) return (String) res.get(0);
+
+        return "[]";
+    }
+
+    public boolean sendRequest(long uid1, long uid2) {
+        String res = checkFriendshipStatus(uid1, uid2);
+        if(res.equals("[]")) {
+            Neo4jManager neo4j = Neo4jManager.getInstance();
+            String[] node_types = new String[]{"User", "User"};
+            return neo4j.addRelationship(node_types, "PENDING", uid1, uid2) == 1;
+        }
+        else return false;
+    }
+
+    public boolean revokeRequest(long uid1, long uid2) {
+        String res = checkFriendshipStatus(uid1, uid2);
+        if(res != null && res.startsWith("{\"origin\":")) {
+            Neo4jManager neo4j = Neo4jManager.getInstance();
+            String[] node_types = new String[]{"User", "User"};
+            return neo4j.removeRelationship(node_types, "PENDING", uid1, uid2) == 1;
+        }
+        return false;
+    }
+
+    public boolean acceptRequest(long uid1, long uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         //check if users are already friends
@@ -28,20 +79,24 @@ public class Gamer extends User {
                         """,
                 uid1, uid2
         );
-        if(!neo4j.getQueryResultAsList(query).isEmpty()) return 0;
+        if(!neo4j.getQueryResultAsList(query).isEmpty()) return false;
+
+        revokeRequest(uid2, uid1);
 
         String[] node_types = new String[]{"User", "User"};
         long timestamp = Instant.now().getEpochSecond();
         String relation = String.format("IS_FRIEND_WITH {since: %d}", timestamp);
-        boolean ret = neo4j.addRelationship(node_types, relation, uid1, uid2);
-
-        return (ret) ? 1 : -1;
+        return neo4j.addRelationship(node_types, relation, uid2, uid1) == 1;
     }
 
-    public int removeFriend(long uid1, long uid2) {
+    public boolean declineRequest(long uid1, long uid2) {
+        return revokeRequest(uid2, uid1);
+    }
+
+    public boolean removeFriend(long uid1, long uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "User"};
-        return neo4j.removeRelationship(node_types, "IS_FRIEND_WITH", uid1, uid2);
+        return neo4j.removeRelationship(node_types, "IS_FRIEND_WITH", uid1, uid2) == 1;
     }
 
     /**
@@ -56,7 +111,14 @@ public class Gamer extends User {
 
     public boolean upvoteReview(long rid) {
         MongoManager mongo = MongoManager.getInstance();
-        return mongo.incVote(rid);
+        MongoCollection<Document> coll = mongo.getCollection("reviews");
+        if(coll == null) return false;
+
+        UpdateResult res = coll.updateOne(
+                Filters.eq("rid", rid),
+                Updates.inc("votes", 1));
+
+        return res.getModifiedCount() > 0;
     }
 
     public boolean reportReview(long uid, long rid) {
@@ -74,7 +136,7 @@ public class Gamer extends User {
         //if the review has already been reported before, check if the reporter has already reported
         if(review.containsKey("reports")) {
             HashMap<String, Object> reports = new HashMap<String, Object>((Document) review.get("reports"));
-            ArrayList<Integer> reporters = (ArrayList<Integer>) reports.get("reporters");
+            ArrayList<Long> reporters = (ArrayList<Long>) reports.get("reporters");
             if(reporters.contains(uid)) return false;
         }
 
@@ -118,19 +180,19 @@ public class Gamer extends User {
         String query = String.format(
                 """
                 CALL {
-                    MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[r:HAS_WROTE]->(rev:Review)
+                    MATCH (:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)-[r:HAS_WROTE]->(rev:Review)
                     WITH f, r, rev
                     ORDER BY r.in DESC
                     RETURN {type: "R", friend: {id: f.id, name: f.uname}, time: r.in, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result
                     UNION
-                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)
+                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)
                     MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)
                     WHERE fof <> u
                     WITH f, r, fof
                     ORDER BY r.since DESC
                     RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: fof.id, name: fof.uname}} AS result
                     }
-                    RETURN result SKIP %d LIMIT 20""",
+                    RETURN DISTINCT result SKIP %d LIMIT 20""",
                 uid, uid, offset);
 
         return neo4j.getQueryResultAsList(query);

@@ -52,23 +52,54 @@ public class DataController {
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
-        ArrayList<Object> r = gamerMethods.getUserReviewList(uid, offset);
-        System.out.println(r);
-        return r;
+        return gamerMethods.getUserReviewList(uid, offset);
     }
 
-    @GetMapping("/addFriend/{id}")
-    public int addFriend(@PathVariable("id") long uid, HttpServletRequest request) {
+    @GetMapping("/checkFriendship/{id}")
+    public String checkFriend(@PathVariable("id") long uid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null || ret[1] == 1) return -1;   //admins can't have friends
+        if(ret == null || ret[1] == 1) return null;   //admins can't have friends
 
-        return gamerMethods.addFriend(ret[0], uid);
+        return gamerMethods.checkFriendshipStatus(ret[0], uid);
+    }
+
+    @GetMapping("/sendRequest/{id}")
+    public boolean sendRequest(@PathVariable("id") long uid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;   //admins can't have friends
+
+        return gamerMethods.sendRequest(ret[0], uid);
+    }
+
+    @GetMapping("/revokeRequest/{id}")
+    public boolean revokeRequest(@PathVariable("id") long uid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;   //admins can't have friends
+
+        return gamerMethods.revokeRequest(ret[0], uid);
+    }
+
+    @GetMapping("/acceptRequest/{id}")
+    public boolean acceptRequest(@PathVariable("id") long uid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;   //admins can't have friends
+
+        return gamerMethods.acceptRequest(ret[0], uid);
+    }
+
+
+    @GetMapping("/declineRequest/{id}")
+    public boolean declineRequest(@PathVariable("id") long uid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;   //admins can't have friends
+
+        return gamerMethods.declineRequest(ret[0], uid);
     }
 
     @GetMapping("/removeFriend/{id}")
-    public int removeFriend(@PathVariable("id") long uid, HttpServletRequest request) {
+    public boolean removeFriend(@PathVariable("id") long uid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null || ret[1] == 1) return -1;   //admins can't remove friends, they don't have any
+        if(ret == null || ret[1] == 1) return false;   //admins can't remove friends, they don't have any
 
         return gamerMethods.removeFriend(ret[0], uid);
     }
@@ -103,6 +134,32 @@ public class DataController {
         if(ret == null || ret[1] == 0) return false;   //gamers cannot delete games
 
         return adminMethods.deleteGame(gid);
+    }
+
+    @GetMapping("/search/friends/{id}/more")
+    public ArrayList<Object> friendListMore(@PathVariable("id") long uid, @RequestParam("offset") int offset,
+                                            HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        return gamerMethods.getFriendList(uid, offset);
+    }
+
+    @GetMapping("/search/games/{id}/more")
+    public ArrayList<Object> gameListMore(@PathVariable("id") long uid, @RequestParam("offset") int offset,
+                                          HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        return gamerMethods.getGameList(uid, offset);
+    }
+
+    @GetMapping("/upvote/{id}")
+    public boolean upvoteReview(@PathVariable("id") long rid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;
+
+        return gamerMethods.upvoteReview(rid);
     }
 
 }

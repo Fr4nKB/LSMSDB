@@ -103,17 +103,17 @@ public class Neo4jManager implements AutoCloseable{
      * @param node2 name of the relationship destination node
      * @return false if relationship couldn't be added, true otherwise
      */
-    public boolean addRelationship(String[] node_types, String relation, long node1, long node2) {
+    public int addRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
                 "MATCH (n1:%s {id: %d}), (n2:%s {id: %d}) MERGE (n1)-[:%s]->(n2)",
                 node_types[0], node1, node_types[1], node2, relation
         );
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query);
     }
 
     public int removeRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
-                "MATCH (n1:%s {id: %d})-[r:%s]->(n2:%s {id: %d}) DELETE r",
+                "MATCH (n1:%s {id: %d})-[r:%s]-(n2:%s {id: %d}) DELETE r",
                 node_types[0], node1, relation, node_types[1], node2
         );
         return executeWriteTransactionQuery(query);

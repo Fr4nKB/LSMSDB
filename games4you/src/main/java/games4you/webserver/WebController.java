@@ -154,8 +154,29 @@ public class WebController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        mod.addObject("type", type);
-        mod.addObject("query", query);
+        mod.addObject("endpoint", type + "/" + query);
+        return mod;
+    }
+
+    @GetMapping("/search/friends/{id}")
+    public ModelAndView friendList(@PathVariable("id") long id, HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("search");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        mod.addObject("endpoint", String.format("friends/%d/more", id));
+        return mod;
+    }
+
+    @GetMapping("/search/games/{id}")
+    public ModelAndView gameList(@PathVariable("id") long id, HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("search");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+
+        mod.addObject("endpoint", String.format("games/%d/more", id));
         return mod;
     }
 

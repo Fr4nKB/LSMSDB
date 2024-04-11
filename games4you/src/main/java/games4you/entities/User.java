@@ -138,8 +138,8 @@ public class User {
 
     public ArrayList<Object> getFriendList(long uid, int offset) {
         String query = String.format(
-                "MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]->(b:User) " +
-                        "RETURN {uid: b.id, uname: b.uname, since: r.since} AS result " +
+                "MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]-(b:User) " +
+                        "RETURN {type: \"U\", id: b.id, name: b.uname, since: r.since} AS result " +
                         "SKIP %d LIMIT %d",
                 uid, offset, 20);
         return getRelationshipList(query);
@@ -148,7 +148,7 @@ public class User {
     public ArrayList<Object> getGameList(long uid, int offset) {
         String query = String.format(
                 "MATCH (:User {id: %d})-[r:OWNS]->(b:Game) " +
-                        "RETURN {gid: b.id, game: b.name, hours: r.hours} AS result " +
+                        "RETURN {type: \"G\", id: b.id, name: b.name, hours: r.hours} AS result " +
                         "SKIP %d LIMIT %d",
                 uid, offset, 20);
         return getRelationshipList(query);
@@ -237,9 +237,10 @@ public class User {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         String query = String.format(
-                "MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s') " +
-                        "RETURN {type: \"U\", id: u.id, name: u.uname} " +
-                        "SKIP %d LIMIT 20",
+                """
+                        MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s')
+                        RETURN {type: \"U\", id: u.id, name: u.uname}
+                        SKIP %d LIMIT 20""",
                 username, offset);
         return neo4j.getQueryResultAsList(query);
     }

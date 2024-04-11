@@ -22,16 +22,19 @@ function loadReviewPage() {
     if(jsonData === null) return;
 
     if(window.uid != null) {
-        let button = document.createElement('button');
+        let btn = document.createElement('button');
         if(jsonData.uid !== window.uid) {
-            button.innerHTML = 'REPORT REVIEW';
-            button.onclick = function(){handleReview("/report/" + jsonData.rid);};
+            let b1 = document.createElement('button');
+            b1.innerHTML = 'UPVOTE REVIEW';
+            b1.onclick = function(){handleReview("/upvote/" + jsonData.rid);};
+            btn.innerHTML = 'REPORT REVIEW';
+            btn.onclick = function(){handleReview("/report/" + jsonData.rid);};
         }
         else {
-            button.innerHTML = 'DELETE REVIEW';
-            button.onclick = function(){handleReview("/remove/" + jsonData.rid);};
+            btn.innerHTML = 'DELETE REVIEW';
+            btn.onclick = function(){handleReview("/remove/" + jsonData.rid);};
         }
-        document.body.appendChild(button);
+        document.body.appendChild(btn);
     }
 
     document.getElementById("uname").innerText = jsonData.uname;
