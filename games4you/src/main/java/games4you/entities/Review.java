@@ -96,8 +96,7 @@ public class Review {
         String query = String.format(
                 "MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d}) " +
                         "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
-                        "MERGE (g)-[:HAS_REVIEW {votes:0}]->(r) " +
-                        "MERGE (u)-[:OWNS {hours:0}]->(g)",
+                        "MERGE (g)-[:HAS_REVIEW {votes:0}]->(r)",
                 uid, gid, rid, timestamp);
         neo4j.executeWriteTransactionQuery(query);
 
