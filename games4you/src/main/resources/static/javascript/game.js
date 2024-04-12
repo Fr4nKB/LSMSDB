@@ -33,6 +33,30 @@ async function mngGame() {
                 await doRequest("removeGame");
                 window.location.reload();
             };
+
+            let upHrs = document.createElement("p");
+            let upHrsInp = document.createElement("input");
+            let upHrsBtn = document.createElement("button");
+
+            upHrs.innerHTML = "Update the hours you've played this game";
+            upHrsInp.type = "text";
+            upHrsInp.required = true;
+            upHrsBtn.innerText = "UPDATE HOURS";
+            upHrsBtn.onclick = async function() {
+                const url = new URL(window.location.origin + "/updateHours/" + window.page_id);
+                url.searchParams.append('hours', upHrsInp.value);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include', // Include cookies
+                });
+
+                window.location.reload();
+            }
+
+            panel.appendChild(upHrs);
+            panel.appendChild(upHrsInp);
+            panel.appendChild(upHrsBtn);
         }
         if (jsonData.rev.in !== null) {
             let rev = document.createElement("a");
@@ -78,7 +102,6 @@ function loadGameReviews() {
 function loadGamePage() {
     window.page_id = null;
     let obj = JSON.parse(window.jsonData);
-    console.log(obj);
     if(obj === null) return;
     window.page_id = obj.gid;
 

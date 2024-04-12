@@ -197,4 +197,12 @@ public class DataController {
         return gamerMethods.removeReview(rid);
     }
 
+    @PostMapping("/updateHours/{id}")
+    public boolean updateHours(@PathVariable("id") long gid, @RequestParam("hours") int hours, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;    // admins don't have games
+
+        return gamerMethods.updatePlayedHours(ret[0], gid, hours);
+    }
+
 }
