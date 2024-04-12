@@ -10,3 +10,11 @@ export async function loadData(url) {
 
     return await response.json();
 }
+
+
+export async function doRequest(str, choice) {
+    if(window.page_uid === null) return;
+    let ret = await loadData(window.location.origin + '/' + str + '/' + window.page_id);
+
+    if(ret === true) window.location.reload();
+}

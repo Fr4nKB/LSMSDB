@@ -12,6 +12,7 @@ import games4you.dbmanager.Neo4jManager;
 import org.bson.BsonDocument;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class Review {
      */
     public int addReview(HashMap<String, Object> args) {
 
-        if(args.size() < 9) return -1;
+        if(args.size() < 8) return -1;
 
         MongoManager mongo = MongoManager.getInstance();
         long rid, gid, uid;
@@ -51,8 +52,8 @@ public class Review {
             rating = (boolean) args.get("rating");
             review.append("creation_date", (int) args.get("creation_date"));
             review.append("content", (String) args.get("content"));
-            if(args.size() >= 10) votes = (int) args.get("votes");
-            if(args.size() == 11) reports = args.get("reports");
+            if(args.size() >= 9) votes = (int) args.get("votes");
+            if(args.size() == 10) reports = args.get("reports");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -75,7 +76,7 @@ public class Review {
         review.append("uname", uname);
         review.append("rating", rating);
         review.append("votes", votes);
-        if(args.size() == 11) review.append("reports", reports);
+        if(args.size() == 10) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
         Neo4jManager neo4j = Neo4jManager.getInstance();
@@ -107,16 +108,8 @@ public class Review {
             neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", votes);
         }
 
-        ret = updateRedundantReviews("users", uid, 3);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "rid", rid);
-            return -1;
-        }
-        ret = updateRedundantReviews("games", gid,3);
-        if(!ret) {
-            mongo.removeDoc(false, "reviews", "rid", rid);
-            return -1;
-        }
+        updateRedundantReviews("users", uid, 3);
+        updateRedundantReviews("games", gid,3);
 
         return 1;
     }
@@ -125,8 +118,18 @@ public class Review {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
+        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
+        if(!cur.hasNext()) return false;
+
+        Document review = cur.next();
+        long gid = review.getLong("gid");
+        long uid = review.getLong("uid");
+
         mongo.removeDoc(false, "reviews", "rid", rid);
         neo4j.removeNode("Review", rid);
+
+        updateRedundantReviews("users", uid, 3);
+        updateRedundantReviews("games", gid,3);
 
         return true;
     }

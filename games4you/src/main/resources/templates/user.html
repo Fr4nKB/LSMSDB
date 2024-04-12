@@ -17,7 +17,8 @@
         <form action="#" th:action="@{/search}" method="get">
             <select name="type">
                 <option value="users">Users</option>
-                <option value="games">Games</option>
+                <option value="games-name">Games: by name</option>
+                <option value="games-tags">Games: by tags</option>
             </select>
             <input type="text" name="query">
             <input type="submit" value="Search">
@@ -35,7 +36,7 @@
     <div id="mngButtons">
     </div>
 
-    <div id="panel" style="display:none; background-color: white; border:1px solid black; padding:10px; width:200px; height:100px; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:3;">
+    <div id="panel" style="display:none; background-color: white; border:1px solid black; padding:10px; width:300px; height:150px; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:3;">
         <p></p>
         <button></button>
     </div>

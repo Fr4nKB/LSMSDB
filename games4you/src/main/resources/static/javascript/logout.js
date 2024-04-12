@@ -1,4 +1,4 @@
-import {loadData} from "./pagination.js";
+import {loadData} from "./util.js";
 
 async function logout() {
     let ret = await loadData(window.location.origin + '/logout');

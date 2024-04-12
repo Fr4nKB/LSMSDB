@@ -1,38 +1,30 @@
-async function handleReview(str) {
-    const url = new URL(str, window.location.origin);
-
-    const response = await fetch(url, {
-        method: 'GET',
-        credentials: 'include', // Include cookies in the request
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    let resp = await response.json();
-    if(resp === true) {
-        history.back();
-    }
-}
+import {doRequest} from "./util.js";
 
 function loadReviewPage() {
-
-    jsonData = JSON.parse(window.jsonString);
+    let jsonData = JSON.parse(window.jsonString);
     if(jsonData === null) return;
 
-    if(window.uid != null) {
+    if(window.page_uid != null) {
         let btn = document.createElement('button');
-        if(jsonData.uid !== window.uid) {
+        if(jsonData.uid !== window.page_uid) {
             let b1 = document.createElement('button');
             b1.innerHTML = 'UPVOTE REVIEW';
-            b1.onclick = function(){handleReview("/upvote/" + jsonData.rid);};
+            b1.onclick = async function(){
+                await doRequest("upvoteReview");
+                window.location.reload();
+            };
             btn.innerHTML = 'REPORT REVIEW';
-            btn.onclick = function(){handleReview("/report/" + jsonData.rid);};
+            btn.onclick = async function(){
+                await doRequest("reportReview");
+                window.location.reload();
+            };
         }
         else {
             btn.innerHTML = 'DELETE REVIEW';
-            btn.onclick = function(){handleReview("/remove/" + jsonData.rid);};
+            btn.onclick = async function(){
+                await doRequest("removeReview");
+                history.back();
+            };
         }
         document.body.appendChild(btn);
     }

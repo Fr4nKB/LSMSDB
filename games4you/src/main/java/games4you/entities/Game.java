@@ -55,7 +55,6 @@ public class Game {
         return true;
     }
 
-
     public boolean deleteGame(long gid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();

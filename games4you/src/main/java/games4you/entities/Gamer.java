@@ -8,6 +8,7 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
+import games4you.util.Constants;
 import org.bson.Document;
 
 import java.time.Instant;
@@ -38,7 +39,7 @@ public class Gamer extends User {
                 """
                         MATCH p=(u1:User {id: %d})-[r:PENDING]-(u2:User {id: %d})
                         WITH CASE WHEN p IS NOT NULL THEN startNode(r).id ELSE NULL END AS originNode
-                        RETURN {origin: originNode}
+                        RETURN {origin: originNode} LIMIT 1
                         """,
                 uid1, uid2
         );
@@ -46,6 +47,24 @@ public class Gamer extends User {
         if(!res.isEmpty()) return (String) res.get(0);
 
         return "[]";
+    }
+
+    public String checkGameRelationship(long uid, long gid) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        // check if user already owns the game or if he/she has reviewed it
+        String query = String.format(
+                """
+                        MATCH(u:User {id: %d}), (g:Game {id: %d})
+                            OPTIONAL MATCH (u)-[w:HAS_WROTE]->(r:Review {gid: %d})
+                            OPTIONAL MATCH (u)-[o:OWNS]->(g)
+                            RETURN {rev: {id: r.id, in: w.in}, hours: o.hours} LIMIT 1
+                        """,
+                uid, gid, gid
+        );
+        ArrayList<Object> res = neo4j.getQueryResultAsList(query);
+        if(!res.isEmpty()) return (String) res.get(0);
+        else return "[]";
     }
 
     public boolean sendRequest(long uid1, long uid2) {
@@ -175,7 +194,10 @@ public class Gamer extends User {
     }
 
 
-    public ArrayList<Object> homePage(long uid, int offset) {
+    public ArrayList<Object> homePage(long uid, int offset, int limit) {
+        if(limit <= 0) return null;
+        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
+
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format(
                 """
@@ -192,8 +214,8 @@ public class Gamer extends User {
                     ORDER BY r.since DESC
                     RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: fof.id, name: fof.uname}} AS result
                     }
-                    RETURN DISTINCT result SKIP %d LIMIT 20""",
-                uid, uid, offset);
+                    RETURN DISTINCT result SKIP %d LIMIT %d""",
+                uid, uid, offset, limit);
 
         return neo4j.getQueryResultAsList(query);
     }
@@ -241,6 +263,26 @@ public class Gamer extends User {
     public int removeGameFromLibrary(long uid, long gid){
         Game game = new Game();
         return game.removeGameFromLibrary(uid, gid);
+    }
+
+    public String retrieveUname(long uid) {
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uid", uid);
+        if(!cur.hasNext()) return null;
+        else {
+            Document user = cur.next();
+            return user.getString("uname");
+        }
+    }
+
+    public String retrieveGameName(long gid) {
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("games", "gid", gid);
+        if(!cur.hasNext()) return null;
+        else {
+            Document game = cur.next();
+            return game.getString("name");
+        }
     }
 
 }

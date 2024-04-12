@@ -11,7 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 @Controller
@@ -123,18 +125,9 @@ public class WebController {
     }
 
     @GetMapping("/review/{id}")
-    public ModelAndView getReview(@PathVariable("id") String id, HttpServletRequest request) {
+    public ModelAndView getReview(@PathVariable("id") long rid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
-
-        long rid;
-        try {
-            rid = Long.parseLong(id);
-        }
-        catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
-        }
 
         String json = gamerMethods.showReview(rid);
         if(json == null) return null;
@@ -142,6 +135,7 @@ public class WebController {
         ModelAndView mod = new ModelAndView("review");
         if(ret[1] == 1) mod.addObject("uid", null);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        mod.addObject("rid", rid);
         mod.addObject("jsonString", json);
         return mod;
     }
@@ -151,10 +145,14 @@ public class WebController {
                                HttpServletRequest request) {
         ModelAndView mod = new ModelAndView("search");
 
+        if(!Authentication.isName(query)) return null;
+        String[] parts = type.split("-");
+        if(parts.length != 2 || !Authentication.isName(parts[0]) || !Authentication.isName(parts[1])) return null;
+
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        mod.addObject("endpoint", type + "/" + query);
+        mod.addObject("endpoint", parts[0] + "/" + parts[1] + "/" + query);
         return mod;
     }
 
@@ -178,6 +176,47 @@ public class WebController {
 
         mod.addObject("endpoint", String.format("games/%d/more", id));
         return mod;
+    }
+
+    @GetMapping("/newReview/{id}")
+    public ModelAndView newReview(@PathVariable("id") long id, HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("newReview");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;     // admins cannot write reviews
+
+        mod.addObject("gid", id);
+        return mod;
+    }
+
+    @PostMapping("/newReview/{id}")
+    public String postNewReview(@PathVariable("id") long gid, @RequestParam HashMap<String, Object> formData,
+                                HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;     // admins cannot write reviews
+
+        String rating = (String) formData.get("rating");
+        if(rating.equals("on")) formData.replace("rating", rating, true);
+        else formData.replace("rating", rating, false);
+
+        formData.remove("gid");
+        formData.put("gid", gid);
+
+        long rid = Authentication.generateUUID();
+        formData.put("rid", rid);
+        formData.put("uid", ret[0]);
+        formData.put("creation_date", (int) Instant.now().getEpochSecond());
+
+        String uname = gamerMethods.retrieveUname(ret[0]);
+        if(uname == null) return "redirect:/error";
+        String game = gamerMethods.retrieveGameName(gid);
+        if(game == null) return "redirect:/error";
+
+        formData.put("uname", uname);
+        formData.put("game", game);
+
+        if(gamerMethods.addReview(formData) <= 0) return "redirect:/error";
+        else return String.format("redirect:/review/%d", rid);
     }
 
 }

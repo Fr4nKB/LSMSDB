@@ -1,4 +1,4 @@
-import {loadData} from "./pagination.js";
+import {loadData} from "./util.js";
 import {loadFullReviewTiles} from "./loadReviewPages.js";
 
 let offset = 0;

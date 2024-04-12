@@ -1,4 +1,4 @@
-import {loadData} from "./pagination.js";
+import {loadData} from "./util.js";
 
 function loadHomePageTiles(jsonList) {
     let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];

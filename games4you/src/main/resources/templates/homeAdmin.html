@@ -13,7 +13,8 @@
         <form action="#" th:action="@{/search}" method="get">
             <select name="type">
                 <option value="users">Users</option>
-                <option value="games">Games</option>
+                <option value="games-name">Games: by name</option>
+                <option value="games-tags">Games: by tags</option>
             </select>
             <input type="text" name="query">
             <input type="submit" value="Search">

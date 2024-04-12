@@ -1,35 +1,71 @@
-import {loadData} from "./pagination.js";
+import {doRequest, loadData} from "./util.js";
 import {loadPreviewReviewTiles} from "./loadReviewPages.js";
 
-async function addGame() {
-    if(window.page_uid === null) return;
-    let ret = await loadData(window.location.origin + '/addGame/' + window.page_gid);
-    if(ret === 1) alert("The game has been added to your library");
-    else if(ret === 0) alert("The game is already in your library");
-    else alert("Couldn't add the game to your library");
-}
+let overlay = document.getElementById("overlay");
+let panel = document.getElementById("panel");
 
-async function removeGame() {
-    if(window.page_uid === null) return;
-    let ret = await loadData(window.location.origin + '/removeGame/' + window.page_gid);
-    if(ret === 1) alert("The game has been removed from your library");
-    else if(ret === 0) alert("The game already isn't your library");
-    else alert("Couldn't remove the game from your library");
-}
 
-async function deleteGame() {
-    if(window.page_uid === null) return;
-    let ret = await loadData(window.location.origin + '/deleteGame/' + window.page_gid);
-    if(ret === true) {
-        alert("Game was successfully removed");
-        history.back();
+async function mngGame() {
+    let jsonData = await loadData(window.location.origin + '/checkGame/' + window.page_id);
+
+    let par = panel.children[0];
+    let btn = panel.children[1];
+
+    if (window.adm === true) {
+        btn.innerHTML = 'DELETE';
+        btn.onclick = async function () {
+            await doRequest("deleteGame");
+            history.back();
+        };
     }
+    else {
+        if (jsonData.hours === null) {
+            btn.innerHTML = 'ADD GAME';
+            btn.onclick = async function () {
+                await doRequest("addGame");
+                window.location.reload();
+            };
+        }
+        else {
+            par.innerHTML = "You have played for a total of " + jsonData.hours + " hours";
+            btn.innerHTML = 'REMOVE GAME';
+            btn.onclick = async function () {
+                await doRequest("removeGame");
+                window.location.reload();
+            };
+        }
+        if (jsonData.rev.in !== null) {
+            let rev = document.createElement("a");
+            let date = new Date(jsonData.rev.in * 1000);
+
+            rev.text = "You have reviewed this game in " + date.toUTCString();
+            rev.href = "/review/" + jsonData.rev.id;
+
+            panel.appendChild(rev);
+        }
+        else {
+            let rev = document.createElement("p");
+            let revBtn = document.createElement("button");
+
+            rev.innerHTML = "You have not reviewed this game yet"
+            revBtn.innerHTML = "REVIEW GAME";
+            revBtn.onclick = async function () {
+                window.open(window.location.origin + "/newReview/" + window.page_id,"_self");
+            };
+
+            panel.appendChild(rev);
+            panel.appendChild(revBtn);
+        }
+    }
+
+    overlay.style.display = "block";
+    panel.style.display = "block";
 }
 
 function loadGameReviews() {
-    if(window.page_uid === null) return;
+    if(window.page_id === null) return;
     const url = new URL("/game/reviews/", window.location.origin);
-    url.searchParams.append('gid', window.page_gid);
+    url.searchParams.append('gid', window.page_id);
     url.searchParams.append('offset', window.offset);
 
     let data = loadData(url)
@@ -40,11 +76,11 @@ function loadGameReviews() {
 }
 
 function loadGamePage() {
-    window.page_gid = null;
+    window.page_id = null;
     let obj = JSON.parse(window.jsonData);
-    if(obj === null) return;
     console.log(obj);
-    window.page_gid = obj.gid;
+    if(obj === null) return;
+    window.page_id = obj.gid;
 
     if('latestReviews' in obj) {
         window.offset = obj.latestReviews.length;
@@ -65,25 +101,21 @@ function loadGamePage() {
         img_div.appendChild(img);
     }
 
-    let btn_div =
-        document.getElementById("buttons");
-    if(window.adm === true) {
-        let b1 = document.createElement('button');
-        b1.innerHTML = 'BAN';
-        b1.onclick = function(){deleteGame()};
-        btn_div.appendChild(b1);
-    }
-    else {
-        let b1 = document.createElement('button');
-        b1.innerHTML = 'ADD GAME';
-        b1.onclick = function(){addGame()};
-        btn_div.appendChild(b1);
+    let btn = document.getElementById("mngBtn");
+    btn.innerHTML = 'MANAGE';
+    btn.onclick = function(){mngGame()};
 
-        let b2 = document.createElement('button');
-        b2.innerHTML = 'REMOVE GAME';
-        b2.onclick = function(){removeGame()};
-        btn_div.appendChild(b2);
-    }
+    document.addEventListener('click', function(event) {
+        let isClickInside = panel.contains(event.target);
+        if (!isClickInside && event.target !== btn) {
+            overlay.style.display = "none";
+            panel.style.display = "none";
+
+            while(panel.children.length > 2) {
+                panel.removeChild(panel.lastChild);
+            }
+        }
+    });
 }
 
 window.onload = function() {loadGamePage()};

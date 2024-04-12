@@ -1,19 +1,11 @@
-import {loadData} from "./pagination.js";
+import {doRequest, loadData} from "./util.js";
 import {loadPreviewReviewTiles} from "./loadReviewPages.js";
 
 let overlay = document.getElementById("overlay");
 let panel = document.getElementById("panel");
 
-async function doRequest(str) {
-    if(window.page_uid === null) return;
-    let ret = await loadData(window.location.origin + '/' + str + '/' + window.page_uid);
-
-    if(ret === true) window.location.reload();
-}
-
 async function mngUser() {
-    let jsonData = await loadData(window.location.origin + '/checkFriendship/' + window.page_uid);
-    console.log(jsonData);
+    let jsonData = await loadData(window.location.origin + '/checkFriendship/' + window.page_id);
 
     let par = panel.children[0];
     let btn = panel.children[1];
@@ -21,30 +13,45 @@ async function mngUser() {
     if(jsonData.length === 0) {    // not friend, not pending
         par.innerHTML = "You are not friends";
         btn.innerHTML = "SEND FRIEND REQUEST";
-        btn.onclick = function(){doRequest("sendRequest")};
+        btn.onclick = async function(){
+            await doRequest("sendRequest");
+            window.location.reload();
+        };
     }
     else if('origin' in jsonData) {    // pending request
-        if(jsonData.origin === window.page_uid) {
+        if(jsonData.origin === window.page_id) {
             par.innerHTML = "He/she wants to be your friend";
             btn.innerHTML = "ACCEPT REQUEST";
-            btn.onclick = function(){doRequest("acceptRequest")};
+            btn.onclick = async function(){
+                await doRequest("acceptRequest");
+                window.location.reload();
+            };
 
             let b2 = document.createElement("button");
             b2.innerHTML = "DECLINE REQUEST";
-            b2.onclick = function(){doRequest("declineRequest")};
+            b2.onclick = async function(){
+                await doRequest("declineRequest");
+                window.location.reload();
+            };
             panel.appendChild(b2);
         }
         else {
             par.innerHTML = "You sent a friend request";
             btn.innerHTML = "REVOKE REQUEST";
-            btn.onclick = function(){doRequest("revokeRequest")};
+            btn.onclick = async function(){
+                await doRequest("revokeRequest");
+                window.location.reload();
+            };
         }
     }
     else if('since' in jsonData) {    // friends
         let date = new Date(jsonData.since * 1000);
         par.innerHTML = "You are friends since " + date.toUTCString();
         btn.innerHTML = "REMOVE FRIEND";
-        btn.onclick = function(){doRequest("removeFriend")};
+        btn.onclick = async function(){
+            await doRequest("removeFriend");
+            window.location.reload();
+        };
     }
 
     overlay.style.display = "block";
@@ -53,8 +60,8 @@ async function mngUser() {
 }
 
 async function ban() {
-    if(window.page_uid === null) return;
-    let ret = await loadData(window.location.origin + '/ban/' + window.page_uid);
+    if(window.page_id === null) return;
+    let ret = await loadData(window.location.origin + '/ban/' + window.page_id);
     if(ret === true) {
         alert("User was successfully banned");
         history.back();
@@ -62,17 +69,17 @@ async function ban() {
 }
 
 function friendList() {
-    window.open(window.location.origin + "/search/friends/" + window.page_uid,"_self");
+    window.open(window.location.origin + "/search/friends/" + window.page_id,"_self");
 }
 
 function gameList() {
-    window.open(window.location.origin + "/search/games/" + window.page_uid,"_self");
+    window.open(window.location.origin + "/search/games/" + window.page_id,"_self");
 }
 
 function loadUserReviews() {
-    if(window.page_uid === null) return;
+    if(window.page_id === null) return;
     const url = new URL("/user/reviews/", window.location.origin);
-    url.searchParams.append('uid', window.page_uid);
+    url.searchParams.append('uid', window.page_id);
     url.searchParams.append('offset', window.offset);
 
     let data = loadData(url)
@@ -83,10 +90,10 @@ function loadUserReviews() {
 }
 
 function loadUserPage() {
-    window.page_uid = null;
+    window.page_id = null;
     let obj = JSON.parse(window.jsonData);
     if(obj === null) return;
-    window.page_uid = obj.uid;
+    window.page_id = obj.uid;
 
     if('latestReviews' in obj) {
         window.offset = obj.latestReviews.length;
@@ -102,7 +109,7 @@ function loadUserPage() {
         document.getElementById("mngButtons");
 
     if(window.uid !== null) {
-        if(window.page_uid !== window.uid) {
+        if(window.page_id !== window.uid) {
             let b1 = document.createElement('button');
             b1.innerHTML = 'MANAGE FRIENDSHIP';
             b1.onclick = function(){mngUser()};
@@ -113,6 +120,10 @@ function loadUserPage() {
                 if (!isClickInside && event.target !== b1) {
                     overlay.style.display = "none";
                     panel.style.display = "none";
+
+                    while(panel.children.length > 2) {
+                        panel.removeChild(panel.lastChild);
+                    }
                 }
             });
         }
