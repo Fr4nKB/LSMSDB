@@ -36,6 +36,7 @@ public class WebController {
     public String postLogin(String uname, String pwd, HttpServletRequest request, HttpServletResponse response) {
         //first check if any cookie is present
         long[] ret = sesManager.isUserAdmin(request);
+
         if(ret == null) { // no cookies, check user credentials
             ret = gamerMethods.login(uname, pwd);
             if(ret == null) return "redirect:/";
@@ -43,6 +44,7 @@ public class WebController {
             // generate and add access token to cookies
             String token = sesManager.generateToken(ret[0], ret[1]);
             Cookie cookie = new Cookie("token", token);
+
             response.addCookie(cookie);
         }
 

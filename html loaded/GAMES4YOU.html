@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>GAMES4YOU</title>
+</head>
+<body>
+    <script src="GAMES4YOU_files/logout.js" type="module"></script>
+    <script src="GAMES4YOU_files/home.js" type="module"></script>
+    <h1>WELCOME</h1>
+
+    <div>
+        <form action="/search" method="get">
+            <select name="type">
+                <option value="users" selected="selected">Users</option>
+                <option value="games">Games</option>
+            </select>
+            <input type="text" name="query">
+            <input type="submit" value="Search">
+        </form>
+
+        <button id="logout">Logout</button>
+    </div>
+
+    <table id="tableContent">
+        <tbody><tr><td><a href="http://localhost:8080/user/2">XX_ivan_XX</a> HAS REVIEWED <a href="http://localhost:8080/game/4">RetroArch</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr><tr><td><a href="http://localhost:8080/user/2">XX_ivan_XX</a> HAS REVIEWED <a href="http://localhost:8080/game/3">Cyberpunk 2077</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr><tr><td><a href="http://localhost:8080/user/0">JohnnyTheDark</a> HAS REVIEWED <a href="http://localhost:8080/game/1">CS2</a></td><td>Thu, 11 Apr 2024 17:55:40 GMT</td></tr><tr><td><a href="http://localhost:8080/user/0">JohnnyTheDark</a> HAS REVIEWED <a href="http://localhost:8080/game/0">AC2</a></td><td>Thu, 11 Apr 2024 17:55:40 GMT</td></tr><tr><td><a href="http://localhost:8080/user/2">XX_ivan_XX</a> IS NOW FRIEND WITH <a href="http://localhost:8080/user/3">Parmalat</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr><tr><td><a href="http://localhost:8080/user/2">XX_ivan_XX</a> IS NOW FRIEND WITH <a href="http://localhost:8080/user/0">JohnnyTheDark</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr><tr><td><a href="http://localhost:8080/user/0">JohnnyTheDark</a> IS NOW FRIEND WITH <a href="http://localhost:8080/user/3">Parmalat</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr><tr><td><a href="http://localhost:8080/user/0">JohnnyTheDark</a> IS NOW FRIEND WITH <a href="http://localhost:8080/user/2">XX_ivan_XX</a></td><td>Thu, 11 Apr 2024 17:55:41 GMT</td></tr></tbody>
+    </table>
+    <button id="loadmore">Load more</button>
+
+
+</body></html>
