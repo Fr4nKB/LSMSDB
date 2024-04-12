@@ -12,7 +12,6 @@ import games4you.dbmanager.Neo4jManager;
 import org.bson.BsonDocument;
 import org.bson.Document;
 
-import javax.print.Doc;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +74,8 @@ public class Review {
         review.append("game", game);
         review.append("uname", uname);
         review.append("rating", rating);
-        review.append("votes", votes);
+        review.append("numUpvotes", votes);
+        review.append("upvotes", new ArrayList<>());
         if(args.size() == 10) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
@@ -86,6 +86,7 @@ public class Review {
         map.put("game", game);
         map.put("uname", uname);
         map.put("rating", rating);
+        map.put("votes", votes);
         boolean ret = neo4j.addNode("Review", map);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
@@ -97,16 +98,9 @@ public class Review {
         String query = String.format(
                 "MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d}) " +
                         "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
-                        "MERGE (g)-[:HAS_REVIEW {votes:0}]->(r)",
+                        "MERGE (g)-[:HAS_REVIEW]->(r)",
                 uid, gid, rid, timestamp);
         neo4j.executeWriteTransactionQuery(query);
-
-        //used to initially populate the db
-        if(votes > 0) {
-            String[] node_type = {"Game", "Review"};
-            long[] node_name = {gid, rid};
-            neo4j.incAttribute(node_type, node_name, "HAS_REVIEW", "votes", votes);
-        }
 
         updateRedundantReviews("users", uid, 3);
         updateRedundantReviews("games", gid,3);

@@ -13,18 +13,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 @Controller
 public class WebController {
 
-    private final Admin adminMethods;
     private final Gamer gamerMethods;
     private final SessionManager sesManager;
 
     public WebController() {
-        adminMethods = new Admin();
         gamerMethods = new Gamer();
         sesManager = new SessionManager();
     }
@@ -147,12 +144,14 @@ public class WebController {
 
         if(!Authentication.isName(query)) return null;
         String[] parts = type.split("-");
-        if(parts.length != 2 || !Authentication.isName(parts[0]) || !Authentication.isName(parts[1])) return null;
+        if(parts.length > 2) return null;
+        else if(parts.length == 2 && (!Authentication.isName(parts[0]) || !Authentication.isName(parts[1]))) return null;
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        mod.addObject("endpoint", parts[0] + "/" + parts[1] + "/" + query);
+        if(parts.length == 2) mod.addObject("endpoint", parts[0] + "/" + parts[1] + "/" + query);
+        else mod.addObject("endpoint", parts[0] + "/" + query);
         return mod;
     }
 

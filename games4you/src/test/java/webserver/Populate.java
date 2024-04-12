@@ -55,6 +55,11 @@ public class Populate {
         assert gamer.reportReview(4, 3);
         assert !gamer.reportReview(4, 3);
 
+        assert !gamer.upvoteReview(0, 0);
+        assert gamer.upvoteReview(0, 3);
+        assert gamer.upvoteReview(2, 3);
+        assert !gamer.upvoteReview(2, 3);
+
     }
 
 }

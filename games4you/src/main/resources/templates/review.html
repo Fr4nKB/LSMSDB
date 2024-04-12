@@ -8,8 +8,7 @@
     <script src="/javascript/review.js" type="module"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
-        page_id = /*[[${rid}]]*/ null;
-        page_uid = /*[[${uid}]]*/ null;
+        user_id = /*[[${uid}]]*/ null;
         jsonString = /*[[${jsonString}]]*/ null;
         /*]]>*/
     </script>
@@ -28,12 +27,14 @@
         <button id="logout">Logout</button>
     </div>
 
-    <h2 id="uname"></h2>
-    <h3 id="game"></h3>
-    <p id="date"></p>
-    <div>
-        <p id="content"></p>
-        <p id="rating"></p>
+    <div id="reviewBox">
+        <h2 id="uname"></h2>
+        <h3 id="game"></h3>
+        <p id="date"></p>
+        <div>
+            <p id="content"></p>
+            <p id="rating"></p>
+        </div>
     </div>
 
 </body>

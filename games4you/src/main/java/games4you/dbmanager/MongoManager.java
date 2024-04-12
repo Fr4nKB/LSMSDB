@@ -6,15 +6,12 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.Properties;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -116,27 +113,11 @@ public class MongoManager implements AutoCloseable {
         if(currentCollection == null) return false;
 
         Bson filter = Filters.eq(key, value);
-        DeleteResult res = null;
+        DeleteResult res;
         if(!choice) res = currentCollection.deleteOne(filter);
         else res = currentCollection.deleteMany(filter);
 
         return res.getDeletedCount() > 0;
-    }
-
-    public boolean addReporter(long rid, long uid) {
-        currentCollection = getCollection("reviews");
-        if(currentCollection == null) return false;
-
-
-        long timestamp = Instant.now().getEpochSecond();
-        UpdateResult res = currentCollection.updateOne(
-                Filters.eq("rid", rid),
-                Updates.combine(
-                        Updates.set("reports.lastRep", timestamp),
-                        Updates.inc("reports.numRep", 1),
-                        Updates.push("reports.reporters", uid)));
-
-        return res.getModifiedCount() > 0;
     }
 
 }
