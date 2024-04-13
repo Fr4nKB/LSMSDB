@@ -4,82 +4,72 @@ import {loadPreviewReviewTiles} from "./loadReviewPages.js";
 let overlay = document.getElementById("overlay");
 let panel = document.getElementById("panel");
 
-
 async function mngGame() {
     let jsonData = await loadData(window.location.origin + '/checkGame/' + window.page_id);
 
     let par = panel.children[0];
     let btn = panel.children[1];
 
-    if (window.adm === true) {
-        btn.innerHTML = 'DELETE';
+    if (jsonData.hours === null) {
+        btn.innerHTML = 'ADD GAME';
         btn.onclick = async function () {
-            await doRequest("deleteGame");
-            history.back();
+            await doRequest("addGame");
+            window.location.reload();
         };
     }
     else {
-        if (jsonData.hours === null) {
-            btn.innerHTML = 'ADD GAME';
-            btn.onclick = async function () {
-                await doRequest("addGame");
-                window.location.reload();
-            };
+        par.innerHTML = "You have played for a total of " + jsonData.hours + " hours";
+        btn.innerHTML = 'REMOVE GAME';
+        btn.onclick = async function () {
+            await doRequest("removeGame");
+            window.location.reload();
+        };
+
+        let upHrs = document.createElement("p");
+        let upHrsInp = document.createElement("input");
+        let upHrsBtn = document.createElement("button");
+
+        upHrs.innerHTML = "Update the hours you've played this game";
+        upHrsInp.type = "text";
+        upHrsInp.required = true;
+        upHrsBtn.innerText = "UPDATE HOURS";
+        upHrsBtn.onclick = async function() {
+            const url = new URL(window.location.origin + "/updateHours/" + window.page_id);
+            url.searchParams.append('hours', upHrsInp.value);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include', // Include cookies
+            });
+
+            window.location.reload();
         }
-        else {
-            par.innerHTML = "You have played for a total of " + jsonData.hours + " hours";
-            btn.innerHTML = 'REMOVE GAME';
-            btn.onclick = async function () {
-                await doRequest("removeGame");
-                window.location.reload();
-            };
 
-            let upHrs = document.createElement("p");
-            let upHrsInp = document.createElement("input");
-            let upHrsBtn = document.createElement("button");
+        panel.appendChild(upHrs);
+        panel.appendChild(upHrsInp);
+        panel.appendChild(upHrsBtn);
+    }
+    if (jsonData.rev.in !== null) {
+        let rev = document.createElement("a");
+        let date = new Date(jsonData.rev.in * 1000);
 
-            upHrs.innerHTML = "Update the hours you've played this game";
-            upHrsInp.type = "text";
-            upHrsInp.required = true;
-            upHrsBtn.innerText = "UPDATE HOURS";
-            upHrsBtn.onclick = async function() {
-                const url = new URL(window.location.origin + "/updateHours/" + window.page_id);
-                url.searchParams.append('hours', upHrsInp.value);
+        rev.text = "You have reviewed this game in " + date.toUTCString();
+        rev.href = "/review/" + jsonData.rev.id;
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    credentials: 'include', // Include cookies
-                });
+        panel.appendChild(rev);
+    }
+    else {
+        let rev = document.createElement("p");
+        let revBtn = document.createElement("button");
 
-                window.location.reload();
-            }
+        rev.innerHTML = "You have not reviewed this game yet"
+        revBtn.innerHTML = "REVIEW GAME";
+        revBtn.onclick = async function () {
+            window.open(window.location.origin + "/newReview/" + window.page_id,"_self");
+        };
 
-            panel.appendChild(upHrs);
-            panel.appendChild(upHrsInp);
-            panel.appendChild(upHrsBtn);
-        }
-        if (jsonData.rev.in !== null) {
-            let rev = document.createElement("a");
-            let date = new Date(jsonData.rev.in * 1000);
-
-            rev.text = "You have reviewed this game in " + date.toUTCString();
-            rev.href = "/review/" + jsonData.rev.id;
-
-            panel.appendChild(rev);
-        }
-        else {
-            let rev = document.createElement("p");
-            let revBtn = document.createElement("button");
-
-            rev.innerHTML = "You have not reviewed this game yet"
-            revBtn.innerHTML = "REVIEW GAME";
-            revBtn.onclick = async function () {
-                window.open(window.location.origin + "/newReview/" + window.page_id,"_self");
-            };
-
-            panel.appendChild(rev);
-            panel.appendChild(revBtn);
-        }
+        panel.appendChild(rev);
+        panel.appendChild(revBtn);
     }
 
     overlay.style.display = "block";
@@ -125,8 +115,18 @@ function loadGamePage() {
     }
 
     let btn = document.getElementById("mngBtn");
-    btn.innerHTML = 'MANAGE';
-    btn.onclick = function(){mngGame()};
+    if (window.adm === true) {
+        btn.innerHTML = 'DELETE';
+        btn.onclick = async function () {
+            await doRequest("deleteGame");
+            history.back();
+        };
+    }
+    else {
+        btn.innerHTML = 'MANAGE';
+        btn.onclick = function(){mngGame()};
+    }
+
 
     document.addEventListener('click', function(event) {
         let isClickInside = panel.contains(event.target);

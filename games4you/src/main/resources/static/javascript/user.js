@@ -128,7 +128,7 @@ function loadUserPage() {
             });
         }
     }
-    else {
+    else if(window.adm === true) {
         let b1 = document.createElement('button');
         b1.innerHTML = 'BAN';
         b1.onclick = function(){ban()};

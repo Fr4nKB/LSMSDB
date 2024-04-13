@@ -51,8 +51,8 @@ public class Review {
             rating = (boolean) args.get("rating");
             review.append("creation_date", (int) args.get("creation_date"));
             review.append("content", (String) args.get("content"));
-            if(args.size() >= 9) votes = (int) args.get("votes");
-            if(args.size() == 10) reports = args.get("reports");
+            if(args.containsKey("votes")) votes = (int) args.get("votes");
+            if(args.containsKey("reports")) reports = args.get("reports");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -76,7 +76,7 @@ public class Review {
         review.append("rating", rating);
         review.append("numUpvotes", votes);
         review.append("upvotes", new ArrayList<>());
-        if(args.size() == 10) review.append("reports", reports);
+        if(reports != null) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
         Neo4jManager neo4j = Neo4jManager.getInstance();

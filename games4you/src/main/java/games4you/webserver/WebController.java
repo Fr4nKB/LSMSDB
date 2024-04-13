@@ -13,15 +13,20 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class WebController {
-
+    private final Admin adminMethods;
     private final Gamer gamerMethods;
     private final SessionManager sesManager;
 
     public WebController() {
+        adminMethods = new Admin();
         gamerMethods = new Gamer();
         sesManager = new SessionManager();
     }
@@ -92,7 +97,7 @@ public class WebController {
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("user");
-        if(ret[1] == 1) mod.addObject("uid", null);
+        if(ret[1] == 1) mod.addObject("adm", true);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
@@ -130,7 +135,7 @@ public class WebController {
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("review");
-        if(ret[1] == 1) mod.addObject("uid", null);
+        if(ret[1] == 1) mod.addObject("adm", true);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("rid", rid);
         mod.addObject("jsonString", json);
@@ -216,6 +221,45 @@ public class WebController {
 
         if(gamerMethods.addReview(formData) <= 0) return "redirect:/error";
         else return String.format("redirect:/review/%d", rid);
+    }
+
+
+    @GetMapping("/newGame/")
+    public String newGame(HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 0) return "redirect:/error";     // gamers cannot create new games
+        return "newGame";
+    }
+
+    @PostMapping("/newGame/")
+    public String postNewGame(@RequestParam HashMap<String, Object> formData,
+                                HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
+
+        long gid = Authentication.generateUUID();
+        formData.put("gid", gid);
+
+        try {
+            String tags_field = (String) formData.get("tags");
+            String[] tags = tags_field.split(", ");
+            ArrayList<String> tagsArr = new ArrayList<>();
+            Collections.addAll(tagsArr, tags);
+            formData.replace("tags", tags_field, tagsArr);
+
+            String date = (String) formData.get("release_date");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate localDate = LocalDate.parse(date, formatter);
+            int seconds = (int) localDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
+            formData.replace("release_date", date, seconds);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/error";
+        }
+
+        if(adminMethods.insertGame(formData)) return String.format("redirect:/game/%d", gid);
+        else return "redirect:/error";
     }
 
 }

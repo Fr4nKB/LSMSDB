@@ -25,14 +25,11 @@ public class Game {
             game.append("name", game_name);
             game.append("tags", tags);
             game.append("release_date", args.get("release_date"));
-            if (args.size() > 3) {
-                game.append("latestReviews", args.get("latestReviews"));
-                if (args.size() == 7) {
-                    game.append("description", args.get("description"));
-                    game.append("header_image", args.get("header_image"));
-                }
-            }
-        } catch (Exception e) {
+            if(args.containsKey("latestReviews")) game.append("latestReviews", args.get("latestReviews"));
+            if(args.containsKey("description")) game.append("description", args.get("description"));
+            if(args.containsKey("header_image")) game.append("header_image", args.get("header_image"));
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -61,10 +58,8 @@ public class Game {
 
         boolean ret = mongo.removeDoc(false, "games", "gid", gid);
         if(!ret) return false;
-        ret = mongo.removeDoc(true, "reviews", "gid", gid);
-        if(!ret) return false;
-        ret = neo4j.removeSubNodes("Game", "HAS_REVIEW", "Review", gid);
-        if(!ret) return false;
+        mongo.removeDoc(true, "reviews", "gid", gid);
+        neo4j.removeSubNodes("Game", "HAS_REVIEW", "Review", gid);
         return neo4j.removeNode("Game", gid);
     }
 

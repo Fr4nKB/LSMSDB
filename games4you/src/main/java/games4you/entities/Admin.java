@@ -81,7 +81,7 @@ public class Admin extends User {
         }
     }
 
-    public boolean evaluateReportedReview(int rid, boolean judgment) {
+    public boolean evaluateReportedReview(long rid, boolean judgment) {
         if(!judgment) {
             return super.removeReview(rid);
         }

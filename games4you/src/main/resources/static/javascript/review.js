@@ -28,7 +28,7 @@ function loadReviewPage() {
             document.body.appendChild(btn);
         }
     }
-    else {
+    else if (adm === true) {
         btn.innerHTML = 'DELETE REVIEW';
         btn.onclick = async function(){
             await doRequest("removeReview");
