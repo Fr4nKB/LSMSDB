@@ -3,6 +3,7 @@ package db;
 import games4you.entities.Admin;
 import games4you.entities.Gamer;
 import games4you.util.Constants;
+import games4you.util.NeoComplexQueries;
 import games4you.util.Populator;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class Test {
         Populator pop = new Populator();
         Gamer gamer = new Gamer();
         Admin admin = new Admin();
+        NeoComplexQueries neoCQ = new NeoComplexQueries();
 
         assert pop.populateGamers() == 5;
         assert pop.populateGamers() == 0: "Users already present";
@@ -84,8 +86,8 @@ public class Test {
         assert !gamer.reportReview(4, 3);    //cannot report twice
 
         //COMPLEX QUERIES
-        System.out.println(gamer.tagsRecommendationNORED(0));
-        assert gamer.tagsRecommendationNORED(0).size() == 2: "Incorrect recommendation list size";
+        System.out.println(neoCQ.friendsTagsBasedRecommendationNORED(0));
+        assert neoCQ.friendsTagsBasedRecommendationNORED(0).size() == 2: "Incorrect recommendation list size";
 
         //ADMIN
         assert admin.banGamer(0): "User not banned";
