@@ -11,13 +11,10 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import games4you.util.Constants;
 import org.bson.Document;
-import org.springframework.web.servlet.tags.ArgumentAware;
 
-import javax.print.Doc;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Gamer extends User {
 
@@ -291,41 +288,6 @@ public class Gamer extends User {
                     RETURN DISTINCT result SKIP %d LIMIT %d""",
                 uid, uid, offset, limit);
 
-        return neo4j.getQueryResultAsList(query);
-    }
-
-    public ArrayList<Object> tagsRecommendationNORED(long uid) {
-        String query = String.format(
-                """
-                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH*1..2]-(fof), (fof)-[:OWNS]->(g:Game)
-                    UNWIND g.tags AS tag
-                    WITH u, tag, count(*) AS tagCount
-                    ORDER BY tagCount DESC LIMIT 5
-                    WITH u, collect(tag) AS topTags
-                    MATCH (game:Game)
-                    WHERE NOT((u)-[:OWNS]->(game)) AND ANY(t IN game.tags WHERE t IN topTags)
-                    RETURN game.name AS RecommendedGame, [t IN game.tags WHERE t IN topTags] AS Tags
-                    ORDER BY size(Tags) DESC LIMIT 5""",
-                uid);
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        return neo4j.getQueryResultAsList(query);
-    }
-
-    public ArrayList<Object> tagsRecommendationRED(long uid) {
-        String query = String.format(
-                """
-                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH*1..2]-(friend:User)
-                    WITH u, friend
-                    UNWIND friend.tags AS tag
-                    WITH u, tag, COUNT(DISTINCT friend) AS tagCount
-                    ORDER BY tagCount DESC
-                    LIMIT 5
-                    WITH u, COLLECT(tag) AS topFriendTags
-                    MATCH (game:Game)
-                    WHERE NOT((u)-[:OWNS]->(game)) AND ANY(tag IN game.tags WHERE tag IN topFriendTags)
-                    RETURN game.name""",
-                uid);
-        Neo4jManager neo4j = Neo4jManager.getInstance();
         return neo4j.getQueryResultAsList(query);
     }
 
