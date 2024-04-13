@@ -9,6 +9,7 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
+import games4you.util.Constants;
 import org.bson.Document;
 
 import java.util.*;
@@ -20,12 +21,12 @@ public class Admin extends User {
         return game.insertGame(args);
     }
 
-    public boolean deleteGame(int gid) {
+    public boolean deleteGame(long gid) {
         Game game = new Game();
         return game.deleteGame(gid);
     }
 
-    public boolean banGamer(int uid) {
+    public boolean banGamer(long uid) {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
@@ -52,7 +53,10 @@ public class Admin extends User {
         return neo4j.removeNode("User", uid);
     }
 
-    public ArrayList<String> getReportedReviews(int offset) {
+    public ArrayList<Object> getReportedReviews(int offset, int limit) {
+        if(limit <= 0) return null;
+        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
+
         MongoManager mongo = MongoManager.getInstance();
         try {
             MongoCollection<Document> coll = mongo.getCollection("reviews");
@@ -61,10 +65,10 @@ public class Admin extends User {
                     .projection(Projections.fields(Projections.excludeId()))
                     .sort(Sorts.descending("creation_date"))
                     .skip(offset)
-                    .limit(20)
+                    .limit(limit)
                     .iterator();
 
-            ArrayList<String> list = new ArrayList<>();
+            ArrayList<Object> list = new ArrayList<>();
             while(cur.hasNext()) {
                 Document elem = cur.next();
                 list.add(elem.toJson());
@@ -77,7 +81,7 @@ public class Admin extends User {
         }
     }
 
-    public boolean evaluateReportedReview(int rid, boolean judgment) {
+    public boolean evaluateReportedReview(long rid, boolean judgment) {
         if(!judgment) {
             return super.removeReview(rid);
         }

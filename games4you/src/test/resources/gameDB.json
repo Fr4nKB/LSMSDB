@@ -6,7 +6,7 @@
       "Action",
       "Adventure"
     ],
-    "release_date": 20179372916
+    "release_date": 1712145160
   },
   {
     "gid": 1,
@@ -15,7 +15,7 @@
       "FPS",
       "Online"
     ],
-    "release_date": 2327937291
+    "release_date": 1712145160
   },
   {
     "gid": 2,
@@ -24,7 +24,7 @@
       "FPS",
       "Online"
     ],
-    "release_date": 2227937291
+    "release_date": 1712145160
   },
   {
     "gid": 3,
@@ -33,7 +33,7 @@
       "RPG",
       "Action"
     ],
-    "release_date": 2307937291
+    "release_date": 1712145160
   },
   {
     "gid": 4,
@@ -43,6 +43,6 @@
       "Emulation",
       "Online"
     ],
-    "release_date": 2117937291
+    "release_date": 1712145160
   }
 ]

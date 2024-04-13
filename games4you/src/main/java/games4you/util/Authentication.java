@@ -8,22 +8,9 @@ import java.util.UUID;
 
 public class Authentication {
 
-    private static final int SALT_LEN = 16;
-    private static final int MAX_SANITIZATION_LEN = 256;
-
-    // Alphanumeric characters and underscores
-    private static final String UNAME_PATTERN = "[a-zA-Z0-9_]*$";
-
-    // Allow alphanumeric characters and some special ones
-    private static final String PWD_PATTERN = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@\\[\\]^_{}|~]+$";
-
-    // DD/MM/YYYY type of format
-    private static final String DATE_PATTERN = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/((19|20)\\d\\d)$";
-
-
     private static String salt() {
         SecureRandom random = new SecureRandom();
-        byte[] saltBytes = new byte[SALT_LEN];
+        byte[] saltBytes = new byte[Constants.getSaltLen()];
         random.nextBytes(saltBytes);
         return Base64.getEncoder().encodeToString(saltBytes);
     }
@@ -54,27 +41,32 @@ public class Authentication {
     }
 
     public static long generateUUID() {
-        return UUID.randomUUID().getMostSignificantBits();
+        long maxJavaScriptSafeInt = (long) Math.pow(2, 53) - 1;
+        long random = UUID.randomUUID().getMostSignificantBits();
+        long safeRandom = random & maxJavaScriptSafeInt;
+
+        if(random < 0 ) return -safeRandom;
+        else return safeRandom;
     }
 
-    public static boolean isUsername(String str) {
-        if (str == null || str.length() >= MAX_SANITIZATION_LEN || str.isEmpty()) {
+    public static boolean isName(String str) {
+        if (str == null || str.length() >= Constants.getMaxSanitizLen() || str.isEmpty()) {
             return false;
         }
-        return str.matches(UNAME_PATTERN);
+        return str.matches(Constants.getNamePattern());
     }
 
     public static boolean isPassword(String str) {
-        if (str == null || str.length() >= MAX_SANITIZATION_LEN || str.length() < 4) {
+        if (str == null || str.length() >= Constants.getMaxSanitizLen() || str.length() < 4) {
             return false;
         }
 
-        return str.matches(PWD_PATTERN);
+        return str.matches(Constants.getPwdPatter());
     }
 
     public static boolean isDate(String str) {
         if (str == null || str.length() != 10) return false;
-        return str.matches(DATE_PATTERN);
+        return str.matches(Constants.getDatePattern());
     }
 
 }

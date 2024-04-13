@@ -1,30 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Home</title>
+    <title>GAMES4YOU</title>
 </head>
 <body>
-    <script src="/javascript/pagination.js" th:src="@{javascript/pagination.js}"></script>
-    <script>
-        var offset = 0;
-        window.onload = function() {loadHome('reviews')};
-    </script>
+    <script src="/javascript/logout.js" type="module"></script>
+    <script src="/javascript/home.js" type="module"></script>
+
+    <div>
+        <a href="/home">
+            <img src="/images/icon.png" alt="site icon" style="width:15%; height:15%;">
+        </a>
+
+        <form action="#" th:action="@{/search}" method="get">
+            <select name="type">
+                <option value="users">Users</option>
+                <option value="games-name">Games: by name</option>
+                <option value="games-tags">Games: by tags</option>
+            </select>
+            <input type="text" name="query" required>
+            <input type="submit" value="Search">
+        </form>
+
+        <button id="logout">Logout</button>
+    </div>
 
     <h1>WELCOME</h1>
-
-    <form action="#" th:action="@{/search}" method="get">
-        <select name="type">
-            <option value="users">Users</option>
-            <option value="games">Games</option>
-        </select>
-        <input type="text" name="query">
-        <input type="submit" value="Search">
-    </form>
 
     <table id="tableContent">
         <tbody></tbody>
     </table>
-    <button onclick="loadHome('reviews')">Load more</button>
+    <button id="loadmore">Load more</button>
 
 </body>
 </html>

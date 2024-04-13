@@ -1,16 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>GAMES4YOU - Search</title>
+    <title>GAMES4YOU - Signup</title>
 </head>
 <body>
     <script src="/javascript/logout.js" type="module"></script>
-    <script src="/javascript/loadSearchPages.js" type="module"></script>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        endpoint = /*[[${endpoint}]]*/ '';
-        /*]]>*/
-    </script>
 
     <div>
         <a href="/home">
@@ -30,10 +24,13 @@
         <button id="logout">Logout</button>
     </div>
 
-    <table id="tableContent">
-        <tbody></tbody>
-    </table>
-    <button id="loadmore">Load more</button>
-
+    <form action="#" th:action="@{/newGame/}" method="post">
+        <input type="text" name="name" placeholder="Game name" required>
+        <input type="text" name="tags" placeholder="Game genres/tags (Action, RPG, ...)" required>
+        <input type="date" pattern="\d{2}/\d{2}/\d{4}" name="release_date" placeholder="Release date" required>
+        <input type="text" name="description" placeholder="Description">
+        <input type="text" name="header_image" placeholder="URL to header_image">
+        <input type="submit" value="Create game">
+    </form>
 </body>
 </html>

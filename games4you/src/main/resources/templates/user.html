@@ -1,9 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>User</title>
+    <title>GAMES4YOU - Profile</title>
 </head>
 <body>
+    <script src="/javascript/logout.js" type="module"></script>
+    <script src="/javascript/user.js" type="module"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        uid = /*[[${uid}]]*/ null;
+        jsonData = /*[[${jsonData}]]*/ null;
+        /*]]>*/
+    </script>
+
+    <div>
+        <a href="/home">
+            <img src="/images/icon.png" alt="site icon" style="width:15%; height:15%;">
+        </a>
+
+        <form action="#" th:action="@{/search}" method="get">
+            <select name="type">
+                <option value="users">Users</option>
+                <option value="games-name">Games: by name</option>
+                <option value="games-tags">Games: by tags</option>
+            </select>
+            <input type="text" name="query" required>
+            <input type="submit" value="Search">
+        </form>
+
+        <button id="logout">Logout</button>
+    </div>
+
+    <div id="overlay" style="display:none; position:fixed; width:100%; height:100%; top:0; left:0; background-color:rgba(0,0,0,0.5); z-index:2;"></div>
+
+    <h1 id="uname"></h1>
+    <h3 id="name"></h3>
+    <h3 id="datebirth"></h3>
+
+    <div id="mngButtons">
+    </div>
+
+    <div id="panel" style="display:none; background-color: white; border:1px solid black; padding:10px; width:300px; height:150px; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:3;">
+        <p></p>
+        <button></button>
+    </div>
+
+    <div id="listButtons">
+    </div>
+
+    <table id="tableContent">
+        <tbody></tbody>
+    </table>
+    <button id="loadmore">Load more</button>
 
 </body>
 </html>

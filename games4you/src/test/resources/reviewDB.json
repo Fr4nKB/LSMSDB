@@ -7,8 +7,7 @@
     "uname": "JohnnyTheDark",
     "rating": true,
     "creation_date": 1712145160,
-    "content": "nice",
-    "votes": 2
+    "content": "nice"
   },
   {
     "rid": 1,
@@ -18,8 +17,7 @@
     "uname": "JohnnyTheDark",
     "rating": false,
     "creation_date": 1602145160,
-    "content": "full of cheaters",
-    "votes": 2
+    "content": "full of cheaters"
   },
   {
     "rid": 2,
@@ -29,8 +27,7 @@
     "uname": "Mary420",
     "rating": false,
     "creation_date": 1592145160,
-    "content": "full of cheaters",
-    "votes": 2
+    "content": "full of cheaters"
   },
   {
     "rid": 3,
@@ -40,8 +37,7 @@
     "uname": "Mary420",
     "rating": true,
     "creation_date": 1012145160,
-    "content": "full of bugs",
-    "votes": 1
+    "content": "full of bugs"
   },
   {
     "rid": 4,
@@ -51,8 +47,7 @@
     "uname": "XX_ivan_XX",
     "rating": true,
     "creation_date": 1702135160,
-    "content": "0 bugs omg",
-    "votes": 0
+    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ac placerat nisi, rutrum mattis mauris. Vivamus in iaculis orci. Donec vel erat ac neque cursus convallis et quis ligula. Nulla mattis, nisi sit amet molestie rutrum, mi felis facilisis mi, euismod vehicula risus nibh non turpis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed ultrices lacus ut luctus sodales. Duis porttitor ornare nibh, vel finibus ligula pharetra nec. Etiam sodales tincidunt nisi sit amet pellentesque. Nullam libero velit, euismod non bibendum at, efficitur in justo. Etiam iaculis eget ligula vitae bibendum. Fusce et lectus eu augue ullamcorper sollicitudin non ut turpis. Cras auctor est lacinia, sodales ex in, sagittis magna. Cras gravida lectus porttitor velit vehicula, at laoreet nisi dictum. Proin vel lorem nulla. Sed enim dui, imperdiet eu congue id, eleifend sit amet erat.\n\nDonec eleifend convallis arcu, eu laoreet leo sodales vel. Fusce dictum, sapien nec semper luctus, est mi ultrices orci, id bibendum neque mauris ac diam. Maecenas in lacus ligula. Nullam ultrices consequat erat, et rhoncus justo hendrerit vel. Vivamus leo lectus, luctus sit amet ullamcorper id, accumsan in turpis. Aliquam scelerisque purus eu ligula tristique euismod. Proin ac porttitor mi. Aenean molestie sapien fermentum est sodales bibendum. Fusce ipsum massa, sagittis vitae eleifend eu, placerat vel lorem. Sed interdum lorem lacus, nec ornare metus eleifend et. Aenean nisi arcu, iaculis vel metus vel, hendrerit tincidunt erat. Fusce non dapibus ante, sit amet malesuada orci.\n\nSed mattis scelerisque lacus et aliquet. Ut luctus neque vitae leo bibendum ultrices. Sed vitae elit sagittis, rutrum libero sit amet, congue nulla. Etiam non convallis nulla. Etiam ac nibh porttitor, tristique sem non, lacinia mauris. Nullam sed viverra lorem. Mauris vitae elit consequat metus volutpat pharetra vitae vitae justo. Donec vulputate risus id urna euismod fermentum. Vestibulum facilisis viverra euismod. In venenatis justo in tortor ultrices accumsan. Maecenas elementum ex quis hendrerit condimentum. Nam sed risus est.\n\nPellentesque iaculis vehicula elit, ut egestas urna sodales sit amet. Duis scelerisque egestas risus, non pharetra felis lacinia eu. Fusce ut turpis ornare elit elementum lobortis. Nullam iaculis velit luctus augue aliquam fermentum. Aliquam risus risus, luctus id ex in, porta ullamcorper risus. Ut vitae metus nec risus euismod mollis. Ut eget ipsum nisi. Nullam tempor diam eget libero ornare, quis egestas lacus imperdiet. Proin tellus neque, vestibulum eget nulla sed, suscipit feugiat metus. Nunc vel felis vehicula, maximus ante eget, dictum erat. Vestibulum suscipit finibus ligula, sit amet viverra odio tincidunt in. Quisque in diam vel ante finibus hendrerit ut id ex. Morbi ac risus ligula. Vestibulum ac ligula luctus, placerat erat a, tincidunt sapien. Morbi non scelerisque dolor.\n\nNam sollicitudin libero eu porttitor congue. Maecenas finibus gravida ultrices. Aenean fermentum fermentum auctor. Integer et nisl id neque facilisis tincidunt eu tincidunt libero. Donec congue massa nibh, ut vulputate erat accumsan non. Ut gravida euismod urna, et hendrerit orci euismod quis. Praesent elit ligula, pharetra non nunc lobortis, imperdiet facilisis arcu. Mauris a neque laoreet, porttitor libero porttitor, accumsan neque. Aliquam ac odio aliquam orci suscipit blandit iaculis ut neque. Nam vulputate lectus non justo euismod, in vulputate orci ullamcorper. "
   },
   {
     "rid": 5,
@@ -62,8 +57,7 @@
     "uname": "XX_ivan_XX",
     "rating": false,
     "creation_date": 1712045160,
-    "content": "i don't like :(",
-    "votes": 0
+    "content": "i don't like :("
   },
   {
     "rid": 6,
@@ -73,13 +67,7 @@
     "uname": "Parmalat",
     "rating": false,
     "creation_date": 1712155160,
-    "content": "sucks",
-    "votes": 0,
-    "reports": {
-      "lastRep": 1703135160,
-      "totRep": 1,
-      "reporters": [1, 2]
-    }
+    "content": "sucks"
   },
   {
     "rid": 7,
@@ -89,7 +77,6 @@
     "uname": "Parmalat",
     "rating": true,
     "creation_date": 1712145160,
-    "content": "sehr gut",
-    "votes": 3
+    "content": "sehr gut"
   }
 ]

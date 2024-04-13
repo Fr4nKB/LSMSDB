@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login</title>
+    <title>GAMES4YOU - Login</title>
 </head>
 <body>
-<form action="#" th:action="@{/login}" method="post">
-    <input type="text" name="uname" placeholder="Username" required>
-    <input type="password" name="pwd" placeholder="Password" required>
-    <input type="submit" value="Login">
-</form>
+    <img src="/images/icon.png" alt="site icon" style="width:15%; height:15%;">
+
+    <form action="#" th:action="@{/login}" method="post">
+        <input type="text" name="uname" placeholder="Username" required>
+        <input type="password" name="pwd" placeholder="Password" required>
+        <input type="submit" value="Login">
+    </form>
+    <div>
+        <p>New to Games4You?</p>
+        <button onclick="window.location.href='/signup'">REGISTER</button>
+    </div>
 </body>
 </html>

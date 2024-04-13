@@ -88,7 +88,7 @@ public class Neo4jManager implements AutoCloseable{
         return executeSimpleQuery(query);
     }
 
-    public boolean removeSubNodes(String parent, String relation, String child, int value) {
+    public boolean removeSubNodes(String parent, String relation, String child, long value) {
         String query = String.format(
                 "MATCH (:%s {name: %d})-[%s]-(n:%s) DELETE n",
                 parent, value, relation, child);
@@ -103,20 +103,20 @@ public class Neo4jManager implements AutoCloseable{
      * @param node2 name of the relationship destination node
      * @return false if relationship couldn't be added, true otherwise
      */
-    public boolean addRelationship(String[] node_types, String relation, long node1, long node2) {
+    public int addRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
                 "MATCH (n1:%s {id: %d}), (n2:%s {id: %d}) MERGE (n1)-[:%s]->(n2)",
                 node_types[0], node1, node_types[1], node2, relation
         );
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query);
     }
 
-    public boolean removeRelationship(String[] node_types, String relation, long node1, long node2) {
+    public int removeRelationship(String[] node_types, String relation, long node1, long node2) {
         String query = String.format(
-                "MATCH (n1:%s {id: %d})-[r:%s]->(n2:%s {id: %d}) DELETE r",
+                "MATCH (n1:%s {id: %d})-[r:%s]-(n2:%s {id: %d}) DELETE r",
                 node_types[0], node1, relation, node_types[1], node2
         );
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query);
     }
 
 
@@ -196,7 +196,7 @@ public class Neo4jManager implements AutoCloseable{
         return executeSimpleQuery(query);
     }
 
-    public boolean executeWriteTransactionQuery(String query) {
+    public int executeWriteTransactionQuery(String query) {
         try (Session session = driver.session()) {
             return session.executeWrite(tx -> {
                 Result result = tx.run(query);
@@ -205,12 +205,12 @@ public class Neo4jManager implements AutoCloseable{
                 //if any change was applied return true, otherwise false
                 return (counters.nodesCreated() > 0 || counters.nodesDeleted() > 0 ||
                 counters.relationshipsCreated() > 0 ||  counters.relationshipsDeleted() > 0 ||
-                counters.propertiesSet() > 0);
+                counters.propertiesSet() > 0) ? 1 : 0;
             });
         }
         catch (Exception e){
             e.printStackTrace();
-            return false;
+            return -1;
         }
     }
 
