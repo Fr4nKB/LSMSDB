@@ -1,7 +1,8 @@
 import {doRequest} from "./util.js";
 
 export function loadFullReviewTiles(jsonList) {
-    let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
+    let table = document.getElementById('tableContent')
+        .getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(jsonString) {
         let obj = JSON.parse(jsonString);

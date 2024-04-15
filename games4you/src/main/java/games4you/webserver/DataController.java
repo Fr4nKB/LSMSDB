@@ -133,6 +133,15 @@ public class DataController {
         return gamerMethods.declineRequest(ret[0], uid);
     }
 
+    @GetMapping("/getFriendRequest/")
+    public ArrayList<Object> getFriendRequest(@RequestParam("offset") int offset,
+                                              HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;   //admins can't have friends
+
+        return gamerMethods.getRequestsList(ret[0], offset, 1);
+    }
+
     @GetMapping("/removeFriend/{id}")
     public boolean removeFriend(@PathVariable("id") long uid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);

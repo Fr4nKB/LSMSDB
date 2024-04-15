@@ -137,6 +137,22 @@ public class Gamer extends User {
         return revokeRequest(uid2, uid1);
     }
 
+    public ArrayList<Object> getRequestsList(long uid, int offset, int limit) {
+        if(limit <= 0) return null;
+        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
+
+        String query = String.format("""
+                        MATCH(u:User)-[:PENDING]->(n:User {id: %d})
+                        RETURN {uid: u.id, uname: u.uname}
+                        SKIP %d LIMIT %d
+                        """,
+                uid, offset, limit
+        );
+
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        return neo4j.getQueryResultAsList(query);
+    }
+
     public boolean removeFriend(long uid1, long uid2) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_types = new String[]{"User", "User"};

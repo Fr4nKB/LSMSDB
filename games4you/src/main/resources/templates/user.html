@@ -4,7 +4,7 @@
     <title>GAMES4YOU - Profile</title>
 </head>
 <body>
-    <script src="/javascript/logout.js" type="module"></script>
+    <script src="/javascript/topbar.js" type="module"></script>
     <script src="/javascript/user.js" type="module"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -15,8 +15,7 @@
 
     <div>
         <a href="/home">
-            <img src="/images/icon.png" alt="site icon" style="width:15%; height:15%;">
-        </a>
+            <img src="/images/icon.png" alt="site icon" style="width:100px; height:100px; cursor: pointer;"></a>
 
         <form action="#" th:action="@{/search}" method="get">
             <select name="type">

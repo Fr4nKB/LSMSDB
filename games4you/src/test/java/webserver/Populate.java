@@ -38,9 +38,10 @@ public class Populate {
         assert gamer.sendRequest(1, 2): "Friend 3 not sent";
         assert gamer.acceptRequest(2, 1): "Friend 3 not added";
         assert gamer.sendRequest(2, 3): "Friend 4 not sent";
-        assert gamer.acceptRequest(3, 2): "Friend 4 not added";
+        assert gamer.sendRequest(1, 3): "Friend 3 not sent";
+        //assert gamer.acceptRequest(3, 2): "Friend 4 not added";
         assert gamer.sendRequest(3, 0): "Friend 5 not sent";
-        assert gamer.acceptRequest(0, 3): "Friend 5 not added";
+        //assert gamer.acceptRequest(0, 3): "Friend 5 not added";
 
         assert gamer.addGameToLibrary(0,0) == 1;
         assert gamer.addGameToLibrary(0,1) == 1;
