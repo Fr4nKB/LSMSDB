@@ -34,11 +34,9 @@ public class Review {
         if(args.size() < 8) return -1;
 
         MongoManager mongo = MongoManager.getInstance();
-        long rid, gid, uid;
+        long rid, gid, uid, creation;
         boolean rating;
-        int votes = 0;
         String game, uname;
-        Object reports = null;
         Document review = new Document();
 
         //check if all necessary fields are present
@@ -47,12 +45,12 @@ public class Review {
             gid = (Long) args.get("gid");
             uid = (Long) args.get("uid");
             game = (String) args.get("game");
-            uname = (String) args.get("uname");
+            game = game.replace("\"", "'");
+            uname = (String) args.get("username");
             rating = (boolean) args.get("rating");
-            review.append("creation_date", (int) args.get("creation_date"));
+            creation = (Long) args.get("creation_date");
+            review.append("creation_date", creation);
             review.append("content", (String) args.get("content"));
-            if(args.containsKey("votes")) votes = (int) args.get("votes");
-            if(args.containsKey("reports")) reports = args.get("reports");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -74,19 +72,19 @@ public class Review {
         review.append("game", game);
         review.append("uname", uname);
         review.append("rating", rating);
-        review.append("numUpvotes", votes);
+        review.append("numUpvotes", 0);
         review.append("upvotes", new ArrayList<>());
-        if(reports != null) review.append("reports", reports);
         mongo.addDoc("reviews", review);
 
         Neo4jManager neo4j = Neo4jManager.getInstance();
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", rid);
         map.put("gid", gid);
+        map.put("uid", uid);
         map.put("game", game);
         map.put("uname", uname);
         map.put("rating", rating);
-        map.put("votes", votes);
+        map.put("votes", 0);
         boolean ret = neo4j.addNode("Review", map);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
@@ -94,12 +92,11 @@ public class Review {
         }
 
         //create relationships between review, game and gamer
-        long timestamp = Instant.now().getEpochSecond();
         String query = String.format(
                 "MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d}) " +
                         "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
                         "MERGE (g)-[:HAS_REVIEW]->(r)",
-                uid, gid, rid, timestamp);
+                uid, gid, rid, creation);
         neo4j.executeWriteTransactionQuery(query);
 
         updateRedundantReviews("users", uid, 3);

@@ -20,6 +20,7 @@ public class Game {
         try {
             gid = (Long) args.get("gid");
             game_name = (String) args.get("name");
+            game_name = game_name.replace("\"", "'");
             tags = (ArrayList<Object>) args.get("tags");
             game.append("gid", gid);
             game.append("name", game_name);

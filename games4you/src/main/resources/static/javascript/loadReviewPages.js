@@ -61,6 +61,7 @@ export function loadPreviewReviewTiles(jsonList) {
     let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(obj) {
+        console.log(obj);
 
         let row = table.insertRow();
         row.onclick = function() {window.location.href = window.location.origin + "/review/" + obj.rid;}

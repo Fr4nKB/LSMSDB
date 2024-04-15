@@ -65,7 +65,7 @@ public class WebController {
     public String postSignup(@RequestParam HashMap<String, Object> formData) {
         formData.put("uid", Authentication.generateUUID());
         formData.put("isAdmin", false);
-        formData.put("tags", new ArrayList<>());
+        formData.put("datecreation", Instant.now().getEpochSecond());
         if(gamerMethods.signup(formData)) return "redirect:/";
         return "redirect:/signup";
     }
@@ -132,6 +132,7 @@ public class WebController {
         if(ret == null) return null;
 
         String json = gamerMethods.showReview(rid);
+        System.out.println(json);
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("review");
@@ -209,14 +210,14 @@ public class WebController {
         long rid = Authentication.generateUUID();
         formData.put("rid", rid);
         formData.put("uid", ret[0]);
-        formData.put("creation_date", (int) Instant.now().getEpochSecond());
+        formData.put("creation_date", Instant.now().getEpochSecond());
 
         String uname = gamerMethods.retrieveUname(ret[0]);
         if(uname == null) return "redirect:/error";
         String game = gamerMethods.retrieveGameName(gid);
         if(game == null) return "redirect:/error";
 
-        formData.put("uname", uname);
+        formData.put("username", uname);
         formData.put("game", game);
 
         if(gamerMethods.addReview(formData) <= 0) return "redirect:/error";

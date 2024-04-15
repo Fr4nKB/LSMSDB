@@ -9,26 +9,13 @@ import java.io.IOException;
 public class Populate {
     public static void main(String[] args) {
 
-        //clean databases
-        try {
-            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
-            Process processMongo = pbMongo.start();
-            processMongo.waitFor();
-
-            ProcessBuilder pbNeo4j = new ProcessBuilder("cypher-shell", "-u", "neo4j", "-p", "password", "MATCH(n) OPTIONAL MATCH (n)-[r]-() DELETE n,r;");
-            Process processNeo4j = pbNeo4j.start();
-            processNeo4j.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
         Populator pop = new Populator();
         Gamer gamer = new Gamer();
         Admin admin = new Admin();
 
-        assert pop.populateGamers() == 5;
-        pop.populateGames();
-        pop.populateReviews();
+        assert pop.populateConcurrent("userDB.json", 0) == 5;
+        pop.populateConcurrent("old_gameDB.json", 1);
+        pop.populateConcurrent("old_reviewDB.json", 0);
 
         //FRIENDS
         assert gamer.sendRequest(0, 1): "Friend 1 not sent";

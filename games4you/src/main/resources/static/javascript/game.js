@@ -85,7 +85,8 @@ function loadGameReviews() {
     let data = loadData(url)
         .then(data => {
             window.offset += data.length;
-            loadPreviewReviewTiles(data);
+            let jsonList = data.map(item => JSON.parse(item))
+            loadPreviewReviewTiles(jsonList);
         });
 }
 
@@ -106,7 +107,7 @@ function loadGamePage() {
     document.getElementById('release').innerText = date.toUTCString();
     document.getElementById('tags').innerText = obj.tags.join(", ");
 
-    if('description' in obj) document.getElementById('description').innerText = obj.description;
+    if('description' in obj) document.getElementById('description').innerHTML = obj.description;
     if('header_image' in obj) {
         let img_div = document.getElementById('header_image');
         let img = document.createElement("img");

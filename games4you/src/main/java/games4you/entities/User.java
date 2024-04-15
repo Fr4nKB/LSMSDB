@@ -52,20 +52,19 @@ public class User {
         MongoManager mongo = MongoManager.getInstance();
 
         //check if all necessary fields are present
-        long uid;
+        long uid, datecreation;
         String firstname, lastname, datebirth, uname, pwd;
         boolean isAdmin;
-        ArrayList<String> tags;
 
         try {
             uid = (Long) args.get("uid");
             firstname = (String) args.get("firstname");
             lastname = (String) args.get("lastname");
             datebirth = (String) args.get("datebirth");
-            uname = (String) args.get("uname");
+            uname = (String) args.get("username");
             pwd = (String) args.get("pwd");
             isAdmin = (boolean) args.get("isAdmin");
-            tags = (ArrayList<String>) args.get("tags");
+            datecreation = (Long) args.get("datecreation");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -92,6 +91,7 @@ public class User {
         user.append("uid", uid);
         user.append("pwd", Authentication.hashAndSalt(pwd));
         user.append("isAdmin", isAdmin);
+        user.append("datecreation", datecreation);
 
         mongo.addDoc("users", user);
 
@@ -108,8 +108,7 @@ public class User {
             mongo.removeDoc(false, "users", "uid", uid);
             return false;
         }
-        else neo4j.addAttribute("Review", uid, "tags", tags);
-        return true;
+        else return true;
     }
 
     /**

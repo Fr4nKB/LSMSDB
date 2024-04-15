@@ -10,7 +10,9 @@ async function mngUser() {
     let par = panel.children[0];
     let btn = panel.children[1];
 
-    if(jsonData.length === 0) {    // not friend, not pending
+    console.log(jsonData);
+
+    if(Object.keys(jsonData).length === 0 || jsonData.length === 0) {    // not friend, not pending
         par.innerHTML = "You are not friends";
         btn.innerHTML = "SEND FRIEND REQUEST";
         btn.onclick = async function(){
@@ -85,7 +87,8 @@ function loadUserReviews() {
     let data = loadData(url)
         .then(data => {
             window.offset += data.length;
-            loadPreviewReviewTiles(data);
+            let jsonList = data.map(item => JSON.parse(item))
+            loadPreviewReviewTiles(jsonList);
         });
 }
 
@@ -102,8 +105,10 @@ function loadUserPage() {
     else window.offset = 0;
 
     document.getElementById('uname').innerText = obj.uname;
+    let date = new Date(obj.datecreation * 1000);
+    document.getElementById('since').innerText = "Member since " + date.toUTCString();
     document.getElementById('name').innerText = obj.firstname + " " + obj.lastname;
-    document.getElementById('datebirth').innerText = obj.datebirth;
+    document.getElementById('datebirth').innerText = "Date of birth: " + obj.datebirth;
 
     let btn_div =
         document.getElementById("mngButtons");

@@ -74,6 +74,15 @@ public class DataController {
         return gamerMethods.getUserReviewList(uid, offset);
     }
 
+    @GetMapping("/game/reviews/")
+    public ArrayList<Object> loadMoreGameReviews(@RequestParam("gid") long gid,
+                                                 @RequestParam("offset") int offset,
+                                                 HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+        return gamerMethods.getGameReviewList(gid, offset);
+    }
+
     @GetMapping("/checkFriendship/{id}")
     public String checkFriend(@PathVariable("id") long uid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);

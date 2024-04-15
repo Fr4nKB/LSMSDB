@@ -42,6 +42,7 @@ public class Neo4jManager implements AutoCloseable{
     }
 
     private boolean executeSimpleQuery(String query) {
+        query = query.replace("'", "''");
         try (Session session = driver.session()) {
             session.run(query);
             return true;
@@ -66,7 +67,7 @@ public class Neo4jManager implements AutoCloseable{
         for(Map.Entry<String, Object> entry: attributes.entrySet()) {
             query.append(entry.getKey()).append(": ");
             Object obj = entry.getValue();
-            if(obj.getClass().equals(String.class)) query.append("'").append(entry.getValue()).append("'");
+            if(obj.getClass().equals(String.class)) query.append("\"").append(entry.getValue()).append("\"");
             else query.append(entry.getValue());
             query.append(",");
         }
