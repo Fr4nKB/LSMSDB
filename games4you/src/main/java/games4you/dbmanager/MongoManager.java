@@ -7,9 +7,11 @@ import com.mongodb.client.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.neo4j.driver.Result;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -96,8 +98,14 @@ public class MongoManager implements AutoCloseable {
         currentCollection = getCollection(coll);
         if(currentCollection == null) return false;
 
-        currentCollection.insertOne(doc);
-        return true;
+        try {
+            InsertOneResult res = currentCollection.insertOne(doc);
+            return res.getInsertedId() != null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**

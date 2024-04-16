@@ -45,9 +45,7 @@ public class User {
      * @return false if user wasn't created, true otherwise
      */
     public boolean signup(HashMap<String, Object> args) {
-        if (args.size() != 8) {
-            return false;
-        }
+        if (args.size() != 8) return false;
 
         MongoManager mongo = MongoManager.getInstance();
 
@@ -93,7 +91,7 @@ public class User {
         user.append("isAdmin", isAdmin);
         user.append("datecreation", datecreation);
 
-        mongo.addDoc("users", user);
+        if(!mongo.addDoc("users", user)) return false;
 
         if(isAdmin) return true;
 
@@ -103,7 +101,6 @@ public class User {
         map.put("id", uid);
         map.put("uname", uname);
         boolean ret = neo4j.addNode("User", map);
-
         if(!ret) {
             mongo.removeDoc(false, "users", "uid", uid);
             return false;

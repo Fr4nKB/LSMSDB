@@ -11,7 +11,7 @@ public class Constants {
     private static final int MAX_SANITIZATION_LEN = 64;
 
     // Alphanumeric characters and underscores
-    private static final String NAME_PATTERN = "[a-zA-Z0-9_]*$";
+    private static final String NAME_PATTERN = "[a-zA-Z0-9_+.-]*$";
 
     // Allow alphanumeric characters and some special ones
     private static final String PWD_PATTERN = "^[a-zA-Z0-9!\"#$%&'()*+,-./:;<=>?@\\[\\]^_{}|~]+$";

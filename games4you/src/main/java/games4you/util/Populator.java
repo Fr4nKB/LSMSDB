@@ -25,17 +25,18 @@ public class Populator {
         a = new Admin();
         g = new Gamer();
 
-        try {
-            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
-            Process processMongo = pbMongo.start();
-            processMongo.waitFor();
-
-            ProcessBuilder pbNeo4j = new ProcessBuilder("cypher-shell", "-u", "neo4j", "-p", "password", "MATCH(n) OPTIONAL MATCH (n)-[r]-() DELETE n,r;");
-            Process processNeo4j = pbNeo4j.start();
-            processNeo4j.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+//        //DUMPS ALL DATABASE: CAREFUL
+//        try {
+//            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
+//            Process processMongo = pbMongo.start();
+//            processMongo.waitFor();
+//
+//            ProcessBuilder pbNeo4j = new ProcessBuilder("cypher-shell", "-u", "neo4j", "-p", "password", "MATCH(n) OPTIONAL MATCH (n)-[r]-() DELETE n,r;");
+//            Process processNeo4j = pbNeo4j.start();
+//            processNeo4j.waitFor();
+//        } catch (IOException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private ArrayList<HashMap<String, Object>> readJson(String jsonfile) {
@@ -192,24 +193,38 @@ public class Populator {
             int added = 0;
             for (int i = start; i < end; i++) {
                 HashMap<String, Object> map = json.get(i);
-                if (g.addReview(map) > 0) {
+                int ret = g.addReview(map);
+                if (ret > 0) {
                     added += 1;
                 }
+                else if(ret == -1) System.out.println(map.get("rid"));
             }
             return added;
         }
     }
 
 
-
-
     public static void main(String[] args) {
         Populator pop = new Populator();
-        System.out.println(pop.populateConcurrent("dataset/userDB.json", 0));
-        System.out.println(pop.populateConcurrent("dataset/old_gameDB.json", 1));
-        System.out.println(pop.populateConcurrent("dataset/old_reviewDB.json", 2));
+        if(pop.populateConcurrent("dataset/userDB.json", 0) != 40158) {
+            System.out.println("FEW USERS");
+            return;
+        }
+        if(pop.populateConcurrent("dataset/old_gameDB.json", 1) != 10108) {
+            System.out.println("FEW GAMES");
+            return;
+        }
+        if(pop.populateConcurrent("dataset/old_reviewDB.json", 2) != 205738)  {
+            System.out.println("FEW REVIEWS");
+        }
+
+//        ArrayList<HashMap<String, Object>> json = pop.readJson("dataset/userDB.json");
+//        for (int i = 0; i < json.size(); i++) {
+//            HashMap<String, Object> map = json.get(i);
+//            if(pop.g.showUser((Long) map.get("uid")) == null) {
+//                System.out.println((Long) map.get("uid"));
+//            }
+//        }
     }
-
-
 
 }
