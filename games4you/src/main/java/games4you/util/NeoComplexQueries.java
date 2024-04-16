@@ -108,4 +108,20 @@ public class NeoComplexQueries {
                 uid, uid);
         return neo4j.getQueryResultAsList(query);
     }
+
+    public ArrayList<Object> friendsRanking(long uid) {
+        Neo4jManager neo4j = Neo4jManager.getInstance();
+        String query = String.format("""
+            MATCH (u:User {id:'%d'})-[:IS_FRIEND_WITH]->(f:User)
+            WITH f
+            OPTIONAL MATCH (f)-[:HAS_WROTE]->(r:Review)
+            WITH f, COUNT(DISTINCT r) AS totReviews, SUM(r.numUpvotes) AS totUps
+            OPTIONAL MATCH (f)-[o:OWNS]->(g:Game)
+            WITH f, totReviews, totUps, COUNT(DISTINCT g) AS totOwn, SUM(o.hours) AS totHrs
+            WITH f, totReviews * 5 + totUps * 2 + totOwn * 5 + totHrs * 1 AS score
+            RETURN {id: f.id, score: score}
+            ORDER BY score DESC LIMIT 10""",
+                uid);
+        return neo4j.getQueryResultAsList(query);
+    }
 }
