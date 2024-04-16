@@ -18,7 +18,7 @@ public class Test {
 
         assert pop.populateConcurrent("userDB.json", 0) == 5;
         pop.populateConcurrent("old_gameDB.json", 1);
-        pop.populateConcurrent("old_reviewDB.json", 0);
+        pop.populateConcurrent("old_reviewDB.json", 2);
 
         //LOGIN
         assert gamer.login("JohnnyTheDark", "trustNo1")[1] == 0: "Login failed";

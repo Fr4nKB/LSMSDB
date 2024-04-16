@@ -25,17 +25,17 @@ public class Populator {
         a = new Admin();
         g = new Gamer();
 
-//        try {
-//            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
-//            Process processMongo = pbMongo.start();
-//            processMongo.waitFor();
-//
-//            ProcessBuilder pbNeo4j = new ProcessBuilder("cypher-shell", "-u", "neo4j", "-p", "password", "MATCH(n) OPTIONAL MATCH (n)-[r]-() DELETE n,r;");
-//            Process processNeo4j = pbNeo4j.start();
-//            processNeo4j.waitFor();
-//        } catch (IOException | InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
+            Process processMongo = pbMongo.start();
+            processMongo.waitFor();
+
+            ProcessBuilder pbNeo4j = new ProcessBuilder("cypher-shell", "-u", "neo4j", "-p", "password", "MATCH(n) OPTIONAL MATCH (n)-[r]-() DELETE n,r;");
+            Process processNeo4j = pbNeo4j.start();
+            processNeo4j.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private ArrayList<HashMap<String, Object>> readJson(String jsonfile) {
@@ -205,8 +205,8 @@ public class Populator {
 
     public static void main(String[] args) {
         Populator pop = new Populator();
-//        System.out.println(pop.populateConcurrent("dataset/userDB.json", 0));
-//        System.out.println(pop.populateConcurrent("dataset/old_gameDB.json", 1));
+        System.out.println(pop.populateConcurrent("dataset/userDB.json", 0));
+        System.out.println(pop.populateConcurrent("dataset/old_gameDB.json", 1));
         System.out.println(pop.populateConcurrent("dataset/old_reviewDB.json", 2));
     }
 

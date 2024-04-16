@@ -4,49 +4,49 @@
     "firstname": "Mario",
     "lastname": "Rossi",
     "datebirth": "20/10/1990",
-    "uname": "aaa",
+    "username": "aaa",
     "pwd": "wasd",
     "isAdmin": true,
-    "tags": ["Action", "Adventure", "FPS", "Online"]
+    "datecreation": 1592145160
   },
   {
     "uid": 0,
     "firstname": "John",
     "lastname": "Travolta",
     "datebirth": "20/01/1960",
-    "uname": "JohnnyTheDark",
+    "username": "JohnnyTheDark",
     "pwd": "trustNo1",
     "isAdmin": false,
-    "tags": ["Action", "Adventure", "FPS", "Online"]
+    "datecreation": 1592145160
   },
   {
     "uid": 1,
     "firstname": "Maria",
     "lastname": "Salvador",
     "datebirth": "20/01/1990",
-    "uname": "Mary420",
+    "username": "Mary420",
     "pwd": "12345678",
     "isAdmin": false,
-    "tags": ["FPS", "Online", "RPG", "Action"]
+    "datecreation": 1592145160
   },
   {
     "uid": 2,
     "firstname": "Ivan",
     "lastname": "Pizdiez",
     "datebirth": "20/01/2000",
-    "uname": "XX_ivan_XX",
+    "username": "XX_ivan_XX",
     "pwd": "gaaaaming",
     "isAdmin": false,
-    "tags": ["RPG", "Action", "Sim", "Emulation", "Online"]
+    "datecreation": 1592145160
   },
   {
     "uid": 3,
     "firstname": "Christoph",
     "lastname": "Müller",
     "datebirth": "20/03/2010",
-    "uname": "Parmalat",
+    "username": "Parmalat",
     "pwd": "dadsdadw",
     "isAdmin": false,
-    "tags": ["Sim", "Emulation", "Online", "Action", "Adventure"]
+    "datecreation": 1592145160
   }
 ]

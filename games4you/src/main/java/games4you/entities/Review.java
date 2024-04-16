@@ -84,7 +84,8 @@ public class Review {
         map.put("game", game);
         map.put("uname", uname);
         map.put("rating", rating);
-        map.put("votes", 0);
+        map.put("numUpvotes", 0);
+        map.put("creation", creation);
         boolean ret = neo4j.addNode("Review", map);
         if(!ret) {
             mongo.removeDoc(false, "reviews", "rid", rid);
@@ -92,15 +93,15 @@ public class Review {
         }
 
         //create relationships between review, game and gamer
-        String query = String.format(
-                "MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d}) " +
-                        "MERGE (u)-[:HAS_WROTE {in:%d}]->(r) " +
-                        "MERGE (g)-[:HAS_REVIEW]->(r)",
-                uid, gid, rid, creation);
+        String query = String.format("""
+                        MATCH (u:User {id: %d}), (g:Game {id: %d}), (r:Review {id: %d})
+                        MERGE (u)-[:HAS_WROTE]->(r)
+                        MERGE (g)-[:HAS_REVIEW]->(r)""",
+                uid, gid, rid);
         neo4j.executeWriteTransactionQuery(query);
 
-        updateRedundantReviews("users", uid, 3);
-        updateRedundantReviews("games", gid,3);
+        updateRedundantReviews("users", uid, 20);
+        updateRedundantReviews("games", gid,20);
 
         return 1;
     }
@@ -119,8 +120,8 @@ public class Review {
         mongo.removeDoc(false, "reviews", "rid", rid);
         neo4j.removeNode("Review", rid);
 
-        updateRedundantReviews("users", uid, 3);
-        updateRedundantReviews("games", gid,3);
+        updateRedundantReviews("users", uid, 20);
+        updateRedundantReviews("games", gid,20);
 
         return true;
     }

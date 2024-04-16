@@ -11,7 +11,6 @@ public class Populate {
 
         Populator pop = new Populator();
         Gamer gamer = new Gamer();
-        Admin admin = new Admin();
 
         assert pop.populateConcurrent("userDB.json", 0) == 5;
         pop.populateConcurrent("old_gameDB.json", 1);

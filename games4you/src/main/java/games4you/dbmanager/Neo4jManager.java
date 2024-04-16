@@ -73,7 +73,7 @@ public class Neo4jManager implements AutoCloseable{
         }
         query.deleteCharAt(query.length()-1);
         query.append("})");
-        return executeSimpleQuery(query.toString());
+        return executeWriteTransactionQuery(query.toString()) > 0;
     }
 
     /**
@@ -86,14 +86,14 @@ public class Neo4jManager implements AutoCloseable{
         String query = String.format(
                 "MATCH (n1:%s {id: %d}) DETACH DELETE n1",
                 node_type, id);
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query) > 0;
     }
 
     public boolean removeSubNodes(String parent, String relation, String child, long value) {
         String query = String.format(
                 "MATCH (:%s {name: %d})-[%s]-(n:%s) DELETE n",
                 parent, value, relation, child);
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query) > 0;
     }
 
     /**

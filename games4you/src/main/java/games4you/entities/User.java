@@ -31,10 +31,10 @@ public class User {
         else if(Objects.equals(node_type, "User")) relation = "HAS_WROTE";
         else return null;
 
-        String query = String.format(
-                "MATCH (:%s {id: %d})-[r:%s]->(b:Review) " +
-                        "RETURN {rid: b.id, gid: b.gid, game: b.game, uname: b.uname, rating: b.rating} AS result " +
-                        "SKIP %d LIMIT %d",
+        String query = String.format("""
+                        MATCH (:%s {id: %d})-[:%s]->(b:Review)
+                        RETURN {rid: b.id, gid: b.gid, uid: b.uid, game: b.game, uname: b.uname, rating: b.rating} AS result
+                        ORDER BY b.creation SKIP %d LIMIT %d""",
                 node_type, id, relation, offset, limit);
         return getRelationshipList(query);
     }
@@ -145,10 +145,10 @@ public class User {
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String query = String.format(
-                "MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]-(b:User) " +
-                        "RETURN {type: \"U\", id: b.id, name: b.uname, since: r.since} AS result " +
-                        "SKIP %d LIMIT %d",
+        String query = String.format("""
+                        MATCH (:User {id: %d})-[r:IS_FRIEND_WITH]-(b:User)
+                        RETURN {type: \"U\", id: b.id, name: b.uname, since: r.since} AS result
+                        SKIP %d LIMIT %d""",
                 uid, offset, limit);
         return getRelationshipList(query);
     }
@@ -157,10 +157,10 @@ public class User {
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String query = String.format(
-                "MATCH (:User {id: %d})-[r:OWNS]->(b:Game) " +
-                        "RETURN {type: \"G\", id: b.id, name: b.name, hours: r.hours} AS result " +
-                        "SKIP %d LIMIT %d",
+        String query = String.format("""
+                        MATCH (:User {id: %d})-[r:OWNS]->(b:Game)
+                        RETURN {type: \"G\", id: b.id, name: b.name, hours: r.hours} AS result
+                        SKIP %d LIMIT %d""",
                 uid, offset, limit);
         return getRelationshipList(query);
     }
@@ -248,8 +248,7 @@ public class User {
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String query = String.format(
-                """
+        String query = String.format("""
                         MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s')
                         RETURN {type: \"U\", id: u.id, name: u.uname}
                         SKIP %d LIMIT %d""",
@@ -265,16 +264,14 @@ public class User {
 
         String query;
         if(key.equals("name")) {
-            query = String.format(
-                    """
+            query = String.format("""
                             MATCH (g:Game) WHERE ToLower(g.name) CONTAINS ToLower("%s")
                             RETURN {type: \"G\", id: g.id, name: g.name}
                             SKIP %d LIMIT %d""",
                     key_value, offset, limit);
         }
         else if(key.equals("tags")) {
-            query = String.format(
-                    """
+            query = String.format("""
                             MATCH (g:Game)
                                  WHERE ANY(tag IN g.tags WHERE ToLower(tag) CONTAINS ToLower("%s"))
                                  RETURN {type: \"G\", id: g.id, name: g.name, tags: g.tags}

@@ -46,10 +46,8 @@ public class Admin extends User {
         // remove the user and all his/her reviews
         boolean ret = mongo.removeDoc(false, "users", "uid", uid);
         if(!ret) return false;
-        ret = mongo.removeDoc(true, "reviews", "uid", uid);
-        if(!ret) return false;
-        ret = neo4j.removeSubNodes("User", "HAS_PUBLISHED", "Review", uid);
-        if(!ret) return false;
+        mongo.removeDoc(true, "reviews", "uid", uid);
+        neo4j.removeSubNodes("User", "HAS_PUBLISHED", "Review", uid);
         return neo4j.removeNode("User", uid);
     }
 

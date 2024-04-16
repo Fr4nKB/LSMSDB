@@ -56,9 +56,9 @@ public class Gamer extends User {
         String query = String.format(
                 """
                         MATCH(u:User {id: %d}), (g:Game {id: %d})
-                            OPTIONAL MATCH (u)-[w:HAS_WROTE]->(r:Review {gid: %d})
+                            OPTIONAL MATCH (u)-[:HAS_WROTE]->(r:Review {gid: %d})
                             OPTIONAL MATCH (u)-[o:OWNS]->(g)
-                            RETURN {rev: {id: r.id, in: w.in}, hours: o.hours} LIMIT 1
+                            RETURN {rev: {id: r.id, in: r.creation}, hours: o.hours} LIMIT 1
                         """,
                 uid, gid, gid
         );
@@ -244,7 +244,7 @@ public class Gamer extends User {
 
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String[] node_type = {"Review"}; long[] node_name = {rid};
-        neo4j.incAttribute(node_type, node_name, "", "votes", 1);
+        neo4j.incAttribute(node_type, node_name, "", "numUpvotes", 1);
 
         return upRes.getModifiedCount() > 0;
     }
@@ -289,10 +289,10 @@ public class Gamer extends User {
         String query = String.format(
                 """
                 CALL {
-                    MATCH (:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)-[r:HAS_WROTE]->(rev:Review)
-                    WITH f, r, rev
-                    ORDER BY r.in DESC
-                    RETURN {type: "R", friend: {id: f.id, name: f.uname}, time: r.in, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result
+                    MATCH (:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)-[:HAS_WROTE]->(rev:Review)
+                    WITH f, rev
+                    ORDER BY rev.creation DESC
+                    RETURN {type: "R", friend: {id: f.id, name: f.uname}, time: rev.creation, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result
                     UNION
                     MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)
                     MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)
