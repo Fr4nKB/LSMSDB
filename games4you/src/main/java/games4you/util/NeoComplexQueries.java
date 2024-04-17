@@ -32,7 +32,7 @@ public class NeoComplexQueries {
              WHERE NOT EXISTS((:User {id: %d})-[:OWNS]-(g))
              WITH g, [tag IN g.tags WHERE tag IN top5Tags] AS matchingTags
              WHERE size(matchingTags) >= 2
-             RETURN {id: g.id, name: g.name} LIMIT 100""",
+             RETURN {type: \"G\", id: g.id, name: g.name} LIMIT 10""",
                 uid, uid, uid);
         return neo4j.getQueryResultAsList(query);
     }
@@ -54,8 +54,8 @@ public class NeoComplexQueries {
                     MATCH (game:Game)
                     WHERE NOT((u)-[:OWNS]->(game)) AND ANY(t IN game.tags WHERE t IN topTags)
                     WITH game, [t IN game.tags WHERE t IN topTags] AS Tags
-                    RETURN {id: game.id, name: game.name}
-                    ORDER BY size(Tags) DESC LIMIT 5""",
+                    RETURN {type: \"G\", id: game.id, name: game.name}
+                    ORDER BY size(Tags) DESC LIMIT 10""",
                 uid);
         Neo4jManager neo4j = Neo4jManager.getInstance();
         return neo4j.getQueryResultAsList(query);
@@ -72,16 +72,17 @@ public class NeoComplexQueries {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format("""
              CALL {
-                MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[o:OWNS]->(g:Game)
+                 MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[o:OWNS]->(g:Game)
                  WITH DISTINCT(g) AS game, COUNT(DISTINCT f) AS totOwn, SUM(o.hours) AS totHrs
-                 RETURN game, 0.2*totHrs+0.1*totOwn AS partialScore
+                 RETURN game, totHrs + 0.1 * totOwn AS partialScore
                  UNION
                  MATCH (:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)-[:HAS_WROTE]->(r:Review)-[:HAS_REVIEW]-(g1:Game)
-                 WITH DISTINCT(g1) AS game, COUNT(r) AS partialScore
-                 RETURN game, partialScore}
+                 WHERE r.rating = true
+                 WITH DISTINCT(g1) AS game, COUNT(r) AS totReviews
+                 RETURN game, totReviews * 100 AS partialScore}
              WITH DISTINCT(game) as g, SUM(partialScore) as finalScore
-             RETURN {id: g.id, name: g.name, score: finalScore}
-             ORDER BY score DESC LIMIT 5""",
+             RETURN {type: \"G\", id: g.id, name: g.name}
+             ORDER BY finalScore DESC LIMIT 10""",
                 uid, uid);
         return neo4j.getQueryResultAsList(query);
     }
@@ -89,14 +90,14 @@ public class NeoComplexQueries {
     public ArrayList<Object> friendsRanking(long uid) {
         Neo4jManager neo4j = Neo4jManager.getInstance();
         String query = String.format("""
-            MATCH (u:User {id:'%d'})-[:IS_FRIEND_WITH]->(f:User)
+            MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]->(f:User)
             WITH f
             OPTIONAL MATCH (f)-[:HAS_WROTE]->(r:Review)
             WITH f, COUNT(DISTINCT r) AS totReviews, SUM(r.numUpvotes) AS totUps
             OPTIONAL MATCH (f)-[o:OWNS]->(g:Game)
             WITH f, totReviews, totUps, COUNT(DISTINCT g) AS totOwn, SUM(o.hours) AS totHrs
             WITH f, totReviews * 5 + totUps * 2 + totOwn * 5 + totHrs * 1 AS score
-            RETURN {id: f.id, score: score}
+            RETURN {type: \"U\", id: f.id, name: f.uname, score: score}
             ORDER BY score DESC LIMIT 10""",
                 uid);
         return neo4j.getQueryResultAsList(query);

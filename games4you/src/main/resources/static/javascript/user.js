@@ -113,8 +113,8 @@ function loadUserPage() {
     let btn_div =
         document.getElementById("mngButtons");
 
-    if(window.uid !== null) {
-        if(window.page_id !== window.uid) {
+    if(window.logged_id !== null) {
+        if(window.page_id !== window.logged_id) {
             let b1 = document.createElement('button');
             b1.innerHTML = 'MANAGE FRIENDSHIP';
             b1.onclick = function(){mngUser()};
@@ -133,7 +133,7 @@ function loadUserPage() {
             });
         }
     }
-    else if(window.adm === true) {
+    else {
         let b1 = document.createElement('button');
         b1.innerHTML = 'BAN';
         b1.onclick = function(){ban()};

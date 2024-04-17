@@ -5,10 +5,26 @@
 </head>
 <body>
     <script src="/javascript/topbar.js" type="module"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        logged_id = /*[[${uid}]]*/ false;
+        /*]]>*/
+    </script>
 
     <div>
         <a href="/home">
             <img src="/images/icon.png" alt="site icon" style="width:100px; height:100px; cursor: pointer;"></a>
+
+        <img id="notif" src="/images/notification-icon.png" style="width:25px; cursor: pointer;">
+
+        <div id="notifPanel" style="display: none; background-color: white; border:1px solid black; padding:10px; max-width:500px;">
+            <table>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="queryBtns">
+        </div>
 
         <form action="#" th:action="@{/search}" method="get">
             <select name="type">

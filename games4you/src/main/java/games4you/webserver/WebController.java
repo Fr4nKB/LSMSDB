@@ -4,6 +4,7 @@ import games4you.entities.Admin;
 import games4you.entities.Gamer;
 import games4you.util.Authentication;
 
+import games4you.util.NeoComplexQueries;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,11 +25,13 @@ public class WebController {
     private final Admin adminMethods;
     private final Gamer gamerMethods;
     private final SessionManager sesManager;
+    private final NeoComplexQueries neoComplexQueries;
 
     public WebController() {
         adminMethods = new Admin();
         gamerMethods = new Gamer();
         sesManager = new SessionManager();
+        neoComplexQueries = new NeoComplexQueries();
     }
 
     @GetMapping("/")
@@ -71,12 +74,22 @@ public class WebController {
     }
 
     @GetMapping("/home")
-    public String homeUser(HttpServletRequest request) {
+    public ModelAndView homeUser(HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
 
-        if(ret == null) return "redirect:/error";
-        else if(ret[1] == 1) return "homeAdmin";
-        else return "home";
+        ModelAndView mod;
+        if(ret[1] == 0) {
+            mod = new ModelAndView("home");
+            mod.addObject("uid", ret[0]);
+        }
+        else if(ret[1] == 1) {
+            mod = new ModelAndView("homeAdmin");
+            mod.addObject("uid", null);
+        }
+        else return null;
+
+        return mod;
     }
 
     @GetMapping("/user/{id}")
@@ -97,7 +110,7 @@ public class WebController {
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("user");
-        if(ret[1] == 1) mod.addObject("adm", true);
+        if(ret[1] == 1) mod.addObject("uid", null);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
@@ -122,6 +135,9 @@ public class WebController {
 
         ModelAndView mod = new ModelAndView("game");
         if(ret[1] == 1) mod.addObject("adm", true);
+
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
     }
@@ -136,6 +152,8 @@ public class WebController {
 
         ModelAndView mod = new ModelAndView("review");
         if(ret[1] == 1) mod.addObject("adm", true);
+
+        if(ret[1] == 1) mod.addObject("uid", null);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("rid", rid);
         mod.addObject("jsonString", json);
@@ -157,6 +175,9 @@ public class WebController {
 
         if(parts.length == 2) mod.addObject("endpoint", parts[0] + "/" + parts[1] + "/" + query);
         else mod.addObject("endpoint", parts[0] + "/" + query);
+
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -168,6 +189,8 @@ public class WebController {
         if(ret == null) return null;
 
         mod.addObject("endpoint", String.format("friends/%d/more", id));
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -179,17 +202,40 @@ public class WebController {
         if(ret == null) return null;
 
         mod.addObject("endpoint", String.format("games/%d/more", id));
+        if(ret[1] == 1) mod.addObject("uid", null);
+        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        return mod;
+    }
+
+    @GetMapping("/recom/{choice}")
+    public ModelAndView recom(@PathVariable("choice") int choice, HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("recom");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;     // admins cannot have game recommendations
+
+        if(choice < 0 || choice > 3) return null;
+
+        ArrayList<Object> res;
+        if(choice == 0) res = neoComplexQueries.friendsRanking(ret[0]);
+        else if(choice == 1) res = neoComplexQueries.tagsBasedRecommendations(ret[0]);
+        else if(choice == 2) res = neoComplexQueries.friendsTagsBasedRecommendation(ret[0]);
+        else res = neoComplexQueries.friendScoreBasedRecommendations(ret[0]);
+
+        mod.addObject("uid", ret[0]);
+        mod.addObject("jsonData", res);
         return mod;
     }
 
     @GetMapping("/newReview/{id}")
-    public ModelAndView newReview(@PathVariable("id") long id, HttpServletRequest request) {
+    public ModelAndView newReview(@PathVariable("id") long gid, HttpServletRequest request) {
         ModelAndView mod = new ModelAndView("newReview");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 1) return null;     // admins cannot write reviews
 
-        mod.addObject("gid", id);
+        mod.addObject("gid", gid);
+        if(ret[1] == 0) mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -225,10 +271,14 @@ public class WebController {
 
 
     @GetMapping("/newGame/")
-    public String newGame(HttpServletRequest request) {
+    public ModelAndView newGame(HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("newGame");
+
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null || ret[1] == 0) return "redirect:/error";     // gamers cannot create new games
-        return "newGame";
+        if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
+
+        if(ret[1] == 1) mod.addObject("uid", null);
+        return mod;
     }
 
     @PostMapping("/newGame/")

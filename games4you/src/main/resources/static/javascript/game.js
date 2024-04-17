@@ -116,7 +116,7 @@ function loadGamePage() {
     }
 
     let btn = document.getElementById("mngBtn");
-    if (window.adm === true) {
+    if (window.logged_id === null) {
         btn.innerHTML = 'DELETE';
         btn.onclick = async function () {
             await doRequest("deleteGame");

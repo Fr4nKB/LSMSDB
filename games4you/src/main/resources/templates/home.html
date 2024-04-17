@@ -6,6 +6,11 @@
 <body>
     <script src="/javascript/topbar.js" type="module"></script>
     <script src="/javascript/home.js" type="module"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        logged_id = /*[[${uid}]]*/ false;
+        /*]]>*/
+    </script>
 
     <div>
         <a href="/home">
@@ -17,6 +22,9 @@
             <table>
                 <tbody></tbody>
             </table>
+        </div>
+
+        <div id="queryBtns">
         </div>
 
         <form action="#" th:action="@{/search}" method="get">

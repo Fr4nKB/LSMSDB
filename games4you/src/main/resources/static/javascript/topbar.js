@@ -1,4 +1,4 @@
-import {doRequest, loadData} from "./util.js";
+import {loadData} from "./util.js";
 
 let panel = document.getElementById("notifPanel");
 let loadmore = null;
@@ -81,27 +81,60 @@ async function topbar() {
     }
 }
 
-let notifBtn = document.getElementById('notif');
-notifBtn.onclick = function() {
-    if(panel.style.display !== "table") {
-        fetchNotif();
-        panel.style.display = "table";
-    }
-};
-
-document.addEventListener('click', function(event) {
-    let isClickInside = panel.contains(event.target);
-    if (!isClickInside && event.target !== notifBtn && event.target !== loadmore) {
-        let friendReqTable = document.getElementById("notifPanel")
-            .getElementsByTagName("tbody")[0];
-        friendReqTable.innerHTML = "";
-        panel.style.display = "none";
-        window.offset = 0;
-    }
-});
-
 const logoutBtn = document.getElementById('logout');
 logoutBtn.addEventListener('click', function() {
     topbar().then(r => null);
 });
+
+if(window.logged_id != null) {
+    let notifBtn = document.getElementById('notif');
+    notifBtn.onclick = function() {
+        if(panel.style.display !== "table") {
+            fetchNotif();
+            panel.style.display = "table";
+        }
+    };
+
+    document.addEventListener('click', function(event) {
+        let isClickInside = panel.contains(event.target);
+        if (!isClickInside && event.target !== notifBtn && event.target !== loadmore) {
+            let friendReqTable = document.getElementById("notifPanel")
+                .getElementsByTagName("tbody")[0];
+            friendReqTable.innerHTML = "";
+            panel.style.display = "none";
+            window.offset = 0;
+        }
+    });
+
+    let queryDiv = document.getElementById("queryBtns");
+
+    let scoreBoardBtn = document.createElement("button");
+    scoreBoardBtn.innerHTML = "TOP 10 FRIENDS"
+    scoreBoardBtn.onclick = function() {
+        window.location.href = window.location.origin + "/recom/0";
+    };
+
+    let ownRecomBtn = document.createElement("button");
+    ownRecomBtn.innerHTML = "BASED ON YOUR TASTES"
+    ownRecomBtn.onclick = function() {
+        window.location.href = window.location.origin + "/recom/1";
+    };
+
+    let friendsTagRecomBtn = document.createElement("button");
+    friendsTagRecomBtn.innerHTML = "BASED ON FRIENDS' TAGS"
+    friendsTagRecomBtn.onclick = function() {
+        window.location.href = window.location.origin + "/recom/2";
+    };
+
+    let friendsScoreRecomBtn = document.createElement("button");
+    friendsScoreRecomBtn.innerHTML = "BASED ON FRIENDS' MVG"
+    friendsScoreRecomBtn.onclick = function() {
+        window.location.href = window.location.origin + "/recom/3";
+    };
+
+    queryDiv.appendChild(scoreBoardBtn)
+    queryDiv.appendChild(ownRecomBtn);
+    queryDiv.appendChild(friendsTagRecomBtn);
+    queryDiv.appendChild(friendsScoreRecomBtn);
+}
 

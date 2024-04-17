@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>GAMES4YOU</title>
+    <title>GAMES4YOU - Search</title>
 </head>
 <body>
     <script src="/javascript/topbar.js" type="module"></script>
-    <script src="/javascript/homeAdmin.js" type="module"></script>
+    <script src="/javascript/recom.js" type="module"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
         logged_id = /*[[${uid}]]*/ false;
+        jsonData = /*[[${jsonData}]]*/ null;
         /*]]>*/
     </script>
 
@@ -40,12 +41,9 @@
         <button id="logout">Logout</button>
     </div>
 
-    <h1>WELCOME</h1>
-
     <table id="tableContent">
         <tbody></tbody>
     </table>
-    <button id="loadmore">Load more</button>
 
 </body>
 </html>

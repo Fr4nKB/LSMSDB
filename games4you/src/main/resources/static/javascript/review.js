@@ -7,8 +7,8 @@ function loadReviewPage() {
     window.page_id = jsonData.rid;
 
     let btn = document.createElement('button');
-    if(jsonData.uid !== window.user_id) {
-        if(!jsonData.upvotes.includes(window.user_id)) {
+    if(jsonData.uid !== window.logged_id) {
+        if(!jsonData.upvotes.includes(window.logged_id)) {
             let b1 = document.createElement('button');
             b1.innerHTML = 'UPVOTE REVIEW';
             b1.onclick = async function(){
@@ -19,7 +19,7 @@ function loadReviewPage() {
 
         }
 
-        if(!("reports" in jsonData) || !(jsonData.reports.reporters.includes(window.user_id))) {
+        if(!("reports" in jsonData) || !(jsonData.reports.reporters.includes(window.logged_id))) {
             btn.innerHTML = 'REPORT REVIEW';
             btn.onclick = async function(){
                 await doRequest("reportReview");
@@ -28,7 +28,7 @@ function loadReviewPage() {
             document.body.appendChild(btn);
         }
     }
-    else if (adm === true) {
+    else if (window.logged_id === null) {
         btn.innerHTML = 'DELETE REVIEW';
         btn.onclick = async function(){
             await doRequest("removeReview");
