@@ -132,7 +132,6 @@ public class WebController {
         if(ret == null) return null;
 
         String json = gamerMethods.showReview(rid);
-        System.out.println(json);
         if(json == null) return null;
 
         ModelAndView mod = new ModelAndView("review");

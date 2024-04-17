@@ -172,17 +172,19 @@ public class Gamer extends User {
     public boolean reportReview(long uid, long rid) {
         String res = checkReviewRelationship(uid, rid);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Boolean> map;
-        try {
-            map = objectMapper.readValue(res, HashMap.class);
+        if(res == null) return false;
+        else if(!res.equals("{}")) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            HashMap<String, Boolean> map;
+            try {
+                map = objectMapper.readValue(res, HashMap.class);
+                if(map.get("report")) return false;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        if(map.get("report")) return false;
 
         MongoManager mongo = MongoManager.getInstance();
 
@@ -210,17 +212,19 @@ public class Gamer extends User {
     public boolean upvoteReview(long uid, long rid) {
         String res = checkReviewRelationship(uid, rid);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Boolean> map;
-        try {
-            map = objectMapper.readValue(res, HashMap.class);
+        if(res == null) return false;
+        else if(!res.equals("{}")) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            HashMap<String, Boolean> map;
+            try {
+                map = objectMapper.readValue(res, HashMap.class);
+                if(map.get("upvote")) return false;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        if(map.get("upvote")) return false;
 
         MongoManager mongo = MongoManager.getInstance();
         //retrieve review
@@ -294,13 +298,13 @@ public class Gamer extends User {
                     ORDER BY rev.creation DESC
                     RETURN {type: "R", friend: {id: f.id, name: f.uname}, time: rev.creation, object: {rid: rev.id, gid: rev.gid, name: rev.game}} AS result
                     UNION
-                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)
-                    MATCH (f)-[r:IS_FRIEND_WITH]-(fof:User)
+                    MATCH (u:User {id: %d})-[:IS_FRIEND_WITH]-(f:User)-[r:IS_FRIEND_WITH]-(fof:User)
                     WHERE fof <> u
                     WITH f, r, fof
                     ORDER BY r.since DESC
                     RETURN {type: "F", friend: {id: f.id, name: f.uname}, time: r.since, object: {id: fof.id, name: fof.uname}} AS result
                     }
+                    WITH result ORDER BY result.time DESC
                     RETURN DISTINCT result SKIP %d LIMIT %d""",
                 uid, uid, offset, limit);
 

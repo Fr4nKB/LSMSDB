@@ -74,7 +74,7 @@ public class Review {
         review.append("rating", rating);
         review.append("numUpvotes", 0);
         review.append("upvotes", new ArrayList<>());
-        mongo.addDoc("reviews", review);
+        if(!mongo.addDoc("reviews", review)) return -1;
 
         Neo4jManager neo4j = Neo4jManager.getInstance();
         HashMap<String, Object> map = new HashMap<>();
