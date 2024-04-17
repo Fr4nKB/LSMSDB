@@ -72,8 +72,8 @@ public class Test {
         assert !gamer.reportReview(4, 3);    //cannot report twice
 
         //COMPLEX QUERIES
-        System.out.println(neoCQ.friendsTagsBasedRecommendationNORED(0));
-        assert neoCQ.friendsTagsBasedRecommendationNORED(0).size() == 2: "Incorrect recommendation list size";
+        System.out.println(neoCQ.friendsTagsBasedRecommendation(0));
+        assert neoCQ.friendsTagsBasedRecommendation(0).size() == 2: "Incorrect recommendation list size";
 
         //ADMIN
         assert admin.banGamer(0): "User not banned";
