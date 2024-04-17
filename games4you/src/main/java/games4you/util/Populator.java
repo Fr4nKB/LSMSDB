@@ -203,20 +203,131 @@ public class Populator {
         }
     }
 
+    class DeeperPopulateTask implements Callable<Integer> {
+        private final Gamer g;
+        private final ArrayList<HashMap<String, Object>>  usersJson;
+        private final ArrayList<HashMap<String, Object>>  gamesJson;
+        private final ArrayList<HashMap<String, Object>>  reviewsJson;
+        private final int start;
+        private final int end;
+
+        public DeeperPopulateTask(Gamer g, ArrayList<HashMap<String, Object>> usersJson,
+                                  ArrayList<HashMap<String, Object>> gamesJson,
+                                  ArrayList<HashMap<String, Object>> reviewsJson,
+                                  int start, int end) {
+            this.g = g;
+            this.usersJson = usersJson;
+            this.gamesJson = gamesJson;
+            this.reviewsJson = reviewsJson;
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public Integer call() {
+            Random rand = new Random();
+            int numUsers = usersJson.size();
+            int numGames = gamesJson.size();
+            int numReviews = reviewsJson.size();
+
+            for(int i = start; i < end; i++) {
+                long userUID = (long) usersJson.get(i).get("uid");
+                int friends = rand.nextInt(26);
+                int games = rand.nextInt(11);
+                int reviews = rand.nextInt(5);
+
+                long friendUID;
+                for(int j = 0; j < friends; j++) {
+                    int index = rand.nextInt(numUsers);
+                    if(index == userUID) index += 1;
+                    friendUID = (long) usersJson.get(index).get("uid");
+                    if(g.sendRequest(userUID, friendUID)) {
+                        g.acceptRequest(friendUID, userUID);
+                    }
+                }
+
+                long gid;
+                for(int j = 0; j < games; j++) {
+                    int index = rand.nextInt(numGames);
+                    gid = (long) gamesJson.get(index).get("gid");
+                    if(g.addGameToLibrary(userUID, gid) > 0) {
+                        g.updatePlayedHours(userUID, gid, rand.nextInt(1001));
+                    }
+                }
+
+                long rid;
+                for(int j = 0; j < reviews; j++) {
+                    int index = rand.nextInt(numReviews);
+                    rid = (long) reviewsJson.get(index).get("rid");
+                    if(rand.nextBoolean()) {
+                        g.reportReview(userUID, rid);
+                    }
+                    else {
+                        g.upvoteReview(userUID, rid);
+                    }
+                }
+
+                System.out.printf("DONE: %d%n", i);
+            }
+            return 0;
+        }
+    }
+
+    public void populateDeeper() {
+        ArrayList<HashMap<String, Object>> usersJson = readJson("dataset/userDB.json");
+        ArrayList<HashMap<String, Object>> gamesJson = readJson("dataset/old_gameDB.json");
+        ArrayList<HashMap<String, Object>> reviewsJson = readJson("dataset/old_reviewDB.json");
+
+        // Create an ExecutorService with 16 threads
+        ExecutorService executor = Executors.newFixedThreadPool(16);
+
+        // Create a list to hold the Future objects
+        List<Future<Integer>> list = new ArrayList<Future<Integer>>();
+
+        // Calculate the size of each submap
+        int subSize = usersJson.size() / 16;
+
+        // Split the json into submaps and submit a new task for each
+        for (int i = 0; i < 16; i++) {
+            int start = i * subSize;
+            int end = (i + 1) * subSize;
+            if (i == 15) end = usersJson.size(); // Make sure the last submap includes any remaining elements
+
+            // Submit a new task and add the Future to the list
+            Callable<Integer> callable = null;
+            callable = new DeeperPopulateTask(g, usersJson, gamesJson, reviewsJson, start, end);
+            Future<Integer> future = executor.submit(callable);
+            list.add(future);
+        }
+
+        // Calculate the total number of added gamers
+        int added = 0;
+        for (Future<Integer> fut : list) {
+            try {
+                added += fut.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Shutdown the executor
+        executor.shutdown();
+    }
+
 
     public static void main(String[] args) {
         Populator pop = new Populator();
-        if(pop.populateConcurrent("dataset/userDB.json", 0) != 40158) {
-            System.out.println("FEW USERS");
-            return;
-        }
-        if(pop.populateConcurrent("dataset/old_gameDB.json", 1) != 10108) {
-            System.out.println("FEW GAMES");
-            return;
-        }
-        if(pop.populateConcurrent("dataset/old_reviewDB.json", 2) != 205738)  {
-            System.out.println("FEW REVIEWS");
-        }
+//        if(pop.populateConcurrent("dataset/userDB.json", 0) != 40158) {
+//            System.out.println("FEW USERS");
+//            return;
+//        }
+//        if(pop.populateConcurrent("dataset/old_gameDB.json", 1) != 10108) {
+//            System.out.println("FEW GAMES");
+//            return;
+//        }
+//        if(pop.populateConcurrent("dataset/old_reviewDB.json", 2) != 204818)  {
+//            System.out.println("FEW REVIEWS");
+//        }
 
 //        ArrayList<HashMap<String, Object>> json = pop.readJson("dataset/userDB.json");
 //        for (int i = 0; i < json.size(); i++) {
@@ -225,6 +336,10 @@ public class Populator {
 //                System.out.println((Long) map.get("uid"));
 //            }
 //        }
+
+        pop.populateDeeper();
+
+
     }
 
 }
