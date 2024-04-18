@@ -25,7 +25,7 @@ public class Populator {
         a = new Admin();
         g = new Gamer();
 
-//        //DUMPS ALL DATABASE: CAREFUL
+        //DUMPS ALL DATABASE: CAREFUL
 //        try {
 //            ProcessBuilder pbMongo = new ProcessBuilder("mongosh", "--eval", "use games4you", "--eval", "db.dropDatabase()");
 //            Process processMongo = pbMongo.start();
@@ -315,8 +315,8 @@ public class Populator {
     }
 
 
-    public static void main(String[] args) {
-        Populator pop = new Populator();
+//    public static void main(String[] args) {
+//        Populator pop = new Populator();
 //        if(pop.populateConcurrent("dataset/userDB.json", 0) != 40158) {
 //            System.out.println("FEW USERS");
 //            return;
@@ -328,7 +328,7 @@ public class Populator {
 //        if(pop.populateConcurrent("dataset/old_reviewDB.json", 2) != 204818)  {
 //            System.out.println("FEW REVIEWS");
 //        }
-
+//
 //        ArrayList<HashMap<String, Object>> json = pop.readJson("dataset/userDB.json");
 //        for (int i = 0; i < json.size(); i++) {
 //            HashMap<String, Object> map = json.get(i);
@@ -336,10 +336,21 @@ public class Populator {
 //                System.out.println((Long) map.get("uid"));
 //            }
 //        }
-
-        pop.populateDeeper();
-
-
-    }
+//
+//        pop.populateDeeper();
+//
+//
+//        HashMap<String, Object> map = new HashMap<>();
+//        map.put("username", "aaa");
+//        map.put("uid", (long) -1);
+//        map.put("firstname", "a");
+//        map.put("lastname", "b");
+//        map.put("datebirth", "11/09/2001");
+//        map.put("pwd", "wasd");
+//        map.put("isAdmin", true);
+//        map.put("datecreation", (long) 1713437258);
+//        boolean ret = pop.g.signup(map);
+//        System.out.println(ret);
+//    }
 
 }

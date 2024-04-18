@@ -2,6 +2,7 @@ import {loadData} from "./util.js";
 
 let panel = document.getElementById("notifPanel");
 let loadmore = null;
+let queryDiv = document.getElementById("queryBtns");
 
 function loadNotif(jsonList) {
     let friendReqTable = document.getElementById("notifPanel")
@@ -86,7 +87,7 @@ logoutBtn.addEventListener('click', function() {
     topbar().then(r => null);
 });
 
-if(window.logged_id != null) {
+if(window.logged_id != null) {  // user is not an admin
     let notifBtn = document.getElementById('notif');
     notifBtn.onclick = function() {
         if(panel.style.display !== "table") {
@@ -105,8 +106,6 @@ if(window.logged_id != null) {
             window.offset = 0;
         }
     });
-
-    let queryDiv = document.getElementById("queryBtns");
 
     let scoreBoardBtn = document.createElement("button");
     scoreBoardBtn.innerHTML = "TOP 10 FRIENDS"
@@ -137,4 +136,28 @@ if(window.logged_id != null) {
     queryDiv.appendChild(friendsTagRecomBtn);
     queryDiv.appendChild(friendsScoreRecomBtn);
 }
+else {      // user is admin
 
+    let hatersBtn = document.createElement("button");
+    hatersBtn.innerHTML = "TOP 10 HATERS"
+    hatersBtn.onclick = function() {
+        window.location.href = window.location.origin + "/haters/";
+    };
+
+    let mvrBtn = document.createElement("button");
+    mvrBtn.innerHTML = "BEST REVIEWERS"
+    mvrBtn.onclick = function() {
+        window.location.href = window.location.origin + "/bestReviewers/";
+    };
+
+    queryDiv.appendChild(hatersBtn)
+    queryDiv.appendChild(mvrBtn);
+
+}
+
+let hottestGamesBtn = document.createElement("button");
+hottestGamesBtn.innerHTML = "TOP 10 GAMES OF THE WEEK"
+hottestGamesBtn.onclick = function() {
+    window.location.href = window.location.origin + "/hottestGames/";
+};
+queryDiv.appendChild(hottestGamesBtn);

@@ -11,9 +11,11 @@ import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import games4you.util.Constants;
 import org.bson.Document;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Gamer extends User {
@@ -262,26 +264,25 @@ public class Gamer extends User {
         String [] node_types = {"User", "Game"};
         long[] node_names = {uid, gid};
 
-        MongoCollection<Document> coll = mongo.getCollection("games");
-        Document game = coll.find(
-                Filters.eq("gid", gid))
-                .projection(Projections.include("name"))
-                .first();
-        if(game == null) return false;
-        String game_name = game.getString("name");
+        String game_name = retrieveGameName(gid);
 
         if(!neo4j.incAttribute(node_types, node_names, "OWNS", "hours", amount)) return false;
 
         Document doc = new Document();
         doc.put("gid", gid);
         doc.put("name", game_name);
-        coll = mongo.getCollection("users");
+        MongoCollection<Document> coll = mongo.getCollection("users");
         UpdateResult res = coll.updateOne(
                 Filters.eq("uid", uid),
                 Updates.set("lastGamePlayed", mongo.convert2BsonDoc(doc))
         );
+        if(res.getMatchedCount() <= 0) return false;
 
-        return res.getModifiedCount() > 0;
+        doc.put("uid", uid);
+        doc.put("uname", retrieveUname(uid));
+        doc.put("updatedAt", new Date());
+        doc.put("hrs", amount);
+        return mongo.addDoc("hottest", doc);
     }
 
 

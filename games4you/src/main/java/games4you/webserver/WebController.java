@@ -4,6 +4,7 @@ import games4you.entities.Admin;
 import games4you.entities.Gamer;
 import games4you.util.Authentication;
 
+import games4you.util.MongoComplexQueries;
 import games4you.util.NeoComplexQueries;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,12 +27,14 @@ public class WebController {
     private final Gamer gamerMethods;
     private final SessionManager sesManager;
     private final NeoComplexQueries neoComplexQueries;
+    private final MongoComplexQueries mongoComplexQueries;
 
     public WebController() {
         adminMethods = new Admin();
         gamerMethods = new Gamer();
         sesManager = new SessionManager();
         neoComplexQueries = new NeoComplexQueries();
+        mongoComplexQueries = new MongoComplexQueries();
     }
 
     @GetMapping("/")
@@ -312,6 +315,42 @@ public class WebController {
 
         if(adminMethods.insertGame(formData)) return String.format("redirect:/game/%d", gid);
         else return "redirect:/error";
+    }
+
+    @GetMapping("/haters/")
+    public ModelAndView haters(HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("haters");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
+
+        mod.addObject("uid", null);
+        mod.addObject("jsonData", mongoComplexQueries.getTop10Haters());
+        return mod;
+    }
+
+    @GetMapping("/bestReviewers/")
+    public ModelAndView mvr(HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("mvr");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;     // gamers cannot create new games
+
+        mod.addObject("uid", null);
+        mod.addObject("jsonData", mongoComplexQueries.mostValuableReviewersOnMostAppreciatedGames());
+        return mod;
+    }
+
+    @GetMapping("/hottestGames/")
+    public ModelAndView hottest(HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("hottest");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;     // gamers cannot create new games
+
+        mod.addObject("uid", null);
+        mod.addObject("jsonData", mongoComplexQueries.top10HottestGamesOfWeek());
+        return mod;
     }
 
 }

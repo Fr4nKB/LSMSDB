@@ -141,25 +141,6 @@ public class Neo4jManager implements AutoCloseable{
         }
     }
 
-
-    public ArrayList<ArrayList<Object>> getQueryResultAsListOfLists(String query) {
-        try (Session session = driver.session()) {
-            Result res = session.run(query);
-            ArrayList<ArrayList<Object>> list = new ArrayList<>();
-
-            while(res.hasNext()) {
-                Record n = res.next();
-                ArrayList<Object> objectList = new ArrayList<>(n.values());
-                list.add(objectList);
-            }
-
-            return list;
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public boolean addAttribute(String node_type, long node_name, String attribute_name, Object attribute) {
         String query = String.format(
                 "MATCH (u:%s {id: %s}) SET u.%s = $attribute",
@@ -194,7 +175,7 @@ public class Neo4jManager implements AutoCloseable{
             );
         }
 
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query) > 0;
     }
 
     public int executeWriteTransactionQuery(String query) {

@@ -15,25 +15,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MongoComplexQueries {
-    public ArrayList<Object> getTop10Haters() {
-        Instant oneMonthAgo = Instant.now().minus(30, ChronoUnit.DAYS);
-        int oneMonthAgoInSeconds =  (int) oneMonthAgo.getEpochSecond();
 
+    private ArrayList<Object> getResultAsList(String collection, List<Bson> pipeline) {
         MongoManager mongo = MongoManager.getInstance();
-        MongoCollection<Document> coll = mongo.getCollection("reviews");
-
-        List<Bson> pipeline = Arrays.asList(
-                Aggregates.match(new Document("creation_date", new Document("$lte", oneMonthAgoInSeconds))),
-                Aggregates.unwind("$reports.reporters"),
-                Aggregates.group(new Document().append("reporter", "$reports.reporters").append("creator", "$uid"), Accumulators.sum("count", 1)),
-                Aggregates.project(
-                        new Document("_id", 0).append("reporter_id", "$_id.reporter")
-                                .append("creator", "$_id.creator").append("count", 1)),
-                Aggregates.sort(Sorts.descending("count")),
-                Aggregates.limit(10)
-        );
+        MongoCollection<Document> coll = mongo.getCollection(collection);
 
         MongoCursor<Document> cur = coll.aggregate(pipeline).iterator();
+
         ArrayList<Object> ret = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         while (cur.hasNext()) {
@@ -49,6 +37,28 @@ public class MongoComplexQueries {
         return ret;
     }
 
+    public ArrayList<Object> getTop10Haters() {
+        Instant oneMonthAgo = Instant.now().minus(30, ChronoUnit.DAYS);
+        int oneMonthAgoInSeconds =  (int) oneMonthAgo.getEpochSecond();
+
+        List<Bson> pipeline = Arrays.asList(
+                Aggregates.match(new Document("creation_date", new Document("$lte", oneMonthAgoInSeconds))),
+                Aggregates.unwind("$reports.reporters"),
+                Aggregates.group(new Document().append("reporter", "$reports.reporters")
+                        .append("creator", "$uid").append("creator_name", "$uname"),
+                        Accumulators.sum("count", 1)),
+                Aggregates.project(
+                        new Document("_id", 0).append("reporter_id", "$_id.reporter")
+                                .append("creator_id", "$_id.creator")
+                                .append("creator_name", "$_id.creator_name")
+                                .append("count", 1)),
+                Aggregates.sort(Sorts.descending("count")),
+                Aggregates.limit(10)
+        );
+
+        return getResultAsList("reviews", pipeline);
+    }
+
     /**
      * “For the top 5 games with the highest average upvotes,
      * who are the users that have reviewed these games,
@@ -56,11 +66,9 @@ public class MongoComplexQueries {
      * and how many reports have they made?”
      */
     public ArrayList<Object> mostValuableReviewersOnMostAppreciatedGames() {
-        MongoManager mongo = MongoManager.getInstance();
-        MongoCollection<Document> coll = mongo.getCollection("reviews");
 
         List<Bson> pipeline = Arrays.asList(
-                Aggregates.match(Filters.gt("numUpvotes", 10)),
+                Aggregates.match(Filters.gt("numUpvotes", 0)),
                 Aggregates.unwind("$upvotes"),
                 Aggregates.group(new Document().append("gid", "$gid").append("uid", "$uid"),
                         Accumulators.avg("averageUpvotes", "$upvotes"),
@@ -84,20 +92,39 @@ public class MongoComplexQueries {
                 )
         );
 
-
-        MongoCursor<Document> cur = coll.aggregate(pipeline).iterator();
-        ArrayList<Object> ret = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        while (cur.hasNext()) {
-            Document doc = cur.next();
-            try {
-                ret.add(objectMapper.writeValueAsString(doc));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return ret;
+        return getResultAsList("reviews", pipeline);
     }
+
+    public ArrayList<Object> top10HottestGamesOfWeek() {
+
+        List<Bson> pipeline = Arrays.asList(
+                Aggregates.group(new Document().append("gid", "$gid").append("name", "$name"),
+                        Accumulators.sum("totalHours", "$hrs"),
+                        Accumulators.addToSet("uniqueUids", "$uid") // accumulate unique uids
+                ),
+                Aggregates.project(
+                        Projections.fields(
+                                Projections.include("totalHours"),
+                                Projections.computed("playerCount", new Document("$size", "$uniqueUids")), // count unique uids
+                                Projections.computed("gid", "$_id.gid"),
+                                Projections.computed("name", "$_id.name"),
+                                Projections.excludeId()
+                        )
+                ),
+                Aggregates.project(
+                        Projections.fields(
+                                Projections.include("totalHours", "playerCount", "gid", "name"),
+                                Projections.computed("score",
+                                        new Document("$add",
+                                                Arrays.asList(new Document("$multiply", Arrays.asList("$totalHours", 0.4)),
+                                                        new Document("$multiply", Arrays.asList("$playerCount", 0.6))))),
+                                Projections.excludeId()
+                        )
+                ),
+                Aggregates.sort(Sorts.descending("score")),
+                Aggregates.limit(10)
+        );
+        return getResultAsList("hottest", pipeline);
+    }
+
 }

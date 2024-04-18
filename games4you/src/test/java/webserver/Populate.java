@@ -14,7 +14,7 @@ public class Populate {
 
         assert pop.populateConcurrent("userDB.json", 0) == 5;
         pop.populateConcurrent("old_gameDB.json", 1);
-        pop.populateConcurrent("old_reviewDB.json", 0);
+        pop.populateConcurrent("old_reviewDB.json", 2);
 
         //FRIENDS
         assert gamer.sendRequest(0, 1): "Friend 1 not sent";

@@ -34,7 +34,7 @@ public class User {
         String query = String.format("""
                         MATCH (:%s {id: %d})-[:%s]->(b:Review)
                         RETURN {rid: b.id, gid: b.gid, uid: b.uid, game: b.game, uname: b.uname, rating: b.rating} AS result
-                        ORDER BY b.creation SKIP %d LIMIT %d""",
+                        ORDER BY b.creation DESC SKIP %d LIMIT %d""",
                 node_type, id, relation, offset, limit);
         return getRelationshipList(query);
     }
@@ -45,7 +45,7 @@ public class User {
      * @return false if user wasn't created, true otherwise
      */
     public boolean signup(HashMap<String, Object> args) {
-        if (args.size() != 8) return false;
+        if(args.size() != 8) return false;
 
         MongoManager mongo = MongoManager.getInstance();
 
@@ -105,7 +105,7 @@ public class User {
             mongo.removeDoc(false, "users", "uid", uid);
             return false;
         }
-        else return true;
+        return true;
     }
 
     /**

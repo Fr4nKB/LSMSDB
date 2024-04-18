@@ -6,6 +6,8 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import org.bson.BsonDocument;
@@ -15,6 +17,7 @@ import org.neo4j.driver.Result;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -36,6 +39,11 @@ public class MongoManager implements AutoCloseable {
         }
         client = MongoClients.create(new ConnectionString(prop.getProperty("mongoUriSingle")));
         database = client.getDatabase(prop.getProperty("mongoDatabaseName"));
+
+        // weekly hottest games index: ensures records older than 7 days are deleted
+        long secondsIn7Days = TimeUnit.DAYS.toSeconds(7);
+        IndexOptions indexOptions = new IndexOptions().expireAfter(secondsIn7Days, TimeUnit.SECONDS);
+        getCollection("hottest").createIndex(Indexes.ascending("updatedAt"), indexOptions);
     }
 
     @Override

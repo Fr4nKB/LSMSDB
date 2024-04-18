@@ -3,6 +3,7 @@ import {loadPreviewReviewTiles} from "./loadReviewPages.js";
 
 let overlay = document.getElementById("overlay");
 let panel = document.getElementById("panel");
+let offset = 0;
 
 async function mngUser() {
     let jsonData = await loadData(window.location.origin + '/checkFriendship/' + window.page_id);
@@ -82,11 +83,11 @@ function loadUserReviews() {
     if(window.page_id === null) return;
     const url = new URL("/user/reviews/", window.location.origin);
     url.searchParams.append('uid', window.page_id);
-    url.searchParams.append('offset', window.offset);
+    url.searchParams.append('offset', offset);
 
     let data = loadData(url)
         .then(data => {
-            window.offset += data.length;
+            offset += data.length;
             let jsonList = data.map(item => JSON.parse(item))
             loadPreviewReviewTiles(jsonList);
         });
@@ -99,10 +100,10 @@ function loadUserPage() {
     window.page_id = obj.uid;
 
     if('latestReviews' in obj) {
-        window.offset = obj.latestReviews.length;
+        offset = obj.latestReviews.length;
         loadPreviewReviewTiles(obj.latestReviews);
     }
-    else window.offset = 0;
+    else offset = 0;
 
     document.getElementById('uname').innerText = obj.uname;
     let date = new Date(obj.datecreation * 1000);
@@ -140,8 +141,7 @@ function loadUserPage() {
         btn_div.appendChild(b1);
     }
 
-    btn_div =
-        document.getElementById("listButtons");
+    btn_div = document.getElementById("listButtons");
 
     let b1 = document.createElement('button');
     b1.innerHTML = 'FRIEND LIST';
@@ -151,7 +151,6 @@ function loadUserPage() {
     b2.innerHTML = 'GAME LIST';
     b2.onclick = function(){gameList()};
     btn_div.appendChild(b2);
-
 
 }
 

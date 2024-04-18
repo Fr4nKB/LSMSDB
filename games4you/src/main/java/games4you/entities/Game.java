@@ -66,9 +66,16 @@ public class Game {
 
 
     public int addGameToLibrary(long uid, long gid) {
-        //create relationships between review, game and gamer
         Neo4jManager neo4j = Neo4jManager.getInstance();
+
+        //check if user owns already that game
         String query = String.format(
+                "MATCH (u:User {id: %d})-[:OWNS]->(g:Game {id: %d}) RETURN 1",
+                uid, gid);
+        if(!neo4j.getQueryResultAsList(query).isEmpty()) return 0;
+
+        //create relationships between review, game and gamer
+        query = String.format(
                 "MATCH (u:User {id: %d}), (g:Game {id: %d})" +
                         "MERGE (u)-[:OWNS {hours:0}]->(g)",
                 uid, gid);
