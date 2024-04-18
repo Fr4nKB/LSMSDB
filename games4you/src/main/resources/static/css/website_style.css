@@ -1,0 +1,132 @@
+body {
+    background-color: #111; /* Dark background */
+    color: #eee; /* Light text */
+    font-family: 'Roboto', sans-serif; /* Use Google Font Roboto for a nerdy look */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    text-align: center;
+    font-size: 36px;
+    color: #fff;
+}
+
+div {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between; /* Align items and logout button */
+    align-items: center; /* Vertically center items */
+    width: 100%; /* Make the div full width */
+    max-width: 800px; /* Limit the maximum width */
+}
+
+form {
+    display: flex;
+    align-items: center;
+}
+
+select,
+input[type="text"],
+input[type="submit"],
+button {
+    padding: 12px; /* Larger padding for search bar */
+    border: none;
+    border-radius: 4px;
+    color: #eee;
+    cursor: pointer; /* Add cursor pointer to clickable items */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Add transition for button background color and text color change */
+}
+
+input[type="text"] {
+    width: 400px; /* Increase the width of the search bar */
+}
+
+select,
+input[type="text"] {
+    margin-right: 10px;
+    background-color: #333; /* Dark form background */
+}
+
+input[type="submit"],
+button {
+    background-color: #FF6600; /* Orange button */
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #FF4D00; /* Darker orange on hover */
+}
+
+/* Center the table and add more distance between list items */
+table {
+    margin: 20px auto; /* Add margin to the table */
+    border-collapse: separate;
+    border-spacing: 0; /* Remove vertical spacing between rows */
+    width: 100%; /* Make the table full width */
+    max-width: 800px; /* Limit the maximum width */
+}
+
+/* Add cursor pointer to table rows */
+tr {
+    cursor: pointer;
+}
+
+/* Add padding and remove margin between table rows */
+tr {
+    padding: 10px 0; /* Add padding to table rows */
+    margin: 0; /* Remove margin */
+    height: 80px; /* Reduce the height of the table rows */
+}
+
+/* Highlight table row on hover */
+tr:hover {
+    background-color: rgba(255, 102, 0, 0.3); /* Highlight whole row on hover */
+}
+
+/* Remove individual cell padding */
+td {
+    padding: 0; /* Remove padding */
+}
+
+/* Add padding to inner elements to maintain spacing */
+td > * {
+    padding: 10px; /* Add padding to inner elements */
+}
+
+a {
+    color: #FF6600; /* Orange link color for Users and Games */
+    text-decoration: none;
+    transition: color 0.3s ease; /* Add transition for link color change */
+    font-size: 20px; /* Bigger text for list items */
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #FF4D00; /* Darker orange on hover */
+}
+
+#logout,
+button {
+    background-color: #FF6600; /* Orange logout button */
+    align-self: flex-start; /* Align logout button to the top right */
+    padding: 12px 24px; /* Increase padding for buttons */
+}
+
+#logout:hover,
+button:hover {
+    background-color: #FF4D00; /* Darker orange on hover */
+}
+
+#loadmore {
+    margin-top: 20px; /* Add margin to the load more button */
+    align-self: center; /* Center the load more button */
+    background-color: #FF6600; /* Orange load more button */
+    padding: 12px 24px; /* Increase padding for the load more button */
+}
+
+#loadmore:hover {
+    background-color: #FF4D00; /* Darker orange on hover */
+}
