@@ -3,6 +3,8 @@ package games4you.webserver;
 import games4you.entities.Admin;
 import games4you.entities.Gamer;
 
+import games4you.util.Constants;
+import games4you.util.NeoComplexQueries;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +34,8 @@ public class DataController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        if(ret[1] == 1) return adminMethods.getReportedReviews(offset);
-        else if(ret[1] == 0) return gamerMethods.homePage(ret[0], offset);
+        if(ret[1] == 1) return adminMethods.getReportedReviews(offset, Constants.getDefPagLim());
+        else if(ret[1] == 0) return gamerMethods.homePage(ret[0], offset, Constants.getDefPagLim());
         else return null;
     }
 
@@ -43,7 +45,25 @@ public class DataController {
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
-        return gamerMethods.browseUsers(user, offset);
+        return gamerMethods.browseUsers(user, offset, 20);
+    }
+
+    @GetMapping("/search/games/name/{game}")
+    public ArrayList<Object> searchMoreGamesByName(@PathVariable("game") String game,
+                                             @RequestParam("offset") int offset,
+                                             HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+        return gamerMethods.browseGamesByName(game, offset, Constants.getDefPagLim());
+    }
+
+    @GetMapping("/search/games/tags/{tag}")
+    public ArrayList<Object> searchMoreGamesByTags(@PathVariable("tag") String tag,
+                                                   @RequestParam("offset") int offset,
+                                                   HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+        return gamerMethods.browseGamesByTags(tag, offset, Constants.getDefPagLim());
     }
 
     @GetMapping("/user/reviews/")
@@ -55,6 +75,15 @@ public class DataController {
         return gamerMethods.getUserReviewList(uid, offset);
     }
 
+    @GetMapping("/game/reviews/")
+    public ArrayList<Object> loadMoreGameReviews(@RequestParam("gid") long gid,
+                                                 @RequestParam("offset") int offset,
+                                                 HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;
+        return gamerMethods.getGameReviewList(gid, offset);
+    }
+
     @GetMapping("/checkFriendship/{id}")
     public String checkFriend(@PathVariable("id") long uid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
@@ -62,6 +91,24 @@ public class DataController {
 
         return gamerMethods.checkFriendshipStatus(ret[0], uid);
     }
+
+    @GetMapping("/checkGame/{id}")
+    public String checkGame(@PathVariable("id") long gid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;   //admins can't have games
+
+        return gamerMethods.checkGameRelationship(ret[0], gid);
+    }
+
+
+    @GetMapping("/checkReview/{id}")
+    public String checkReview(@PathVariable("id") long rid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;   //admins can't have games
+
+        return gamerMethods.checkReviewRelationship(ret[0], rid);
+    }
+
 
     @GetMapping("/sendRequest/{id}")
     public boolean sendRequest(@PathVariable("id") long uid, HttpServletRequest request) {
@@ -94,6 +141,15 @@ public class DataController {
         if(ret == null || ret[1] == 1) return false;   //admins can't have friends
 
         return gamerMethods.declineRequest(ret[0], uid);
+    }
+
+    @GetMapping("/getFriendRequest/")
+    public ArrayList<Object> getFriendRequest(@RequestParam("offset") int offset,
+                                              HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return null;   //admins can't have friends
+
+        return gamerMethods.getRequestsList(ret[0], offset, 1);
     }
 
     @GetMapping("/removeFriend/{id}")
@@ -142,7 +198,7 @@ public class DataController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        return gamerMethods.getFriendList(uid, offset);
+        return gamerMethods.getFriendList(uid, offset, Constants.getDefPagLim());
     }
 
     @GetMapping("/search/games/{id}/more")
@@ -151,15 +207,49 @@ public class DataController {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        return gamerMethods.getGameList(uid, offset);
+        return gamerMethods.getGameList(uid, offset, Constants.getDefPagLim());
     }
 
-    @GetMapping("/upvote/{id}")
+
+
+    @GetMapping("/reportReview/{id}")
+    public boolean reportReview(@PathVariable("id") long rid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;
+
+        return gamerMethods.reportReview(ret[0], rid);
+    }
+
+    @GetMapping("/upvoteReview/{id}")
     public boolean upvoteReview(@PathVariable("id") long rid, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 1) return false;
 
-        return gamerMethods.upvoteReview(rid);
+        return gamerMethods.upvoteReview(ret[0], rid);
     }
 
+    @GetMapping("/removeReview/{id}")
+    public boolean removeReview(@PathVariable("id") long rid, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;
+
+        return gamerMethods.removeReview(rid);
+    }
+
+    @PostMapping("/updateHours/{id}")
+    public boolean updateHours(@PathVariable("id") long gid, @RequestParam("hours") int hours, HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 1) return false;    // admins don't have games
+
+        return gamerMethods.updatePlayedHours(ret[0], gid, hours);
+    }
+
+    @GetMapping("/evaluateReview")
+    public boolean updateHours(@RequestParam("rid") long rid, @RequestParam("judgment") boolean judgment,
+                               HttpServletRequest request) {
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null || ret[1] == 0) return false;    // gamers cannot evaluate reported reviews
+
+        return adminMethods.evaluateReportedReview(rid, judgment);
+    }
 }

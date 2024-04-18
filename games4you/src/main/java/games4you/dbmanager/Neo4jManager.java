@@ -42,6 +42,7 @@ public class Neo4jManager implements AutoCloseable{
     }
 
     private boolean executeSimpleQuery(String query) {
+        query = query.replace("'", "''");
         try (Session session = driver.session()) {
             session.run(query);
             return true;
@@ -66,13 +67,13 @@ public class Neo4jManager implements AutoCloseable{
         for(Map.Entry<String, Object> entry: attributes.entrySet()) {
             query.append(entry.getKey()).append(": ");
             Object obj = entry.getValue();
-            if(obj.getClass().equals(String.class)) query.append("'").append(entry.getValue()).append("'");
+            if(obj.getClass().equals(String.class)) query.append("\"").append(entry.getValue()).append("\"");
             else query.append(entry.getValue());
             query.append(",");
         }
         query.deleteCharAt(query.length()-1);
         query.append("})");
-        return executeSimpleQuery(query.toString());
+        return executeWriteTransactionQuery(query.toString()) > 0;
     }
 
     /**
@@ -85,14 +86,14 @@ public class Neo4jManager implements AutoCloseable{
         String query = String.format(
                 "MATCH (n1:%s {id: %d}) DETACH DELETE n1",
                 node_type, id);
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query) > 0;
     }
 
     public boolean removeSubNodes(String parent, String relation, String child, long value) {
         String query = String.format(
                 "MATCH (:%s {name: %d})-[%s]-(n:%s) DELETE n",
                 parent, value, relation, child);
-        return executeSimpleQuery(query);
+        return executeWriteTransactionQuery(query) > 0;
     }
 
     /**

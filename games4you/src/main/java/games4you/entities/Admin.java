@@ -9,6 +9,7 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
+import games4you.util.Constants;
 import org.bson.Document;
 
 import java.util.*;
@@ -45,14 +46,15 @@ public class Admin extends User {
         // remove the user and all his/her reviews
         boolean ret = mongo.removeDoc(false, "users", "uid", uid);
         if(!ret) return false;
-        ret = mongo.removeDoc(true, "reviews", "uid", uid);
-        if(!ret) return false;
-        ret = neo4j.removeSubNodes("User", "HAS_PUBLISHED", "Review", uid);
-        if(!ret) return false;
+        mongo.removeDoc(true, "reviews", "uid", uid);
+        neo4j.removeSubNodes("User", "HAS_PUBLISHED", "Review", uid);
         return neo4j.removeNode("User", uid);
     }
 
-    public ArrayList<Object> getReportedReviews(int offset) {
+    public ArrayList<Object> getReportedReviews(int offset, int limit) {
+        if(limit <= 0) return null;
+        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
+
         MongoManager mongo = MongoManager.getInstance();
         try {
             MongoCollection<Document> coll = mongo.getCollection("reviews");
@@ -61,7 +63,7 @@ public class Admin extends User {
                     .projection(Projections.fields(Projections.excludeId()))
                     .sort(Sorts.descending("creation_date"))
                     .skip(offset)
-                    .limit(20)
+                    .limit(limit)
                     .iterator();
 
             ArrayList<Object> list = new ArrayList<>();
@@ -77,7 +79,7 @@ public class Admin extends User {
         }
     }
 
-    public boolean evaluateReportedReview(int rid, boolean judgment) {
+    public boolean evaluateReportedReview(long rid, boolean judgment) {
         if(!judgment) {
             return super.removeReview(rid);
         }

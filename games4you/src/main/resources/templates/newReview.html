@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>GAMES4YOU</title>
+    <title>GAMES4YOU - Signup</title>
     <link rel="stylesheet" type="text/css" href="/css/website_style.css">
-
 </head>
 <body>
     <script src="/javascript/topbar.js" type="module"></script>
-    <script src="/javascript/homeAdmin.js" type="module"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
         logged_id = /*[[${uid}]]*/ false;
+        gid = /*[[${gid}]]*/ null;
+        document.getElementById("gid").innerText = gid;
         /*]]>*/
     </script>
 
@@ -42,12 +42,11 @@
         <button id="logout">Logout</button>
     </div>
 
-    <h1>WELCOME</h1>
-
-    <table id="tableContent">
-        <tbody></tbody>
-    </table>
-    <button id="loadmore">Load more</button>
-
+    <form action="#" th:action="@{/newReview/{id}(id=${gid})}" method="post">
+        <input type="hidden" th:value="${gid}" id="gid" name="gid">
+        <input type="checkbox" name="rating" placeholder="Rating" required>
+        <input type="text" name="content" placeholder="What do you think about this game?" required>
+        <input type="submit" value="Create review">
+    </form>
 </body>
 </html>

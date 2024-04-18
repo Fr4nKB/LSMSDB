@@ -1,11 +1,11 @@
-import {loadData} from "./pagination.js";
+import {loadData} from "./util.js";
 
 function loadHomePageTiles(jsonList) {
-    let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
+    let table = document.getElementById('tableContent')
+        .getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(jsonString) {
         let obj = JSON.parse(jsonString);
-        console.log(obj);
 
         let row = table.insertRow();
         let cell = row.insertCell(0);

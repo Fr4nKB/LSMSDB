@@ -1,5 +1,8 @@
+import {doRequest} from "./util.js";
+
 export function loadFullReviewTiles(jsonList) {
-    let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
+    let table = document.getElementById('tableContent')
+        .getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(jsonString) {
         let obj = JSON.parse(jsonString);
@@ -19,11 +22,31 @@ export function loadFullReviewTiles(jsonList) {
         let creation_date = new Date(obj.creation_date * 1000);
         let last_report_date = new Date(obj.reports.lastRep * 1000);
 
+        let btnDiv = document.createElement("div");
+        btnDiv.id = "judgmentBtnDiv";
+
+        let okBtn = document.createElement("button");
+        okBtn.innerText = "PASS";
+        okBtn.onclick = async function() {
+            await doRequest("evaluateReview", {"rid": obj.rid, "judgment": true});
+            window.location.reload();
+        }
+        let noBtn = document.createElement("button");
+        noBtn.innerText = "DELETE";
+        noBtn.onclick = async function() {
+            await doRequest("evaluateReview", {"rid": obj.rid, "judgment": false});
+            window.location.reload();
+        }
+
         c1.appendChild(user);
         c1.appendChild(document.createTextNode(" HAS REVIEWED "));
         c1.appendChild(game);
         c1.appendChild(document.createElement("br"));
         c1.appendChild(document.createTextNode(creation_date.toUTCString()));
+        c1.appendChild(btnDiv);
+        btnDiv.appendChild(okBtn);
+        btnDiv.appendChild(noBtn);
+
         c2.appendChild(document.createElement("br"));
         c2.appendChild(document.createTextNode(obj.content));
         c2.appendChild(document.createElement("br"));
@@ -38,6 +61,7 @@ export function loadPreviewReviewTiles(jsonList) {
     let table = document.getElementById('tableContent').getElementsByTagName('tbody')[0];
 
     jsonList.forEach(function(obj) {
+        console.log(obj);
 
         let row = table.insertRow();
         row.onclick = function() {window.location.href = window.location.origin + "/review/" + obj.rid;}
