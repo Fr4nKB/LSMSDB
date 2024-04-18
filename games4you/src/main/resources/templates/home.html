@@ -2,29 +2,30 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>GAMES4YOU</title>
+    <link rel="stylesheet" type="text/css" href="/css/website_style.css"> <!-- Link to the CSS file -->
 </head>
 <body>
-    <script src="/javascript/logout.js" type="module"></script>
-    <script src="/javascript/home.js" type="module"></script>
-    <h1>WELCOME</h1>
+<script src="/javascript/logout.js" type="module"></script>
+<script src="/javascript/home.js" type="module"></script>
+<h1>WELCOME</h1>
 
-    <div>
-        <form action="#" th:action="@{/search}" method="get">
-            <select name="type">
-                <option value="users">Users</option>
-                <option value="games">Games</option>
-            </select>
-            <input type="text" name="query">
-            <input type="submit" value="Search">
-        </form>
+<div>
+    <form action="#" th:action="@{/search}" method="get">
+        <select name="type">
+            <option value="users">Users</option>
+            <option value="games">Games</option>
+        </select>
+        <input type="text" name="query">
+        <input type="submit" value="Search">
+    </form>
 
-        <button id="logout">Logout</button>
-    </div>
+    <button id="logout">Logout</button>
+</div>
 
-    <table id="tableContent">
-        <tbody></tbody>
-    </table>
-    <button id="loadmore">Load more</button>
+<table id="tableContent">
+    <tbody></tbody>
+</table>
+<button id="loadmore">Load more</button>
 
 </body>
 </html>
