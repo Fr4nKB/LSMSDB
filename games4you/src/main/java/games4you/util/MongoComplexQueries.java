@@ -153,4 +153,39 @@ public class MongoComplexQueries {
         return getResultAsList("hottest", pipeline);
     }
 
+    public ArrayList<Object> getTop10CatchyGames() {
+        List<Bson> pipeline = Arrays.asList(
+                Aggregates.group(new Document().append("gid", "$gid").append("uid", "$uid").append("name", "$name"),
+                        Accumulators.sum("totalHours", "$hrs")
+                ),
+                Aggregates.group(
+                        new Document("uid", "$_id.uid"),
+                        Accumulators.sum("totalGames", 1),
+                        Accumulators.sum("playerHours", "$totalHours"),
+                        Accumulators.addToSet("games", new Document().append("gid", "$_id.gid").append("name", "$_id.name"))
+                ),
+                Aggregates.match(Filters.eq("totalGames", 1)),
+                Aggregates.unwind("$games"),
+                Aggregates.group(new Document().append("gid", "$games.gid").append("name", "$games.name"),
+                        Accumulators.sum("gameHours", "$playerHours")),
+                Aggregates.sort(Sorts.descending("gameHours")),
+                Aggregates.limit(10),
+                Aggregates.project(
+                        Projections.fields(
+                                Projections.include("gameHours"),
+                                Projections.computed("gid", "$_id.gid"),
+                                Projections.computed("name", "$_id.name"),
+                                Projections.excludeId()
+                        )
+                )
+        );
+
+        return getResultAsList("hottest", pipeline);
+    }
+
+    public static void main(String[] args){
+        MongoComplexQueries m = new MongoComplexQueries();
+        System.out.println(m.getTop10CatchyGames());
+    }
+
 }

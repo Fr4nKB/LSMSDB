@@ -33,7 +33,11 @@ public class Populate {
         assert gamer.addGameToLibrary(0,1) == 1;
         assert gamer.addGameToLibrary(1,1) == 1;
         assert gamer.addGameToLibrary(1,2) == 1;
+        assert gamer.addGameToLibrary(2,3) == 1;
         assert gamer.updatePlayedHours(1, 2, 10);
+        assert gamer.updatePlayedHours(0, 0, 10);
+        assert gamer.updatePlayedHours(0, 1, 10);
+        assert gamer.updatePlayedHours(2, 3, 5);
         assert gamer.addGameToLibrary(2,4) == 1;
         assert gamer.addGameToLibrary(3,4) == 1;
 
