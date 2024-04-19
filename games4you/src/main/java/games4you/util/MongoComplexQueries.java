@@ -153,9 +153,4 @@ public class MongoComplexQueries {
         return getResultAsList("hottest", pipeline);
     }
 
-    public static void main(String[] args) {
-        MongoComplexQueries m = new MongoComplexQueries();
-        System.out.println(m.mostValuableReviewersOnMostAppreciatedGames());
-    }
-
 }
