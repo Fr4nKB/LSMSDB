@@ -6,22 +6,26 @@ window.onload = function() {
         let obj = JSON.parse(jsonString);
 
         let row = table.insertRow();
+        row.onclick = function() {window.location.href = window.location.origin + "/review/" + obj.object.rid;}
         let cell = row.insertCell(0);
-
-        let game = document.createElement("a")
-        game.innerText = obj.name + ":";
-        game.href = "/game/" + obj.gid;
 
         let user = document.createElement("a")
         user.innerText = obj.uname;
         user.href = "/user/" + obj.uid;
 
-        let text = document.createTextNode(" is the top reviewer for this game with "
-            + obj.reviewCount + " reviews, " + obj.averageUpvotes + " average upvotes and " + obj.sumReports + " total reports");
+        let game = document.createElement("a")
+        game.innerText = obj.game + ",";
+        game.href = "/game/" + obj.gid;
 
-        cell.appendChild(game);
+        let text1 = document.createTextNode("is the gamer with the best review for");
+        let text2 = document.createTextNode("contributing for " +
+            (obj.revPerf/obj.upvotesMinusReports).toFixed(2) +
+            "% to make this game one of the most appreciated");
+
         cell.appendChild(user);
-        cell.appendChild(text);
+        cell.appendChild(text1);
+        cell.appendChild(game);
+        cell.appendChild(text2);
         row.appendChild(cell);
 
     });

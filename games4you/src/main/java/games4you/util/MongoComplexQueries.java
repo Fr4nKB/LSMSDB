@@ -7,6 +7,7 @@ import com.mongodb.client.model.*;
 import games4you.dbmanager.MongoManager;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -60,34 +61,59 @@ public class MongoComplexQueries {
     }
 
     /**
-     * “For the top 5 games with the highest average upvotes,
-     * who are the users that have reviewed these games,
-     * how many reviews have they made, what’s their average upvotes,
-     * and how many reports have they made?”
+     * “For the top 5 games with the highest amount of total upvotes
+     * and lowest amount of total reports, who are the users that have
+     * reviewed these games and have the highest amount of upvotes
+     * and at the same time the smallest amount of reports?”
      */
     public ArrayList<Object> mostValuableReviewersOnMostAppreciatedGames() {
 
         List<Bson> pipeline = Arrays.asList(
-                Aggregates.match(Filters.gt("numUpvotes", 0)),
-                Aggregates.unwind("$upvotes"),
-                Aggregates.group(new Document().append("gid", "$gid").append("uid", "$uid"),
-                        Accumulators.avg("averageUpvotes", "$upvotes"),
-                        Accumulators.sum("sumReports", "$reports.numRep")
+                Aggregates.group("$gid",
+                        Accumulators.sum("totalUpvotes", "$numUpvotes"),
+                        Accumulators.sum("totalReports",
+                                Projections.computed(
+                                        "$ifNull",
+                                        Arrays.asList("$reports.numRep", 0))),
+                        Accumulators.max("bestReview",
+                                Projections.fields(
+                                        Projections.computed("revPerf",
+                                                new Document("$subtract",
+                                                        Arrays.asList(
+                                                                "$numUpvotes",
+                                                                Projections.computed("$ifNull", Arrays.asList("$reports.numRep", 0))
+                                                        )
+                                                )
+                                        ),
+                                        Projections.computed("gid", "$gid"),
+                                        Projections.computed("game", "$game"),
+                                        Projections.computed("uid", "$uid"),
+                                        Projections.computed("uname", "$uname"),
+                                        Projections.computed("rid", "$rid")
+                                )
+                        )
                 ),
-                Aggregates.sort(Sorts.descending("averageUpvotes")),
+                Aggregates.addFields(
+                        new Field("upvotesMinusReports",
+                                new Document(
+                                        "$subtract",
+                                        Arrays.asList("$totalUpvotes", "$totalReports")))
+                ),
+                Aggregates.sort(
+                        Sorts.descending("upvotesMinusReports")
+                ),
                 Aggregates.limit(5),
-                Aggregates.group(new Document().append("gid", "$_id.gid").append("uid", "$_id.uid"),
-                        Accumulators.sum("reviewCount", 1),
-                        Accumulators.avg("averageUpvotes", "$averageUpvotes"),
-                        Accumulators.sum("sumReports", "$sumReports")
-                ),
-                Aggregates.sort(Sorts.descending("reviewCount")),
                 Aggregates.project(
                         Projections.fields(
                                 Projections.excludeId(),
-                                Projections.computed("uid", "$_id.uid"),
-                                Projections.computed("gid", "$_id.gid"),
-                                Projections.include("reviewCount", "averageUpvotes", "sumReports")
+                                Projections.computed("gid", "$bestReview.gid"),
+                                Projections.computed("game", "$bestReview.game"),
+                                Projections.computed("uid", "$bestReview.uid"),
+                                Projections.computed("uname", "$bestReview.uname"),
+                                Projections.computed("rid", "$bestReview.rid"),
+                                Projections.computed("upvotesMinusReports", "$upvotesMinusReports"),
+                                Projections.computed("revPerf", "$bestReview.revPerf")
+
                         )
                 )
         );
@@ -125,6 +151,11 @@ public class MongoComplexQueries {
                 Aggregates.limit(10)
         );
         return getResultAsList("hottest", pipeline);
+    }
+
+    public static void main(String[] args) {
+        MongoComplexQueries m = new MongoComplexQueries();
+        System.out.println(m.mostValuableReviewersOnMostAppreciatedGames());
     }
 
 }
