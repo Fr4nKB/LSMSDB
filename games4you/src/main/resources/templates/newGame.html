@@ -12,32 +12,38 @@
         /*]]>*/
     </script>
 
-    <div>
+    <div class="horizontal-div">
         <a href="/home">
             <img src="/images/icon.png" alt="site icon" style="width:100px; height:100px; cursor: pointer;"></a>
 
-        <img id="notif" src="/images/notification-icon.png" style="width:25px; cursor: pointer;">
-
-        <div id="notifPanel" style="display: none; background-color: white; border:1px solid black; padding:10px; max-width:500px;">
-            <table>
-                <tbody></tbody>
-            </table>
+        <div class="vertical-div">
+            <h1>ADD GAME</h1>
+            <form action="#" th:action="@{/search}" method="get">
+                <select name="type">
+                    <option value="users">Users</option>
+                    <option value="games-name">Games: by name</option>
+                    <option value="games-tags">Games: by tags</option>
+                </select>
+                <input type="text" name="query" required>
+                <input type="submit" value="Search">
+            </form>
         </div>
 
+        <div class="tight-container">
+            <img id="notif" src="/images/notification-icon.png" style="width:25px; cursor: pointer;">
+            <div id="notifPanel" style="display: none; background-color: white; border:1px solid black; padding:10px; max-width:500px;">
+                <table>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button id="logout">Logout</button>
+        </div>
+
+    </div>
+
+    <div class="horizontal-div">
         <div id="queryBtns">
         </div>
-
-        <form action="#" th:action="@{/search}" method="get">
-            <select name="type">
-                <option value="users">Users</option>
-                <option value="games-name">Games: by name</option>
-                <option value="games-tags">Games: by tags</option>
-            </select>
-            <input type="text" name="query" required>
-            <input type="submit" value="Search">
-        </form>
-
-        <button id="logout">Logout</button>
     </div>
 
     <form action="#" th:action="@{/newGame/}" method="post">

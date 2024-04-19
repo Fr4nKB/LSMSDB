@@ -4,8 +4,11 @@ body {
     font-family: 'Roboto', sans-serif; /* Use Google Font Roboto for a nerdy look */
     padding: 20px;
     display: flex;
+    width: 100%;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
+    margin: 0;
 }
 
 h1 {
@@ -14,30 +17,58 @@ h1 {
     color: #fff;
 }
 
+.vertical-div {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    justify-content: start; /* Center items vertically */
+    align-items: center;
+}
+
+.horizontal-div {
+    display: flex;
+    width: 100%;
+    justify-content: space-between; /* Center items vertically */
+    align-items: center;
+}
+
+.tight-container{
+    display: flex;
+    justify-content: center; /* Center items vertically */
+    align-items: center;
+    width: 100%;
+    margin-left: auto; /* Push to the right */
+}
+
 div {
     margin-top: 20px;
     display: flex;
-    justify-content: space-between; /* Align items and logout button */
     align-items: center; /* Vertically center items */
     width: 100%; /* Make the div full width */
-    max-width: 800px; /* Limit the maximum width */
 }
 
 form {
     display: flex;
     align-items: center;
+    justify-content: space-evenly;
+}
+
+form > * {
+    flex: 1; /* Make all direct children of .vertical_form take equal space */
+    margin: 10px 0; /* Add margin between form items */
 }
 
 select,
 input[type="text"],
 input[type="submit"],
 button {
-    padding: 12px; /* Larger padding for search bar */
+    padding: 8px; /* Adjust padding as needed */
     border: none;
     border-radius: 4px;
     color: #eee;
-    cursor: pointer; /* Add cursor pointer to clickable items */
-    transition: background-color 0.3s ease, color 0.3s ease; /* Add transition for button background color and text color change */
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: 100%; /* Set width to 100% */
+    max-width: 200px; /* Limit the maximum width if desired */
 }
 
 input[type="text"] {
@@ -108,25 +139,3 @@ a:hover {
     color: #FF4D00; /* Darker orange on hover */
 }
 
-#logout,
-button {
-    background-color: #FF6600; /* Orange logout button */
-    align-self: flex-start; /* Align logout button to the top right */
-    padding: 12px 24px; /* Increase padding for buttons */
-}
-
-#logout:hover,
-button:hover {
-    background-color: #FF4D00; /* Darker orange on hover */
-}
-
-#loadmore {
-    margin-top: 20px; /* Add margin to the load more button */
-    align-self: center; /* Center the load more button */
-    background-color: #FF6600; /* Orange load more button */
-    padding: 12px 24px; /* Increase padding for the load more button */
-}
-
-#loadmore:hover {
-    background-color: #FF4D00; /* Darker orange on hover */
-}
