@@ -6,6 +6,7 @@ export function loadSearchListTiles(jsonList) {
         let obj = JSON.parse(jsonString);
 
         let row = table.insertRow();
+        row.classList.add('clickable');
         let cell = row.insertCell(0);
 
         let name = document.createTextNode(obj.name);

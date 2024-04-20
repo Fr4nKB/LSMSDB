@@ -1,5 +1,7 @@
 import {loadData} from "./util.js";
 
+let offset = 0;
+
 function loadHomePageTiles(jsonList) {
     let table = document.getElementById('tableContent')
         .getElementsByTagName('tbody')[0];
@@ -27,6 +29,8 @@ function loadHomePageTiles(jsonList) {
         else if(obj.type === "R") {
 
             row.onclick = function() {window.location.href = window.location.origin + "/review/" + obj.object.rid;}
+            if(obj.rating === true) row.classList.add('clickable.pos');
+            else row.classList.add('clickable.neg');
 
             let gamelink = document.createElement("a");
             gamelink.href = "/game/" + obj.object.gid;
@@ -45,15 +49,14 @@ function loadHomePageTiles(jsonList) {
 
 function loadHome() {
     const url = new URL("/home/more", window.location.origin);
-    url.searchParams.append('offset', window.offset);
+    url.searchParams.append('offset', offset);
     let data = loadData(url)
         .then(data => {
-            window.offset += data.length;
+            offset += data.length;
             loadHomePageTiles(data);
         });
 }
 
-window.offset = 0;
 window.onload = function() {
     loadHome();
 }

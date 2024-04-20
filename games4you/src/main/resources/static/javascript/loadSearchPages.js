@@ -1,17 +1,18 @@
 import {loadData} from "./util.js";
 import {loadSearchListTiles} from "./loadSearchTiles.js";
 
+let offset = 0;
+
 function loadSearch() {
     const url = new URL("/search/" + window.endpoint, window.location.origin);
-    url.searchParams.append('offset', window.offset);
+    url.searchParams.append('offset', offset);
     let data = loadData(url)
         .then(data => {
-            window.offset += data.length;
+            offset += data.length;
             loadSearchListTiles(data);
         });
 }
 
-window.offset = 0;
 window.onload = function() {loadSearch();}
 const button = document.getElementById('loadmore');
 button.addEventListener('click', function() {
