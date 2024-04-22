@@ -1,8 +1,7 @@
 body {
     background-color: #111; /* Dark background */
     color: #eee; /* Light text */
-    font-family: 'Roboto', sans-serif; /* Use Google Font Roboto for a nerdy look */
-    padding: 20px;
+    font-family: 'Roboto', sans-serif;
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -27,8 +26,9 @@ h1 {
 .horizontal-div {
     display: flex;
     width: 100%;
-    justify-content: space-between; /* Center items vertically */
+    justify-content: center; /* Center items vertically */
     align-items: center;
+    margin: 0;
 }
 
 .tight-container{
@@ -36,7 +36,7 @@ h1 {
     justify-content: center; /* Center items vertically */
     align-items: center;
     width: 100%;
-    margin-left: auto; /* Push to the right */
+    margin: 0; /* Push to the right */
 }
 
 div {
@@ -77,7 +77,6 @@ input[type="text"] {
 
 select,
 input[type="text"] {
-    margin-right: 10px;
     background-color: #333; /* Dark form background */
 }
 
@@ -97,7 +96,6 @@ table {
     border-collapse: separate;
     border-spacing: 0; /* Remove vertical spacing between rows */
     width: 100%; /* Make the table full width */
-    max-width: 800px; /* Limit the maximum width */
 }
 
 /* Add cursor pointer to table rows */
@@ -124,14 +122,14 @@ td {
 
 /* Add padding to inner elements to maintain spacing */
 td > * {
-    padding: 10px; /* Add padding to inner elements */
+    padding: 4px; /* Add padding to inner elements */
 }
 
 a {
     color: #FF6600; /* Orange link color for Users and Games */
     text-decoration: none;
     transition: color 0.3s ease; /* Add transition for link color change */
-    font-size: 20px; /* Bigger text for list items */
+    font-size: 12px; /* Bigger text for list items */
 }
 
 a:hover {
