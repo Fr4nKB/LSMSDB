@@ -194,20 +194,28 @@ public class DataController {
 
     @GetMapping("/search/friends/{id}/more")
     public ArrayList<Object> friendListMore(@PathVariable("id") long uid, @RequestParam("offset") int offset,
-                                            HttpServletRequest request) {
+                                            @RequestParam("limit") int limit, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        return gamerMethods.getFriendList(uid, offset, Constants.getDefPagLim());
+        int lim;
+        if(limit != -1) lim = limit;
+        else lim = Constants.getDefPagLim();
+
+        return gamerMethods.getFriendList(uid, offset, lim);
     }
 
     @GetMapping("/search/games/{id}/more")
     public ArrayList<Object> gameListMore(@PathVariable("id") long uid, @RequestParam("offset") int offset,
-                                          HttpServletRequest request) {
+                                          @RequestParam("limit") int limit, HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
 
-        return gamerMethods.getGameList(uid, offset, Constants.getDefPagLim());
+        int lim;
+        if(limit != -1) lim = limit;
+        else lim = Constants.getDefPagLim();
+
+        return gamerMethods.getGameList(uid, offset, lim);
     }
 
 

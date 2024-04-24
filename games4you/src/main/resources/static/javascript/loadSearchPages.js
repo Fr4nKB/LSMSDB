@@ -6,6 +6,7 @@ let offset = 0;
 function loadSearch() {
     const url = new URL("/search/" + window.endpoint, window.location.origin);
     url.searchParams.append('offset', offset);
+    url.searchParams.append('limit', -1);
     let data = loadData(url)
         .then(data => {
             offset += data.length;
