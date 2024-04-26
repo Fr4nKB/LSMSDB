@@ -253,7 +253,7 @@ public class DataController {
     }
 
     @GetMapping("/evaluateReview")
-    public boolean updateHours(@RequestParam("rid") long rid, @RequestParam("judgment") boolean judgment,
+    public boolean evaluateReview(@RequestParam("rid") long rid, @RequestParam("judgment") boolean judgment,
                                HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 0) return false;    // gamers cannot evaluate reported reviews
