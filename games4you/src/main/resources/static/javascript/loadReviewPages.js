@@ -74,14 +74,11 @@ export function loadPreviewReviewTiles(jsonList) {
         game.href = "/game/" + obj.gid;
         game.text = obj.game;
 
-        let rating_str;
-        if(obj.rating === true) rating_str = " POSITEVELY"
-        else rating_str = " NEGATIVELY"
-
+        if(obj.rating === true) row.classList.add('clickable.pos');
+        else row.classList.add('clickable.neg');
 
         c1.appendChild(user);
         c1.appendChild(document.createTextNode(" HAS REVIEWED "));
         c1.appendChild(game);
-        c1.appendChild(document.createTextNode(rating_str));
     });
 }
