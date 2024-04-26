@@ -148,12 +148,9 @@ def update_played_hours(db_data):
     if len(games_list) == 0:
         return
     game = get_rnd_item(games_list)
-    print("CURRENT HOURS:", game["hours"])
     hours = random.randint(1,10)
 
-    url = DOMAIN + f'/updateHours/{game["id"]}?hours={hours}'
-    data = {'hours': hours}
-    print("HOURS:", hours)
+    url = DOMAIN + f'updateHours/{game["id"]}?hours={hours}'
     response = session.post(url)
     print("hours added for ", game["id"]," by ", rnd_user["username"])
     return response.json()
