@@ -1,6 +1,7 @@
 import requests
 import time
 import json
+import urllib.parse
 import random
 import jsonHandler as jh
 from datetime import datetime
@@ -29,7 +30,7 @@ def login_request(uname, pwd):
 
 def logout_request():
     url = DOMAIN  + 'logout' 
-    response = requests.post(url)
+    response = requests.get(url)
     return response.json()
 
 
@@ -45,12 +46,10 @@ def post_new_review(db_data):
         "content" : new_review["content"],
         "rating" : rating
     }
-    
-    alphabet = string.ascii_uppercase
-    random_letter = random.choice(alphabet)
-    offset = random.randint(0,100)
-    url = DOMAIN + f'search/game/name/{random_letter}?offset={offset}'
-    response = requests.get(url)
+
+    encoded_game_name = urllib.parse.quote(new_review["game"])
+    url = f"http://127.0.0.1:8080/search/games/name/{encoded_game_name}?offset=0"
+    response = requests.get(url, data=data_review)
     games_list = [json.loads(json_str) for json_str in response]
     if len(games_list) == 0:
         return
@@ -98,15 +97,30 @@ def add_game_to_library(db_data):
     return response
 
 
-""" def upvote_review(db_data):
+def upvote_review(db_data):
     rnd_user = get_rnd_item(db_data["users"])
     login_request(rnd_user["uname"], rnd_user["pwd"])
 
     review = get_rnd_item(db_data["reviews"])
 
-    url = DOMAIN + f'upvoteReview/{review["rid"]}' 
+    alphabet = string.ascii_uppercase
+    random_letter = random.choice(alphabet)
+    offset = random.randint(0,100)
+    url = DOMAIN + f'search/game/name/{random_letter}?offset={offset}'
     response = requests.get(url)
-    return response.json() """
+    games_list = [json.loads(json_str) for json_str in response]
+    if len(games_list) == 0:
+        return
+    
+    url = DOMAIN + f'game/reviews/?{games_list[0]["id"]}=<>&offset=0'
+    response = requests.get(url)
+    reviews_list = [json.loads(json_str) for json_str in response]
+    if len(reviews_list) == 0:
+        return
+
+    url = DOMAIN + f'upvoteReview/{reviews_list[0]["id"]}' 
+    response = requests.get(url)
+    return response.json()
 
 
 def update_played_hours(db_data):
@@ -134,6 +148,7 @@ def send_random_request(domain,requests, db_data):
 
     request_list[index](domain, db_data)
     logout_request()
+
 
 if __name__ == "__main__":
     requests = [
