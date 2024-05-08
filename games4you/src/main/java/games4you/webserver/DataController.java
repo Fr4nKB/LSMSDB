@@ -54,7 +54,6 @@ public class DataController {
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
-        System.out.println(game);
         return gamerMethods.browseGamesByName(game, offset, Constants.getDefPagLim());
     }
 

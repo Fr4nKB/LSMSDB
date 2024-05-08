@@ -28,7 +28,6 @@ def login_request(uname, pwd):
     data = {'uname': uname, 'pwd': pwd}
     response = session.post(url, data=data)
     print("LOGIN RESPONSE::" , response.url)
-    return requests
 
 
 def logout_request():
@@ -44,7 +43,7 @@ def post_new_review(db_data):
 
     new_review = get_mov_rnd_item(db_data["reviews"], db_data["reviews_sent"])
 
-    rating = "on" if  new_review["rating"] else  "off"
+    rating = "on" if new_review["rating"] else  "off"
 
     data_review = {
         "content" : new_review["content"],
@@ -57,15 +56,10 @@ def post_new_review(db_data):
     games_list = [json.loads(json_str) for json_str in response.json()]
     if len(games_list) == 0:
         return
-        
-    print(games_list)
 
     url = DOMAIN + f'newReview/{games_list[0]["id"]}'
-    
-    print(data_review)
     response = session.post(url, data=data_review)
-    
-    print("review ", new_review["username"]," posted for game: ", games_list[0]["id"], " ")
+    print("review ", rnd_user["username"]," posted for game: ", games_list[0]["id"], " ")
     return response
 
 
@@ -97,17 +91,14 @@ def add_game_to_library(db_data):
     alphabet = string.ascii_uppercase
     random_letter = random.choice(alphabet)
     offset = random.randint(0,100)
-    url = DOMAIN + f'search/game/name/{random_letter}?offset={offset}'
+    url = DOMAIN + f'search/games/name/{random_letter}?offset={offset}'
     response = session.get(url)
-    games_list = [json.loads(json_str) for json_str in response]
+    games_list = [json.loads(json_str) for json_str in response.json()]
     if len(games_list) == 0:
         return
-	
-    print(games_list)
 
     url = DOMAIN + f'addGame/{games_list[0]["id"]}' 
     response = session.get(url)
-    print("game ", games_list[0]["id"]," added to library of ", rnd_user["uname"])
     return response
 
 
@@ -119,26 +110,24 @@ def upvote_review(db_data):
 
     alphabet = string.ascii_uppercase
     random_letter = random.choice(alphabet)
-    print(random_letter)
     offset = random.randint(0,50)
-    url = DOMAIN + f'search/game/name/{random_letter}?offset={offset}'
-    print(url)
+    url = DOMAIN + f'search/games/name/{random_letter}?offset={offset}'
     response = session.get(url)
-    games_list = [json.loads(json_str) for json_str in response]
+    games_list = [json.loads(json_str) for json_str in response.json()]
     if len(games_list) == 0:
         return
-        
-    print("games_list: " ,games_list)
     
-    url = DOMAIN + f'game/reviews/?{games_list[0]["id"]}=<>&offset=0'
+    url = DOMAIN + f'game/reviews/'
+    params = urllib.parse.urlencode({'gid': games_list[0]["id"], 'offset': 0})
+    url = f"{url}?{params}"
     response = session.get(url)
-    reviews_list = [json.loads(json_str) for json_str in response]
+    reviews_list = [json.loads(json_str) for json_str in response.json()]
     if len(reviews_list) == 0:
         return
 
-    url = DOMAIN + f'upvoteReview/{reviews_list[0]["id"]}' 
+    url = DOMAIN + f'upvoteReview/{reviews_list[0]["rid"]}' 
     response = session.get(url)
-    print("review ", reviews_list[0]["id"]," upvoted by ", rnd_user["uname"])
+    print("review ", reviews_list[0]["rid"]," upvoted by ", rnd_user["username"])
     return response.json()
 
 
@@ -174,18 +163,14 @@ def send_random_request(requests_tuples, db_data):
 
 
 if __name__ == "__main__":
-    """requests_tuples = [
+    requests_tuples = [
         (post_new_game,       0.05),
         (post_new_review,     0.1),
         (add_game_to_library, 0.3),
         (upvote_review,       0.15),
         (update_played_hours, 0.4)
-    ]"""
-    
-    requests_tuples = [
-        (add_game_to_library,       1)
     ]
-
+    
     users = jh.loadJSON("./final", "userDB")[0]
     games = jh.loadJSON("./final", "new_gameDB")[0]
     reviews = jh.loadJSON("./final", "cur_reviewDB")[0]
