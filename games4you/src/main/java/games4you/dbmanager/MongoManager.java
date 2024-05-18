@@ -37,7 +37,7 @@ public class MongoManager implements AutoCloseable {
         catch (Exception e) {
             throw new RuntimeException("Database configuration not loaded");
         }
-        client = MongoClients.create(new ConnectionString(prop.getProperty("mongoUriSingle")));
+        client = MongoClients.create(new ConnectionString(prop.getProperty("mongoUriRemote")));
         database = client.getDatabase(prop.getProperty("mongoDatabaseName"));
 
         // weekly hottest games index: ensures records older than 7 days are deleted
