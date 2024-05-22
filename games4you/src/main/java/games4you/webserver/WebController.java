@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.awt.desktop.SystemSleepEvent;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,11 +86,11 @@ public class WebController {
 
         ModelAndView mod;
         if(ret[1] == 0) {
-            mod = new ModelAndView("home");
+            mod = new ModelAndView("home.html");
             mod.addObject("uid", ret[0]);
         }
         else if(ret[1] == 1) {
-            mod = new ModelAndView("homeAdmin");
+            mod = new ModelAndView("homeAdmin.html");
             mod.addObject("uid", null);
         }
         else return null;
@@ -114,7 +115,7 @@ public class WebController {
         String json = gamerMethods.showUser(uid);
         if(json == null) return null;
 
-        ModelAndView mod = new ModelAndView("user");
+        ModelAndView mod = new ModelAndView("user.html");
         if(ret[1] == 1) mod.addObject("uid", null);
         else if(ret[1] == 0) mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
@@ -138,7 +139,7 @@ public class WebController {
         String json = gamerMethods.showGame(gid);
         if(json == null) return null;
 
-        ModelAndView mod = new ModelAndView("game");
+        ModelAndView mod = new ModelAndView("game.html");
         if(ret[1] == 1) mod.addObject("adm", true);
 
         if(ret[1] == 1) mod.addObject("uid", null);
@@ -155,7 +156,7 @@ public class WebController {
         String json = gamerMethods.showReview(rid);
         if(json == null) return null;
 
-        ModelAndView mod = new ModelAndView("review");
+        ModelAndView mod = new ModelAndView("review.html");
         if(ret[1] == 1) mod.addObject("adm", true);
 
         if(ret[1] == 1) mod.addObject("uid", null);
@@ -168,7 +169,7 @@ public class WebController {
     @GetMapping("/search")
     public ModelAndView search(@RequestParam("type") String type, @RequestParam("query") String query,
                                HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("search");
+        ModelAndView mod = new ModelAndView("search.html");
 
         if(!Authentication.isName(query)) return null;
         String[] parts = type.split("-");
@@ -188,7 +189,7 @@ public class WebController {
 
     @GetMapping("/search/friends/{id}")
     public ModelAndView friendList(@PathVariable("id") long id, HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("search");
+        ModelAndView mod = new ModelAndView("search.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;
@@ -214,7 +215,7 @@ public class WebController {
 
     @GetMapping("/recom/{choice}")
     public ModelAndView recom(@PathVariable("choice") int choice, HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("recom");
+        ModelAndView mod = new ModelAndView("recom.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 1) return null;     // admins cannot have game recommendations
@@ -234,7 +235,7 @@ public class WebController {
 
     @GetMapping("/newReview/{id}")
     public ModelAndView newReview(@PathVariable("id") long gid, HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("newReview");
+        ModelAndView mod = new ModelAndView("newReview.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 1) return null;     // admins cannot write reviews
@@ -277,7 +278,7 @@ public class WebController {
 
     @GetMapping("/newGame/")
     public ModelAndView newGame(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("newGame");
+        ModelAndView mod = new ModelAndView("newGame.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
@@ -319,7 +320,7 @@ public class WebController {
 
     @GetMapping("/haters/")
     public ModelAndView haters(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("haters");
+        ModelAndView mod = new ModelAndView("haters.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
@@ -331,7 +332,7 @@ public class WebController {
 
     @GetMapping("/bestReviewers/")
     public ModelAndView mvr(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("mvr");
+        ModelAndView mod = new ModelAndView("mvr.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;     // gamers cannot create new games
@@ -343,7 +344,7 @@ public class WebController {
 
     @GetMapping("/hottestGames/")
     public ModelAndView hottest(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("hottest");
+        ModelAndView mod = new ModelAndView("hottest.html");
 
         long[] ret = sesManager.isUserAdmin(request);
         if(ret == null) return null;     // gamers cannot create new games
