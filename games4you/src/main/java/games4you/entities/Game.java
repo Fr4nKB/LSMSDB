@@ -36,7 +36,7 @@ public class Game {
         }
 
         //check if game already present
-        if (mongo.findDocumentByKeyValue("games", "name", game_name).hasNext()) return false;
+        if (mongo.findDocumentsByKeyValue("games", "name", game_name).hasNext()) return false;
 
         mongo.addDoc("games", game);
 

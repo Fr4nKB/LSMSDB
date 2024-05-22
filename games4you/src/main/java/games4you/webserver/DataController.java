@@ -40,7 +40,7 @@ public class DataController {
     }
 
     @GetMapping("/search/users/{user}")
-    public ArrayList<Object> searchMoreUsers(@PathVariable("user") String user,
+    public ArrayList<String> searchMoreUsers(@PathVariable("user") String user,
                                              @RequestParam("offset") int offset,
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
@@ -49,7 +49,7 @@ public class DataController {
     }
 
     @GetMapping("/search/games/name/{game}")
-    public ArrayList<Object> searchMoreGamesByName(@PathVariable("game") String game,
+    public ArrayList<String> searchMoreGamesByName(@PathVariable("game") String game,
                                              @RequestParam("offset") int offset,
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
@@ -58,7 +58,7 @@ public class DataController {
     }
 
     @GetMapping("/search/games/tags/{tag}")
-    public ArrayList<Object> searchMoreGamesByTags(@PathVariable("tag") String tag,
+    public ArrayList<String> searchMoreGamesByTags(@PathVariable("tag") String tag,
                                                    @RequestParam("offset") int offset,
                                                    HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
@@ -67,7 +67,7 @@ public class DataController {
     }
 
     @GetMapping("/user/reviews/")
-    public ArrayList<Object> loadMoreUserReviews(@RequestParam("uid") long uid,
+    public ArrayList<String> loadMoreUserReviews(@RequestParam("uid") long uid,
                                              @RequestParam("offset") int offset,
                                              HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);
@@ -76,7 +76,7 @@ public class DataController {
     }
 
     @GetMapping("/game/reviews/")
-    public ArrayList<Object> loadMoreGameReviews(@RequestParam("gid") long gid,
+    public ArrayList<String> loadMoreGameReviews(@RequestParam("gid") long gid,
                                                  @RequestParam("offset") int offset,
                                                  HttpServletRequest request) {
         long[] ret = sesManager.isUserAdmin(request);

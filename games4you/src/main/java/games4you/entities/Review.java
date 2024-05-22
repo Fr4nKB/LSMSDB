@@ -12,7 +12,6 @@ import games4you.dbmanager.Neo4jManager;
 import org.bson.BsonDocument;
 import org.bson.Document;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +109,7 @@ public class Review {
         MongoManager mongo = MongoManager.getInstance();
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("reviews", "rid", rid);
         if(!cur.hasNext()) return false;
 
         Document review = cur.next();

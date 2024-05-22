@@ -25,7 +25,7 @@ public class Neo4jManager implements AutoCloseable{
         catch (Exception e) {
             throw new RuntimeException("Database configuration not loaded");
         }
-        driver = GraphDatabase.driver(prop.getProperty("neo4jUriRemote"),
+        driver = GraphDatabase.driver(prop.getProperty("neo4jUriLocal"),
                 AuthTokens.basic(prop.getProperty("neo4jUsername"), prop.getProperty("neo4jPassword")));
     }
 

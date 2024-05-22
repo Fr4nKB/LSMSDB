@@ -13,7 +13,6 @@ import com.mongodb.client.result.InsertOneResult;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.neo4j.driver.Result;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -37,13 +36,9 @@ public class MongoManager implements AutoCloseable {
         catch (Exception e) {
             throw new RuntimeException("Database configuration not loaded");
         }
-        client = MongoClients.create(new ConnectionString(prop.getProperty("mongoUriRemote")));
+        client = MongoClients.create(new ConnectionString(prop.getProperty("mongoUriLocal")));
         database = client.getDatabase(prop.getProperty("mongoDatabaseName"));
 
-        // weekly hottest games index: ensures records older than 7 days are deleted
-        long secondsIn7Days = TimeUnit.DAYS.toSeconds(7);
-        IndexOptions indexOptions = new IndexOptions().expireAfter(secondsIn7Days, TimeUnit.SECONDS);
-        getCollection("hottest").createIndex(Indexes.ascending("updatedAt"), indexOptions);
     }
 
     @Override
@@ -84,7 +79,7 @@ public class MongoManager implements AutoCloseable {
         return doc.toBsonDocument(BsonDocument.class, database.getCodecRegistry());
     }
 
-    public MongoCursor<Document> findDocumentByKeyValue(String collection, String key, Object value) {
+    public MongoCursor<Document> findDocumentsByKeyValue(String collection, String key, Object value) {
 
         //Preliminary collection set
         currentCollection = getCollection(collection);

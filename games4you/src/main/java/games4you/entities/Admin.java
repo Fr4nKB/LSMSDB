@@ -31,7 +31,7 @@ public class Admin extends User {
         Neo4jManager neo4j = Neo4jManager.getInstance();
 
         // retrieve user to ban (blacklist) him/her
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uid", uid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("users", "uid", uid);
         if(!cur.hasNext()) return false;
 
         Document user = cur.next();

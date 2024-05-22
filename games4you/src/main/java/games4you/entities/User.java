@@ -3,16 +3,20 @@ package games4you.entities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import games4you.util.Authentication;
 import games4you.util.Constants;
 import org.bson.Document;
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class User {
@@ -22,21 +26,39 @@ public class User {
         return neo4j.getQueryResultAsList(query);
     }
 
-    private ArrayList<Object> getReviewList(String node_type, long id, int offset, int limit) {
+    private ArrayList<String> getReviewList(String node_type, long id, int offset, int limit) {
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String relation;
-        if(Objects.equals(node_type, "Game")) relation = "HAS_REVIEW";
-        else if(Objects.equals(node_type, "User")) relation = "HAS_WROTE";
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("reviews");
+        String key_value;
+        if(Objects.equals(node_type, "User")) {
+            key_value = "uid";
+        }
+        else if (Objects.equals(node_type, "Game")) {
+            key_value = "gid";
+        }
         else return null;
 
-        String query = String.format("""
-                        MATCH (:%s {id: %d})-[:%s]->(b:Review)
-                        RETURN {rid: b.id, gid: b.gid, uid: b.uid, game: b.game, uname: b.uname, rating: b.rating} AS result
-                        ORDER BY b.creation DESC SKIP %d LIMIT %d""",
-                node_type, id, relation, offset, limit);
-        return getRelationshipList(query);
+        FindIterable<Document> result = coll.find(Filters.eq(key_value, id))
+                .projection(Projections.exclude("_id", "creation_date", "content", "numUpvotes", "upvotes"))
+                .sort(Sorts.descending("creation_date"))
+                .skip(offset).limit(limit);
+
+        ArrayList<String> reviews = new ArrayList<>();
+        for (Document doc : result) {
+            long rid = doc.getLong("rid");
+            long uid = doc.getLong("uid");
+            long gid = doc.getLong("gid");
+            String uname = doc.getString("uname");
+            String game = doc.getString("game");
+            boolean rating = doc.getBoolean("rating");
+            reviews.add("{\"rid\": \"" + rid + "\", \"gid\": \"" + gid + "\", \"uid\": \"" + uid
+                    + "\", \"uname\": \"" + uname + "\", \"game\": \"" + game + "\", \"rating\": \"" + rating + "\"}");
+        }
+
+        return reviews;
     }
 
     /**
@@ -76,7 +98,7 @@ public class User {
         user.append("uname", uname);
 
         //check if username already in use
-        if(mongo.findDocumentByKeyValue("users", "uname", uname).hasNext()) return false;
+        if(mongo.findDocumentsByKeyValue("users", "uname", uname).hasNext()) return false;
 
         //check if username and password contain allowed characters
         if(!(Authentication.isName(uname) && Authentication.isPassword(pwd))) return false;
@@ -120,7 +142,7 @@ public class User {
         //check if username and password contain allowed characters
         if(!(Authentication.isName(uname) && Authentication.isPassword(pwd))) return null;
 
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uname", uname);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("users", "uname", uname);
         if(cur.hasNext()) {
             Document user = cur.next();
             if(!Authentication.verifyHash(user.getString("pwd"), pwd)) return null;
@@ -162,11 +184,11 @@ public class User {
         return getRelationshipList(query);
     }
 
-    public ArrayList<Object> getGameReviewList(long gid, int offset) {
+    public ArrayList<String> getGameReviewList(long gid, int offset) {
         return getReviewList("Game", gid, offset, Constants.getDefPagLim());
     }
 
-    public ArrayList<Object> getUserReviewList(long uid, int offset) {
+    public ArrayList<String> getUserReviewList(long uid, int offset) {
         return getReviewList("User", uid, offset, Constants.getDefPagLim());
     }
 
@@ -241,51 +263,68 @@ public class User {
     }
 
 
-    public ArrayList<Object> browseUsers(String username, int offset, int limit) {
+    public ArrayList<String> browseUsers(String username, int offset, int limit) {
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String query = String.format("""
-                        MATCH (u:User) WHERE ToLower(u.uname) CONTAINS ToLower('%s')
-                        RETURN {type: \"U\", id: u.id, name: u.uname}
-                        SKIP %d LIMIT %d""",
-                username, offset, limit);
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("users");
+        FindIterable<Document> result = coll.find(Filters.regex("uname", username, "i"))
+                .projection(Projections.include("uid", "uname"))
+                .skip(offset).limit(limit);
 
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        return neo4j.getQueryResultAsList(query);
+        ArrayList<String> users = new ArrayList<>();
+        for (Document doc : result) {
+            long uid = doc.getLong("uid");
+            String uname = doc.getString("uname");
+            users.add("{\"type\": \"U\", \"id\": \"" + uid + "\", \"name\": \"" + uname + "\"}");
+        }
+        return users;
     }
 
-    private ArrayList<Object> browseGames(String key, String key_value, int offset, int limit){
+    private ArrayList<String> browseGames(String key, String key_value, int offset, int limit){
         if(limit <= 0) return null;
         if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
 
-        String query;
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("games");
+        FindIterable<Document> result;
         if(key.equals("name")) {
-            query = String.format("""
-                            MATCH (g:Game) WHERE ToLower(g.name) CONTAINS ToLower("%s")
-                            RETURN {type: \"G\", id: g.id, name: g.name}
-                            SKIP %d LIMIT %d""",
-                    key_value, offset, limit);
+            result = coll.find(Filters.regex(key, key_value, "i"))
+                    .projection(Projections.include("gid", "name"))
+                    .skip(offset).limit(limit);
+
         }
         else if(key.equals("tags")) {
-            query = String.format("""
-                            MATCH (g:Game)
-                                 WHERE ANY(tag IN g.tags WHERE ToLower(tag) CONTAINS ToLower("%s"))
-                                 RETURN {type: \"G\", id: g.id, name: g.name, tags: g.tags}
-                                 SKIP %d LIMIT %d""",
-                    key_value, offset, limit);
+            result = coll.find(Filters.regex(key, key_value, "i"))
+                    .projection(Projections.include("gid", "name", "tags"))
+                    .skip(offset).limit(limit);
         }
         else return null;
 
-        Neo4jManager neo4j = Neo4jManager.getInstance();
-        return neo4j.getQueryResultAsList(query);
+        ArrayList<String> games = new ArrayList<>();
+        for (Document doc : result) {
+            long gid = doc.getLong("gid");
+            String name = doc.getString("name");
+
+            String toAdd = "{\"type\": \"G\", \"id\": \"" + gid + "\", \"name\": \"" + name + "\"";
+            if(key.equals("tags")) {
+                ArrayList<Object> tags = (ArrayList<Object>) doc.get("tags");
+                String tagsJsonArray = new JSONArray(tags).toString();  // Convert list to JSON array string
+                toAdd = toAdd.concat(", \"tags\": " + tagsJsonArray);
+            }
+            toAdd = toAdd.concat("}");
+
+            games.add(toAdd);
+        }
+        return games;
     }
 
-    public ArrayList<Object> browseGamesByName(String name, int offset, int limit) {
+    public ArrayList<String> browseGamesByName(String name, int offset, int limit) {
         return browseGames("name", name, offset, limit);
     }
 
-    public ArrayList<Object> browseGamesByTags(String tag, int offset, int limit) {
+    public ArrayList<String> browseGamesByTags(String tag, int offset, int limit) {
         return browseGames("tags", tag, offset, limit);
     }
 

@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import games4you.dbmanager.MongoManager;
 import games4you.dbmanager.Neo4jManager;
 import games4you.util.Constants;
 import org.bson.Document;
-import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,7 +70,7 @@ public class Gamer extends User {
     public String checkReviewRelationship(long uid, long rid) {
         MongoManager mongo = MongoManager.getInstance();
 
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("reviews", "rid", rid);
         if(!cur.hasNext()) return "{}";
         Document review = cur.next();
 
@@ -191,7 +189,7 @@ public class Gamer extends User {
         MongoManager mongo = MongoManager.getInstance();
 
         //retrieve review
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("reviews", "rid", rid);
         if(!cur.hasNext()) return false;
 
         Document review = cur.next();
@@ -230,7 +228,7 @@ public class Gamer extends User {
 
         MongoManager mongo = MongoManager.getInstance();
         //retrieve review
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("reviews", "rid", rid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("reviews", "rid", rid);
         if(!cur.hasNext()) return false;
 
         Document review = cur.next();
@@ -324,7 +322,7 @@ public class Gamer extends User {
 
     public String retrieveUname(long uid) {
         MongoManager mongo = MongoManager.getInstance();
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("users", "uid", uid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("users", "uid", uid);
         if(!cur.hasNext()) return null;
         else {
             Document user = cur.next();
@@ -334,7 +332,7 @@ public class Gamer extends User {
 
     public String retrieveGameName(long gid) {
         MongoManager mongo = MongoManager.getInstance();
-        MongoCursor<Document> cur = mongo.findDocumentByKeyValue("games", "gid", gid);
+        MongoCursor<Document> cur = mongo.findDocumentsByKeyValue("games", "gid", gid);
         if(!cur.hasNext()) return null;
         else {
             Document game = cur.next();
