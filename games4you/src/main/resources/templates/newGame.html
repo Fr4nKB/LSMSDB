@@ -13,13 +13,13 @@
     </script>
 
     <div class="horizontal-div">
-        <a href="/home">
+        <a href="/home" class="left-div">
             <img src="/images/icon.png" alt="site icon" style="width:100px; height:100px; cursor: pointer;"></a>
 
-        <div class="vertical-div">
-            <h1>ADD GAME</h1>
+        <div class="vertical-div middle-div">
+            <h1>WELCOME</h1>
             <form action="#" th:action="@{/search}" method="get">
-                <select name="type">
+                <select name="type" style="width: 140px">
                     <option value="users">Users</option>
                     <option value="games-name">Games: by name</option>
                     <option value="games-tags">Games: by tags</option>
@@ -29,9 +29,10 @@
             </form>
         </div>
 
-        <div class="tight-container">
-            <img id="notif" src="/images/notification-icon.png" style="width:25px; cursor: pointer;">
-            <div id="notifPanel" style="display: none; background-color: white; border:1px solid black; padding:10px; max-width:500px;">
+        <div class="tight-container right-div">
+            <img id="userPage" src="/images/user-icon.svg" alt="" class="topbarImgs">
+            <img id="notif" src="/images/notification-icon.png" alt="" class="topbarImgs">
+            <div id="notifPanel">
                 <table>
                     <tbody></tbody>
                 </table>
@@ -42,7 +43,7 @@
     </div>
 
     <div class="horizontal-div">
-        <div id="queryBtns">
+        <div id="queryBtns" class="centeredBtns">
         </div>
     </div>
 

@@ -88,6 +88,11 @@ logoutBtn.addEventListener('click', function() {
 });
 
 if(window.logged_id != null) {  // user is not an admin
+    let userPage = document.getElementById('userPage');
+    userPage.onclick = function() {
+        window.location.href = window.location.origin + "/user/" + window.logged_id;
+    };
+
     let notifBtn = document.getElementById('notif');
     notifBtn.onclick = function() {
         if(panel.style.display !== "table") {

@@ -7,7 +7,6 @@ import com.mongodb.client.model.*;
 import games4you.dbmanager.MongoManager;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -124,7 +123,10 @@ public class MongoComplexQueries {
     public ArrayList<Object> top10HottestGamesOfWeek() {
 
         List<Bson> pipeline = Arrays.asList(
-                Aggregates.group(new Document().append("gid", "$gid").append("name", "$name"),
+                Aggregates.group(
+                        new Document()
+                                .append("gid", "$gid")
+                                .append("name", "$name"),
                         Accumulators.sum("totalHours", "$hrs"),
                         Accumulators.addToSet("uniqueUids", "$uid") // accumulate unique uids
                 ),
@@ -143,11 +145,17 @@ public class MongoComplexQueries {
                                 Projections.computed("score",
                                         new Document("$add",
                                                 Arrays.asList(new Document("$multiply", Arrays.asList("$totalHours", 0.4)),
-                                                        new Document("$multiply", Arrays.asList("$playerCount", 0.6))))),
+                                                        new Document("$multiply", Arrays.asList("$playerCount", 0.6)
+                                                        )
+                                                )
+                                        )
+                                ),
                                 Projections.excludeId()
                         )
                 ),
-                Aggregates.sort(Sorts.descending("score")),
+                Aggregates.sort(
+                        Sorts.descending("score")
+                ),
                 Aggregates.limit(10)
         );
         return getResultAsList("hottest", pipeline);
@@ -155,20 +163,31 @@ public class MongoComplexQueries {
 
     public ArrayList<Object> getTop10CatchyGames() {
         List<Bson> pipeline = Arrays.asList(
-                Aggregates.group(new Document().append("gid", "$gid").append("uid", "$uid").append("name", "$name"),
+                Aggregates.group(
+                        new Document()
+                                .append("gid", "$gid")
+                                .append("uid", "$uid")
+                                .append("name", "$name"),
                         Accumulators.sum("totalHours", "$hrs")
                 ),
                 Aggregates.group(
                         new Document("uid", "$_id.uid"),
                         Accumulators.sum("totalGames", 1),
                         Accumulators.sum("playerHours", "$totalHours"),
-                        Accumulators.addToSet("games", new Document().append("gid", "$_id.gid").append("name", "$_id.name"))
+                        Accumulators.addToSet("games", new Document().append("gid", "$_id.gid").append("name", "$_id.name")
+                        )
                 ),
-                Aggregates.match(Filters.eq("totalGames", 1)),
+                Aggregates.match(
+                        Filters.eq("totalGames", 1)
+                ),
                 Aggregates.unwind("$games"),
-                Aggregates.group(new Document().append("gid", "$games.gid").append("name", "$games.name"),
-                        Accumulators.sum("gameHours", "$playerHours")),
-                Aggregates.sort(Sorts.descending("gameHours")),
+                Aggregates.group(
+                        new Document().append("gid", "$games.gid").append("name", "$games.name"),
+                        Accumulators.sum("gameHours", "$playerHours")
+                ),
+                Aggregates.sort(
+                        Sorts.descending("gameHours")
+                ),
                 Aggregates.limit(10),
                 Aggregates.project(
                         Projections.fields(

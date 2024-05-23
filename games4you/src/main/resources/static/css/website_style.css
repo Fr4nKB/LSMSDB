@@ -18,8 +18,8 @@ h1 {
 
 .vertical-div {
     display: flex;
-    flex-direction: column; /* Arrange items vertically */
-    justify-content: start; /* Center items vertically */
+    flex-direction: column;
+    justify-content: start;
     align-items: center;
 }
 
@@ -33,17 +33,17 @@ h1 {
 
 .tight-container{
     display: flex;
-    justify-content: center; /* Center items vertically */
+    justify-content: center;
     align-items: center;
     width: 100%;
-    margin: 0; /* Push to the right */
+    margin: 0;
 }
 
 div {
     margin-top: 20px;
     display: flex;
-    align-items: center; /* Vertically center items */
-    width: 100%; /* Make the div full width */
+    align-items: center;
+    width: 100%;
 }
 
 form {
@@ -54,17 +54,19 @@ form {
 
 form > * {
     flex: 1; /* Make all direct children of .vertical_form take equal space */
-    margin: 10px 0; /* Add margin between form items */
+    margin: 10px 0px;
 }
 
 select,
 input[type="text"],
+input[type="password"],
 input[type="submit"],
 button {
     padding: 8px; /* Adjust padding as needed */
     border: none;
     border-radius: 4px;
     color: #eee;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     width: 100%; /* Set width to 100% */
@@ -76,7 +78,8 @@ input[type="text"] {
 }
 
 select,
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
     background-color: #333; /* Dark form background */
 }
 
@@ -129,11 +132,85 @@ a {
     color: #FF6600; /* Orange link color for Users and Games */
     text-decoration: none;
     transition: color 0.3s ease; /* Add transition for link color change */
-    font-size: 12px; /* Bigger text for list items */
+    font-size: 12pt;
 }
 
 a:hover {
     text-decoration: underline;
     color: #FF4D00; /* Darker orange on hover */
 }
+
+.pos:hover {
+    background-color: rgba(0, 255, 0, 0.3); /* Highlight whole row on hover */
+}
+
+.neg:hover {
+    background-color: rgba(255, 0, 0, 0.3); /* Highlight whole row on hover */
+}
+
+.left-div, .right-div {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.centeredBtns {
+    margin-top: 20px;
+    align-items: stretch;
+    width: auto;
+}
+
+.centeredBtns > * {
+    margin: 0 15px 0;
+    font-size: 12pt;
+}
+
+#logout {
+    margin: 0 10px 0;
+    height: 35px;
+    width: 100px;
+}
+
+.topbarImgs {
+    width: 30px;
+    margin-right: 10px;
+    cursor: pointer;
+    background-color: #FF6600;
+    border-radius: 25%;
+}
+
+#notifPanel {
+    display: none;
+    background-color: white;
+    border:1px solid black;
+    padding:10px;
+    max-width:500px;
+}
+
+#loadmore {
+    margin-bottom: 25px;
+}
+
+.popup {
+    display: none;
+    background-color: #111111;
+    border: 1px solid black;
+    padding: 25px;
+    width: 300px;
+    max-height: calc(100% - 50px);
+    overflow: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+}
+
+#header_image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 50px 0;
+}
+
+
 

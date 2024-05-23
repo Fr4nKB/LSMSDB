@@ -16,7 +16,6 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 public class User {
@@ -59,6 +58,45 @@ public class User {
         }
 
         return reviews;
+    }
+
+
+    private ArrayList<String> browseGames(String key, String key_value, int offset, int limit){
+        if(limit <= 0) return null;
+        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
+
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("games");
+        FindIterable<Document> result;
+        if(key.equals("name")) {
+            result = coll.find(Filters.regex(key, key_value, "i"))
+                    .projection(Projections.include("gid", "name"))
+                    .skip(offset).limit(limit);
+
+        }
+        else if(key.equals("tags")) {
+            result = coll.find(Filters.regex(key, key_value, "i"))
+                    .projection(Projections.include("gid", "name", "tags"))
+                    .skip(offset).limit(limit);
+        }
+        else return null;
+
+        ArrayList<String> games = new ArrayList<>();
+        for (Document doc : result) {
+            long gid = doc.getLong("gid");
+            String name = doc.getString("name");
+
+            String toAdd = "{\"type\": \"G\", \"id\": \"" + gid + "\", \"name\": \"" + name + "\"";
+            if(key.equals("tags")) {
+                ArrayList<Object> tags = (ArrayList<Object>) doc.get("tags");
+                String tagsJsonArray = new JSONArray(tags).toString();  // Convert list to JSON array string
+                toAdd = toAdd.concat(", \"tags\": " + tagsJsonArray);
+            }
+            toAdd = toAdd.concat("}");
+
+            games.add(toAdd);
+        }
+        return games;
     }
 
     /**
@@ -280,44 +318,6 @@ public class User {
             users.add("{\"type\": \"U\", \"id\": \"" + uid + "\", \"name\": \"" + uname + "\"}");
         }
         return users;
-    }
-
-    private ArrayList<String> browseGames(String key, String key_value, int offset, int limit){
-        if(limit <= 0) return null;
-        if(limit > Constants.getMaxPagLim()) limit = Constants.getMaxPagLim();
-
-        MongoManager mongo = MongoManager.getInstance();
-        MongoCollection<Document> coll = mongo.getCollection("games");
-        FindIterable<Document> result;
-        if(key.equals("name")) {
-            result = coll.find(Filters.regex(key, key_value, "i"))
-                    .projection(Projections.include("gid", "name"))
-                    .skip(offset).limit(limit);
-
-        }
-        else if(key.equals("tags")) {
-            result = coll.find(Filters.regex(key, key_value, "i"))
-                    .projection(Projections.include("gid", "name", "tags"))
-                    .skip(offset).limit(limit);
-        }
-        else return null;
-
-        ArrayList<String> games = new ArrayList<>();
-        for (Document doc : result) {
-            long gid = doc.getLong("gid");
-            String name = doc.getString("name");
-
-            String toAdd = "{\"type\": \"G\", \"id\": \"" + gid + "\", \"name\": \"" + name + "\"";
-            if(key.equals("tags")) {
-                ArrayList<Object> tags = (ArrayList<Object>) doc.get("tags");
-                String tagsJsonArray = new JSONArray(tags).toString();  // Convert list to JSON array string
-                toAdd = toAdd.concat(", \"tags\": " + tagsJsonArray);
-            }
-            toAdd = toAdd.concat("}");
-
-            games.add(toAdd);
-        }
-        return games;
     }
 
     public ArrayList<String> browseGamesByName(String name, int offset, int limit) {

@@ -11,8 +11,6 @@ async function mngUser() {
     let par = panel.children[0];
     let btn = panel.children[1];
 
-    console.log(jsonData);
-
     if(Object.keys(jsonData).length === 0 || jsonData.length === 0) {    // not friend, not pending
         par.innerHTML = "You are not friends";
         btn.innerHTML = "SEND FRIEND REQUEST";
@@ -112,7 +110,7 @@ function loadUserPage() {
     document.getElementById('datebirth').innerText = "Date of birth: " + obj.datebirth;
 
     let btn_div =
-        document.getElementById("mngButtons");
+        document.getElementById("listButtons");
 
     if(window.logged_id !== null) {
         if(window.page_id !== window.logged_id) {
@@ -140,8 +138,6 @@ function loadUserPage() {
         b1.onclick = function(){ban()};
         btn_div.appendChild(b1);
     }
-
-    btn_div = document.getElementById("listButtons");
 
     let b1 = document.createElement('button');
     b1.innerHTML = 'FRIEND LIST';
