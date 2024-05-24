@@ -49,11 +49,14 @@
         </div>
     </div>
 
-    <form action="#" th:action="@{/newReview/{id}(id=${gid})}" method="post">
-        <input type="hidden" th:value="${gid}" id="gid" name="gid">
-        <input type="checkbox" name="rating" placeholder="Rating" required>
-        <input type="text" name="content" placeholder="What do you think about this game?" required>
-        <input type="submit" value="Create review">
-    </form>
+    <div class="horizontal-div">
+        <form class="vertical-div" action="#" th:action="@{/newReview/{id}(id=${gid})}" method="post">
+            <input type="hidden" th:value="${gid}" id="gid" name="gid">
+            <input type="checkbox" name="rating" placeholder="Rating" required>
+            <input type="text" name="content" placeholder="What do you think about this game?" required>
+            <input type="submit" value="Create review">
+        </form>
+    </div>
+
 </body>
 </html>

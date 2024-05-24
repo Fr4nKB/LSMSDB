@@ -47,13 +47,15 @@
         </div>
     </div>
 
-    <form action="#" th:action="@{/newGame/}" method="post">
-        <input type="text" name="name" placeholder="Game name" required>
-        <input type="text" name="tags" placeholder="Game genres/tags (Action, RPG, ...)" required>
-        <input type="date" pattern="\d{2}/\d{2}/\d{4}" name="release_date" placeholder="Release date" required>
-        <input type="text" name="description" placeholder="Description">
-        <input type="text" name="header_image" placeholder="URL to header_image">
-        <input type="submit" value="Create game">
-    </form>
+    <div class="horizontal-div">
+        <form class="vertical-div" action="#" th:action="@{/newGame/}" method="post">
+            <input type="text" name="name" placeholder="Game name" required>
+            <input type="text" name="tags" placeholder="Game genres/tags (Action, RPG, ...)" required>
+            <input type="date" pattern="\d{2}/\d{2}/\d{4}" name="release_date" placeholder="Release date" required>
+            <input type="text" name="description" placeholder="Description">
+            <input type="text" name="header_image" placeholder="URL to header_image">
+            <input type="submit" value="Create game">
+        </form>
+    </div>
 </body>
 </html>

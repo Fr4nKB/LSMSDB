@@ -59,6 +59,7 @@ form > * {
 
 select,
 input[type="text"],
+input[type="date"],
 input[type="password"],
 input[type="submit"],
 button {
@@ -79,6 +80,7 @@ input[type="text"] {
 
 select,
 input[type="text"],
+input[type="date"],
 input[type="password"] {
     background-color: #333; /* Dark form background */
 }

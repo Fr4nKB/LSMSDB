@@ -143,6 +143,12 @@ if(window.logged_id != null) {  // user is not an admin
 }
 else {      // user is admin
 
+    let addGameBtn = document.createElement("button");
+    addGameBtn.innerHTML = "ADD NEW GAME"
+    addGameBtn.onclick = function() {
+        window.location.href = window.location.origin + "/newGame/";
+    };
+
     let hatersBtn = document.createElement("button");
     hatersBtn.innerHTML = "TOP 10 HATERS"
     hatersBtn.onclick = function() {
@@ -155,6 +161,7 @@ else {      // user is admin
         window.location.href = window.location.origin + "/bestReviewers/";
     };
 
+    queryDiv.appendChild(addGameBtn)
     queryDiv.appendChild(hatersBtn)
     queryDiv.appendChild(mvrBtn);
 
