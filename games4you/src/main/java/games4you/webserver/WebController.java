@@ -351,7 +351,7 @@ public class WebController {
         ModelAndView mod = new ModelAndView("mvr.html");
 
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null) return null;     // gamers cannot access this page
+        if(ret == null || ret[1] == 0) return null;     // gamers cannot access this page
 
         mod.addObject("uid", null);
         mod.addObject("jsonData", mongoComplexQueries.mostValuableReviewersOnMostAppreciatedGames());
