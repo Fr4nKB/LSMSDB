@@ -101,21 +101,11 @@ table {
     width: 100%; /* Make the table full width */
 }
 
-/* Add cursor pointer to table rows */
-tr {
-    cursor: pointer;
-}
-
 /* Add padding and remove margin between table rows */
 tr {
     padding: 10px 0; /* Add padding to table rows */
     margin: 0; /* Remove margin */
     height: 80px; /* Reduce the height of the table rows */
-}
-
-/* Highlight table row on hover */
-tr:hover {
-    background-color: rgba(255, 102, 0, 0.3); /* Highlight whole row on hover */
 }
 
 /* Remove individual cell padding */
@@ -133,6 +123,12 @@ a {
     text-decoration: none;
     transition: color 0.3s ease; /* Add transition for link color change */
     font-size: 12pt;
+}
+
+/* Highlight table row on hover */
+.clickable:hover {
+    cursor: pointer;
+    background-color: rgba(255, 102, 0, 0.3); /* Highlight whole row on hover */
 }
 
 a:hover {

@@ -183,15 +183,15 @@ public class MongoComplexQueries {
                 Aggregates.unwind("$games"),
                 Aggregates.group(
                         new Document().append("gid", "$games.gid").append("name", "$games.name"),
-                        Accumulators.sum("gameHours", "$playerHours")
+                        Accumulators.sum("totalHours", "$playerHours")
                 ),
                 Aggregates.sort(
-                        Sorts.descending("gameHours")
+                        Sorts.descending("totalHours")
                 ),
                 Aggregates.limit(10),
                 Aggregates.project(
                         Projections.fields(
-                                Projections.include("gameHours"),
+                                Projections.include("totalHours"),
                                 Projections.computed("gid", "$_id.gid"),
                                 Projections.computed("name", "$_id.name"),
                                 Projections.excludeId()
@@ -200,11 +200,6 @@ public class MongoComplexQueries {
         );
 
         return getResultAsList("hottest", pipeline);
-    }
-
-    public static void main(String[] args){
-        MongoComplexQueries m = new MongoComplexQueries();
-        System.out.println(m.getTop10CatchyGames());
     }
 
 }

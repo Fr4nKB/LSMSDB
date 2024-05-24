@@ -60,10 +60,8 @@ public class WebController {
             response.addCookie(cookie);
         }
 
-        if(ret[1] == 0) return "redirect:/home";
-        else if(ret[1] == 1) return "redirect:/home";
-
-        return "redirect:/";
+        if(ret[1] == 0 || ret[1] == 1) return "redirect:/home";
+        else return "redirect:/";
     }
 
     @GetMapping("/signup")
@@ -86,15 +84,14 @@ public class WebController {
         if(ret == null) return null;
 
         ModelAndView mod;
-        if(ret[1] == 0) {
-            mod = new ModelAndView("home.html");
-            mod.addObject("uid", ret[0]);
-        }
-        else if(ret[1] == 1) {
+        if(ret[1] == 1) {
             mod = new ModelAndView("homeAdmin.html");
             mod.addObject("uid", null);
         }
-        else return null;
+        else {
+            mod = new ModelAndView("home.html");
+            mod.addObject("uid", ret[0]);
+        }
 
         return mod;
     }
@@ -118,7 +115,7 @@ public class WebController {
 
         ModelAndView mod = new ModelAndView("user.html");
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
     }
@@ -144,7 +141,7 @@ public class WebController {
         if(ret[1] == 1) mod.addObject("adm", true);
 
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", json);
         return mod;
     }
@@ -161,7 +158,7 @@ public class WebController {
         if(ret[1] == 1) mod.addObject("adm", true);
 
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         mod.addObject("rid", rid);
         mod.addObject("jsonString", json);
         return mod;
@@ -184,7 +181,7 @@ public class WebController {
         else mod.addObject("endpoint", parts[0] + "/" + query);
 
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -197,7 +194,7 @@ public class WebController {
 
         mod.addObject("endpoint", String.format("friends/%d/more", id));
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -210,7 +207,7 @@ public class WebController {
 
         mod.addObject("endpoint", String.format("games/%d/more", id));
         if(ret[1] == 1) mod.addObject("uid", null);
-        else if(ret[1] == 0) mod.addObject("uid", ret[0]);
+        else mod.addObject("uid", ret[0]);
         return mod;
     }
 
@@ -231,6 +228,24 @@ public class WebController {
 
         mod.addObject("uid", ret[0]);
         mod.addObject("jsonData", res);
+        return mod;
+    }
+
+    @GetMapping("/hottestGames/")
+    public ModelAndView hottest(HttpServletRequest request) {
+        ModelAndView mod = new ModelAndView("hottest.html");
+
+        long[] ret = sesManager.isUserAdmin(request);
+        if(ret == null) return null;     // admins cannot access this page
+
+        if(ret[1] == 1) {
+            mod.addObject("uid", null);
+            mod.addObject("jsonData", mongoComplexQueries.getTop10CatchyGames());
+        }
+        else {
+            mod.addObject("uid", ret[0]);
+            mod.addObject("jsonData", mongoComplexQueries.top10HottestGamesOfWeek());
+        }
         return mod;
     }
 
@@ -324,7 +339,7 @@ public class WebController {
         ModelAndView mod = new ModelAndView("haters.html");
 
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null || ret[1] == 0) return null;     // gamers cannot create new games
+        if(ret == null || ret[1] == 0) return null;     // gamers cannot access this page
 
         mod.addObject("uid", null);
         mod.addObject("jsonData", mongoComplexQueries.getTop10Haters());
@@ -336,22 +351,10 @@ public class WebController {
         ModelAndView mod = new ModelAndView("mvr.html");
 
         long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null) return null;     // gamers cannot create new games
+        if(ret == null) return null;     // gamers cannot access this page
 
         mod.addObject("uid", null);
         mod.addObject("jsonData", mongoComplexQueries.mostValuableReviewersOnMostAppreciatedGames());
-        return mod;
-    }
-
-    @GetMapping("/hottestGames/")
-    public ModelAndView hottest(HttpServletRequest request) {
-        ModelAndView mod = new ModelAndView("hottest.html");
-
-        long[] ret = sesManager.isUserAdmin(request);
-        if(ret == null) return null;     // gamers cannot create new games
-
-        mod.addObject("uid", null);
-        mod.addObject("jsonData", mongoComplexQueries.top10HottestGamesOfWeek());
         return mod;
     }
 

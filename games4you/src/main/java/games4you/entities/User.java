@@ -69,7 +69,7 @@ public class User {
         MongoCollection<Document> coll = mongo.getCollection("games");
         FindIterable<Document> result;
         if(key.equals("name")) {
-            result = coll.find(Filters.regex(key, key_value, "i"))
+            result = coll.find(Filters.text(key_value))
                     .projection(Projections.include("gid", "name"))
                     .skip(offset).limit(limit);
 
@@ -307,7 +307,7 @@ public class User {
 
         MongoManager mongo = MongoManager.getInstance();
         MongoCollection<Document> coll = mongo.getCollection("users");
-        FindIterable<Document> result = coll.find(Filters.regex("uname", username, "i"))
+        FindIterable<Document> result = coll.find(Filters.text(username))
                 .projection(Projections.include("uid", "uname"))
                 .skip(offset).limit(limit);
 
