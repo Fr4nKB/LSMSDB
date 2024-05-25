@@ -108,6 +108,13 @@ function loadUserPage() {
     document.getElementById('since').innerText = "Member since " + date.toUTCString();
     document.getElementById('name').innerText = obj.firstname + " " + obj.lastname;
     document.getElementById('datebirth').innerText = "Date of birth: " + obj.datebirth;
+    if(obj.hasOwnProperty("lastGamePlayed")) {
+        let lastGame = document.getElementById('lastGame');
+        lastGame.innerText = "Last game played: " + obj.lastGamePlayed.name;
+        lastGame.className = "clickable";
+
+        lastGame.onclick = function() {window.location.href = window.location.origin + "/game/" + obj.lastGamePlayed.gid;}
+    }
 
     let btn_div =
         document.getElementById("listButtons");

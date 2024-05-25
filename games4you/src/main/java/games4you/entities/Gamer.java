@@ -340,4 +340,20 @@ public class Gamer extends User {
         }
     }
 
+    public boolean updateGameLog(long uid, long gid, int new_amount) {
+        if(new_amount <= 0) return false;
+
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("hottest");
+        UpdateResult res = coll.updateOne(
+                Filters.and(
+                        Filters.eq("gid", gid),
+                        Filters.eq("uid", uid)
+                ),
+                Updates.set("hrs", new_amount)
+        );
+
+        return res.getMatchedCount() > 0;
+    }
+
 }

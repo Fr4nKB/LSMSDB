@@ -85,6 +85,7 @@ public class User {
         for (Document doc : result) {
             long gid = doc.getLong("gid");
             String name = doc.getString("name");
+            System.out.println(name);
 
             String toAdd = "{\"type\": \"G\", \"id\": \"" + gid + "\", \"name\": \"" + name + "\"";
             if(key.equals("tags")) {
@@ -307,7 +308,7 @@ public class User {
 
         MongoManager mongo = MongoManager.getInstance();
         MongoCollection<Document> coll = mongo.getCollection("users");
-        FindIterable<Document> result = coll.find(Filters.text(username))
+        FindIterable<Document> result = coll.find(Filters.regex("uname", username, "i"))
                 .projection(Projections.include("uid", "uname"))
                 .skip(offset).limit(limit);
 
