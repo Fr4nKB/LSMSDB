@@ -1,6 +1,7 @@
 package games4you.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.*;
@@ -16,7 +17,27 @@ import java.util.List;
 
 public class MongoComplexQueries {
 
-    private ArrayList<Object> getResultAsList(String collection, List<Bson> pipeline) {
+    private ArrayList<Object> getAnalyticsResultAsList(String type_value) {
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("analytics");
+
+        FindIterable<Document> cur = coll.find(Filters.eq("type", type_value)).limit(10);
+
+        ArrayList<Object> ret = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        for (Document doc : cur) {
+            try {
+                ret.add(objectMapper.writeValueAsString(doc));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return ret;
+    }
+
+    private ArrayList<Object> getAggregateResultAsList(String collection, List<Bson> pipeline) {
         MongoManager mongo = MongoManager.getInstance();
         MongoCollection<Document> coll = mongo.getCollection(collection);
 
@@ -56,7 +77,7 @@ public class MongoComplexQueries {
                 Aggregates.limit(10)
         );
 
-        return getResultAsList("reviews", pipeline);
+        return getAggregateResultAsList("reviews", pipeline);
     }
 
     /**
@@ -117,10 +138,10 @@ public class MongoComplexQueries {
                 )
         );
 
-        return getResultAsList("reviews", pipeline);
+        return getAggregateResultAsList("reviews", pipeline);
     }
 
-    public ArrayList<Object> top10HottestGamesOfWeek() {
+    private static int updateTop10HottestGamesOfWeek() {
 
         List<Bson> pipeline = Arrays.asList(
                 Aggregates.group(
@@ -156,12 +177,27 @@ public class MongoComplexQueries {
                 Aggregates.sort(
                         Sorts.descending("score")
                 ),
-                Aggregates.limit(10)
+                Aggregates.limit(10),
+                Aggregates.addFields(new Field<>("type", "hottest"))
         );
-        return getResultAsList("hottest", pipeline);
+
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("gaming_log");
+        MongoCollection<Document> hottestColl = mongo.getCollection("analytics");
+
+        try {
+            List<Document> results = coll.aggregate(pipeline).into(new ArrayList<>());
+            if(results.isEmpty()) return 0;
+
+            hottestColl.insertMany(results);
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
-    public ArrayList<Object> getTop10CatchyGames() {
+    private static int updateTop10CatchyGames() {
         List<Bson> pipeline = Arrays.asList(
                 Aggregates.group(
                         new Document()
@@ -196,10 +232,53 @@ public class MongoComplexQueries {
                                 Projections.computed("name", "$_id.name"),
                                 Projections.excludeId()
                         )
-                )
+                ),
+                Aggregates.addFields(new Field<>("type", "catchy"))
         );
 
-        return getResultAsList("hottest", pipeline);
+
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("gaming_log");
+        MongoCollection<Document> catchyColl = mongo.getCollection("analytics");
+
+        try {
+            List<Document> results = coll.aggregate(pipeline).into(new ArrayList<>());
+            if(results.isEmpty()) return 0;
+
+            catchyColl.insertMany(results);
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public ArrayList<Object> getTop10HottestGamesOfWeek() {
+        return getAnalyticsResultAsList("hottest");
+    }
+
+    public ArrayList<Object> getTop10CatchyGames() {
+        return getAnalyticsResultAsList("catchy");
+    }
+
+    public void updateAnalysis() {
+        // clear old analytics if any
+        MongoManager mongo = MongoManager.getInstance();
+        MongoCollection<Document> coll = mongo.getCollection("analytics");
+        coll.drop();
+
+        //update with new analytics
+        int res = updateTop10HottestGamesOfWeek();
+        res += updateTop10CatchyGames();
+        if (res == 0) {
+            System.out.println("FAILED TO PERFORM PERIODIC ANALYSIS ON GAMING LOG");
+        }
+        else if (res == 1) {
+            System.out.println("PERIODIC ANALYSIS ON GAMING LOG PARTIALLY COMPLETED");
+        }
+        else {
+            System.out.println("PERIODIC ANALYSIS ON GAMING LOG COMPLETED");
+        }
     }
 
 }

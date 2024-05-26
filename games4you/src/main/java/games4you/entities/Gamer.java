@@ -280,7 +280,7 @@ public class Gamer extends User {
         doc.put("uname", retrieveUname(uid));
         doc.put("updatedAt", new Date());
         doc.put("hrs", amount);
-        return mongo.addDoc("hottest", doc);
+        return mongo.addDoc("gaming_log", doc);
     }
 
 

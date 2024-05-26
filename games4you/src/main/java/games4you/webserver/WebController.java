@@ -244,7 +244,7 @@ public class WebController {
         }
         else {
             mod.addObject("uid", ret[0]);
-            mod.addObject("jsonData", mongoComplexQueries.top10HottestGamesOfWeek());
+            mod.addObject("jsonData", mongoComplexQueries.getTop10HottestGamesOfWeek());
         }
         return mod;
     }
